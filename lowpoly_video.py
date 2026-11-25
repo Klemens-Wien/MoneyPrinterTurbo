@@ -31,7 +31,8 @@ def main(argv=None) -> int:
     parser.add_argument("--out", default=os.path.join("storage", "lowpoly"), help="output folder")
     parser.add_argument("--preview", action="store_true", help="540x960, faster encode (draft)")
     parser.add_argument("--max-seconds", type=float, help="render only the first N seconds")
-    parser.add_argument("--caption-case", default="lower", choices=["lower", "upper", "keep"])
+    parser.add_argument("--caption-case", default=None, choices=["lower", "upper", "keep"],
+                        help="default: lower for English, keep for German (nouns stay capitalised)")
     parser.add_argument("--fps", type=int, default=30)
     args = parser.parse_args(argv)
 
@@ -51,7 +52,7 @@ def main(argv=None) -> int:
         seed=args.seed,
         music=args.music,
         fps=args.fps,
-        caption_case=args.caption_case,
+        caption_case=args.caption_case or ("keep" if args.lang == "de" else "lower"),
         max_seconds=args.max_seconds,
     )
     if args.preview:
