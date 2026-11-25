@@ -1,0 +1,226 @@
+"""Narrator voice with per-word timings (for word-by-word captions).
+
+Backends:
+  edge   – Microsoft Edge neural voices via edge-tts (needs internet), exact word timings
+  espeak – espeak-ng (offline, robotic), estimated word timings
+  silent – no voice, estimated timings (useful for previews / your own voice-over)
+"""
+
+from __future__ import annotations
+
+import asyncio
+import os
+import re
+import shutil
+import subprocess
+import wave
+from dataclasses import dataclass, field
+
+import numpy as np
+from loguru import logger
+
+SAMPLE_RATE = 44100
+
+DEFAULT_VOICES = {
+    "en": "en-US-AndrewNeural",
+    "de": "de-DE-ConradNeural",
+}
+ESPEAK_VOICES = {"en": "en-us", "de": "de"}
+
+
+@dataclass
+class Word:
+    text: str
+    start: float
+    end: float
+
+
+@dataclass
+class Clip:
+    path: str
+    duration: float
+    words: list[Word] = field(default_factory=list)
+
+
+def _ffmpeg() -> str:
+    return shutil.which("ffmpeg") or "ffmpeg"
+
+
+def to_wav(src: str, dst: str, tempo: float = 1.0) -> None:
+    filters = ["aresample=44100"]
+    if abs(tempo - 1.0) > 1e-3:
+        filters.append(f"atempo={tempo:.4f}")
+    subprocess.run(
+        [_ffmpeg(), "-y", "-loglevel", "error", "-i", src, "-af", ",".join(filters), "-ac", "1", "-ar", str(SAMPLE_RATE), dst],
+        check=True,
+    )
+
+
+def read_wav(path: str) -> np.ndarray:
+    with wave.open(path, "rb") as wf:
+        frames = wf.readframes(wf.getnframes())
+        data = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
+        if wf.getnchannels() > 1:
+            data = data.reshape(-1, wf.getnchannels()).mean(axis=1)
+    return data
+
+
+def wav_duration(path: str) -> float:
+    with wave.open(path, "rb") as wf:
+        return wf.getnframes() / float(wf.getframerate())
+
+
+def _trim_silence(path: str, threshold: float = 0.01) -> tuple[float, float]:
+    """Return (leading, trailing) silence in seconds."""
+    data = np.abs(read_wav(path))
+    idx = np.where(data > threshold)[0]
+    if len(idx) == 0:
+        return 0.0, 0.0
+    return idx[0] / SAMPLE_RATE, (len(data) - idx[-1]) / SAMPLE_RATE
+
+
+def estimate_words(text: str, start: float, end: float) -> list[Word]:
+    """Distribute word timings by syllable-ish weight (letters + punctuation pauses)."""
+    tokens = text.split()
+    if not tokens:
+        return []
+    weights = []
+    for tok in tokens:
+        w = 1.2 + len(re.sub(r"\W", "", tok)) * 0.55
+        if re.search(r"[.!?]$", tok):
+            w += 2.2
+        elif re.search(r"[,;:]$", tok):
+            w += 1.1
+        weights.append(w)
+    total = sum(weights)
+    words, t = [], start
+    for tok, w in zip(tokens, weights):
+        dur = (end - start) * w / total
+        words.append(Word(tok, t, t + dur * 0.92))
+        t += dur
+    return words
+
+
+# --------------------------------------------------------------------------- #
+# Backends
+# --------------------------------------------------------------------------- #
+
+
+def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str) -> Clip:
+    import edge_tts
+
+    mp3 = out_wav[:-4] + ".mp3"
+    words: list[Word] = []
+
+    async def run():
+        rate = f"{rate_pct:+d}%"
+        communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
+        with open(mp3, "wb") as fh:
+            async for chunk in communicate.stream():
+                if chunk["type"] == "audio":
+                    fh.write(chunk["data"])
+                elif chunk["type"] == "WordBoundary":
+                    start = chunk["offset"] / 1e7
+                    words.append(Word(chunk["text"], start, start + chunk["duration"] / 1e7))
+
+    asyncio.run(run())
+    to_wav(mp3, out_wav)
+    os.remove(mp3)
+    return Clip(out_wav, wav_duration(out_wav), words)
+
+
+def _espeak_clip(text: str, language: str, rate_pct: int, out_wav: str) -> Clip:
+    binary = shutil.which("espeak-ng") or shutil.which("espeak")
+    if not binary:
+        raise RuntimeError("espeak-ng is not installed")
+    raw = out_wav[:-4] + ".raw.wav"
+    speed = int(165 * (1 + rate_pct / 100.0))
+    subprocess.run([binary, "-v", ESPEAK_VOICES.get(language, "en-us"), "-s", str(speed), "-w", raw, text], check=True)
+    to_wav(raw, out_wav)
+    os.remove(raw)
+    duration = wav_duration(out_wav)
+    lead, trail = _trim_silence(out_wav)
+    return Clip(out_wav, duration, estimate_words(text, lead, max(lead + 0.1, duration - trail)))
+
+
+def _silent_clip(text: str, rate_pct: int, out_wav: str, language: str) -> Clip:
+    wps = (2.55 if language == "en" else 2.2) * (1 + rate_pct / 100.0)
+    duration = max(1.2, len(text.split()) / wps + 0.35)
+    samples = np.zeros(int(duration * SAMPLE_RATE), dtype=np.int16)
+    with wave.open(out_wav, "wb") as wf:
+        wf.setnchannels(1)
+        wf.setsampwidth(2)
+        wf.setframerate(SAMPLE_RATE)
+        wf.writeframes(samples.tobytes())
+    return Clip(out_wav, duration, estimate_words(text, 0.1, duration - 0.25))
+
+
+def _synthesize_once(texts: list[str], out_dir: str, backend: str, voice: str, language: str, rate_pct: int) -> list[Clip]:
+    clips = []
+    for i, text in enumerate(texts):
+        path = os.path.join(out_dir, f"voice_{i:02d}.wav")
+        if backend == "edge":
+            clip = _edge_clip(text, voice, rate_pct, path)
+            if not clip.words:
+                lead, trail = _trim_silence(path)
+                clip.words = estimate_words(text, lead, clip.duration - trail)
+        elif backend == "espeak":
+            clip = _espeak_clip(text, language, rate_pct, path)
+        else:
+            clip = _silent_clip(text, rate_pct, path, language)
+        clips.append(clip)
+    return clips
+
+
+def _resolve_backend(backend: str, voice: str) -> list[str]:
+    if backend != "auto":
+        return [backend]
+    order = ["edge", "espeak", "silent"]
+    if not (shutil.which("espeak-ng") or shutil.which("espeak")):
+        order.remove("espeak")
+    return order
+
+
+def synthesize(
+    texts: list[str],
+    out_dir: str,
+    language: str = "en",
+    voice: str | None = None,
+    backend: str = "auto",
+    rate_pct: int = 8,
+    target_range: tuple[float, float] = (75.0, 95.0),
+    gap: float = 0.18,
+) -> tuple[list[Clip], str]:
+    """Synthesize one clip per scene; re-time the speech so the total fits the target range."""
+    os.makedirs(out_dir, exist_ok=True)
+    voice = voice or DEFAULT_VOICES.get(language, DEFAULT_VOICES["en"])
+    last_error: Exception | None = None
+    for name in _resolve_backend(backend, voice):
+        try:
+            clips = _synthesize_once(texts, out_dir, name, voice, language, rate_pct)
+        except Exception as exc:
+            last_error = exc
+            logger.warning(f"TTS backend '{name}' failed: {exc}")
+            continue
+        total = sum(c.duration for c in clips) + gap * len(clips)
+        lo, hi = target_range
+        ideal = (lo + hi) / 2
+        if not lo + 2 <= total <= hi - 2:
+            # adjust the speaking rate once, then fine-tune with time stretching
+            new_rate = int(np.clip(rate_pct + (total / ideal - 1) * 100, -30, 40))
+            if new_rate != rate_pct and name != "silent":
+                logger.info(f"narration {total:.1f}s -> re-synthesizing at rate {new_rate:+d}%")
+                clips = _synthesize_once(texts, out_dir, name, voice, language, new_rate)
+                total = sum(c.duration for c in clips) + gap * len(clips)
+        if total > hi:
+            tempo = min(total / (hi - 1.0), 1.35)
+            logger.info(f"narration {total:.1f}s too long -> time-stretch x{tempo:.3f}")
+            for clip in clips:
+                tmp = clip.path[:-4] + ".tmp.wav"
+                os.replace(clip.path, tmp)
+                to_wav(tmp, clip.path, tempo=tempo)
+                os.remove(tmp)
+                clip.duration = wav_duration(clip.path)
+                clip.words = [Word(w.text, w.start / tempo, w.end / tempo) for w in clip.words]
+        return clips, name
+    raise RuntimeError(f"no TTS backend worked: {last_error}")

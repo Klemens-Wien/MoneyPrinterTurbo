@@ -1,0 +1,5 @@
+# Extra dependencies for the low-poly story shorts pipeline (lowpoly_video.py).
+# Install on top of requirements.txt:  pip install -r requirements-lowpoly.txt
+# Linux servers without a display additionally need Mesa EGL:
+#   sudo apt-get install -y libegl1 libgl1-mesa-dri   (optional offline voice: espeak-ng)
+moderngl==5.13.0
