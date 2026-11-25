@@ -168,3 +168,55 @@ def to_srt(words: list[TimedWord], path: str, per_line: int = 4) -> None:
         lines += [str(n), f"{ts(chunk[0].start)} --> {ts(chunk[-1].end)}", " ".join(w.text for w in chunk), ""]
     with open(path, "w", encoding="utf-8") as fh:
         fh.write("\n".join(lines))
+
+
+class HookBanner:
+    """Short headline at the top of the first seconds ("In this town ...")."""
+
+    def __init__(self, width: int, height: int, text: str, start: float = 0.0, end: float = 3.5,
+                 font_path: str | None = None, y_frac: float = 0.15):
+        self.width, self.height = width, height
+        self.start, self.end = start, end
+        self.y_frac = y_frac
+        self.image = self._render(text.upper(), font_path or DEFAULT_FONT) if text else None
+
+    def _render(self, text: str, font_path: str) -> np.ndarray:
+        size = int(self.width * 0.085)
+        font = ImageFont.truetype(font_path, size)
+        stroke = max(5, size // 8)
+        words, lines, line = text.split(), [], ""
+        for w in words:
+            trial = (line + " " + w).strip()
+            if font.getbbox(trial, stroke_width=stroke)[2] > self.width * 0.86 and line:
+                lines.append(line)
+                line = w
+            else:
+                line = trial
+        lines.append(line)
+        line_h = int(size * 1.12)
+        pad = stroke * 3
+        img = Image.new("RGBA", (self.width, line_h * len(lines) + pad * 2), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(img)
+        for i, ln in enumerate(lines):
+            bbox = font.getbbox(ln, stroke_width=stroke)
+            x = (self.width - (bbox[2] - bbox[0])) // 2 - bbox[0]
+            draw.text((x, pad + i * line_h), ln, font=font, fill=(255, 255, 255, 255),
+                      stroke_width=stroke, stroke_fill=STROKE + (255,))
+        return np.asarray(img, dtype=np.uint8)
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if self.image is None or not (self.start <= t < self.end):
+            return frame
+        age, left = t - self.start, self.end - t
+        alpha_k = min(1.0, age / 0.15, left / 0.3)
+        img = self.image
+        h = img.shape[0]
+        y0 = int(self.height * self.y_frac) - h // 2 - int(30 * max(0.0, 1 - age / 0.2))
+        y0 = max(0, y0)
+        y1 = min(self.height, y0 + h)
+        sub = img[: y1 - y0]
+        alpha = sub[:, :, 3:4].astype(np.float32) / 255.0 * alpha_k
+        region = frame[y0:y1].astype(np.float32)
+        frame = frame if frame.flags.writeable else frame.copy()
+        frame[y0:y1] = (region * (1 - alpha) + sub[:, :, :3].astype(np.float32) * alpha).astype(np.uint8)
+        return frame

@@ -217,7 +217,7 @@ ACTION_ENERGY = {
     "chase": 0.85, "panic": 1.0, "monster": 0.9, "convoy": 0.6, "arrive": 0.5, "drive": 0.55, "bus": 0.5,
     "run": 0.8, "collapse": 0.85, "breakdown": 0.7, "standoff": 0.38, "push": 0.5, "friends": 0.7,
     "celebrate": 0.7, "crowd": 0.45, "argue": 0.55, "alone": 0.25, "walk": 0.4, "wave": 0.4,
-    "build": 0.5, "landscape": 0.35,
+    "build": 0.5, "landscape": 0.35, "house_leaves": 0.5, "faceoff": 0.4,
 }
 
 

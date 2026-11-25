@@ -1,0 +1,24 @@
+{
+  "title": "In This Town, If You Lie, Your House Drives Away",
+  "hook": "In this town, liars lose their house",
+  "description": "I never lied. Not once. Until my little sister asked me one question…",
+  "hashtags": ["Shorts", "inthistown", "story", "storytime", "lowpoly", "animation"],
+  "scenes": [
+    {"narration": "In this town, if you tell a lie, your house drives away.", "setting": "town", "action": "house_leaves", "shot": "drone_follow", "mood": "day"},
+    {"narration": "That's why everybody here is painfully honest.", "setting": "town", "action": "crowd", "shot": "dolly_in", "mood": "day"},
+    {"narration": "My neighbor told me he loved my cooking. His house was gone before lunch.", "setting": "road", "action": "house_leaves", "shot": "side_track", "mood": "day"},
+    {"narration": "The mayor promised lower taxes. The whole town hall rolled straight into the sea.", "setting": "coast", "action": "arrive", "shot": "aerial_orbit", "mood": "day"},
+    {"narration": "Me? I have never lied. Not once. My house hasn't moved in twelve years.", "setting": "home", "action": "wave", "shot": "pull_back", "mood": "day"},
+    {"narration": "Until the night my little sister asked me if monsters are real.", "setting": "home", "action": "walk", "shot": "closeup", "mood": "night"},
+    {"narration": "I didn't want to scare her. So I said no.", "setting": "home", "action": "alone", "shot": "low_angle", "mood": "night"},
+    {"narration": "The engine started before I even finished the sentence.", "setting": "home", "action": "drive", "shot": "crane_up", "mood": "night"},
+    {"narration": "My house drove off into the storm. With me still inside.", "setting": "fields", "action": "drive", "shot": "drone_follow", "mood": "storm"},
+    {"narration": "It didn't stop until the mountains. And something there was waiting.", "setting": "mountains", "action": "landscape", "shot": "flyover", "mood": "storm"},
+    {"narration": "A giant. Fifty meters tall, with eyes like headlights.", "setting": "mountains", "action": "monster", "shot": "low_angle", "mood": "storm"},
+    {"narration": "It leaned down, right in front of me, and whispered: you told her I wasn't real.", "setting": "mountains", "action": "faceoff", "shot": "closeup", "mood": "storm"},
+    {"narration": "Behind it stood hundreds of houses. Every house that ever drove away from a lie.", "setting": "mountains", "action": "arrive", "shot": "aerial_orbit", "mood": "overcast"},
+    {"narration": "So I did the only thing that works in this town. I told the truth. Monsters are real.", "setting": "mountains", "action": "faceoff", "shot": "crane_up", "mood": "dawn"},
+    {"narration": "And my house drove me home by sunrise.", "setting": "road", "action": "drive", "shot": "side_track", "mood": "dawn"},
+    {"narration": "Now my sister has a fifty meter tall best friend. And nobody in this town lies about monsters anymore.", "setting": "home", "action": "friends", "shot": "pull_back", "mood": "sunset"}
+  ]
+}

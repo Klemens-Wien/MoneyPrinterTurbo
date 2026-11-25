@@ -58,10 +58,62 @@ class PlannedScene:
     mood_from: mood_lib.Mood
     mood_to: mood_lib.Mood
     flashes: list[float] = field(default_factory=list)
+    shots: list[tuple[float, str, float]] = field(default_factory=list)  # (local start, shot, yaw)
 
     @property
     def duration(self) -> float:
         return self.end - self.start
+
+    def shot_at(self, local: float) -> tuple[str, float, float, float]:
+        """Return (shot, yaw, sub-shot progress 0..1, sub-shot local time)."""
+        shots = self.shots or [(0.0, self.scene.shot, self.yaw)]
+        idx = 0
+        for i, (start, _, _) in enumerate(shots):
+            if local >= start:
+                idx = i
+        start, shot, yaw = shots[idx]
+        end = shots[idx + 1][0] if idx + 1 < len(shots) else self.duration
+        return shot, yaw, (local - start) / max(end - start, 1e-6), local - start
+
+
+# Shots that suit each kind of subject: used for the extra camera angles inside a scene
+# (fast-paced shorts change the picture every ~2-3 seconds).
+ALT_SHOTS = {
+    "staged": ("low_angle", "closeup", "crane_up", "dolly_in"),
+    "vehicle": ("drone_follow", "side_track", "chase_cam", "aerial_orbit"),
+    "figure": ("closeup", "low_angle", "dolly_in", "pull_back", "aerial_orbit"),
+    "other": ("flyover", "aerial_orbit", "crane_up", "top_down"),
+}
+SUBSHOT_MIN = 2.2
+
+
+def _subject_kind(actor: Actor) -> str:
+    if isinstance(actor, Group):
+        if actor.look is not None:
+            return "staged"
+        subject = actor.members[actor.focus_index]
+        if isinstance(subject, Vehicle):
+            return "vehicle"
+        if isinstance(subject, Figure):
+            return "figure"
+    return "other"
+
+
+def plan_subshots(primary: str, yaw: float, duration: float, actor: Actor, rng: np.random.Generator,
+                  fast_cuts: bool = True) -> list[tuple[float, str, float]]:
+    shots = [(0.0, primary, yaw)]
+    if not fast_cuts:
+        return shots
+    count = max(1, min(3, round(duration / 2.8)))
+    while count > 1 and duration / count < SUBSHOT_MIN:
+        count -= 1
+    options = [s for s in ALT_SHOTS[_subject_kind(actor)] if s != primary]
+    rng.shuffle(options)
+    for i in range(1, count):
+        alt = options[(i - 1) % len(options)] if options else primary
+        side = 1 if i % 2 else -1
+        shots.append((duration * i / count, alt, yaw + side * float(rng.uniform(0.7, 1.4))))
+    return shots
 
 
 def _road_frame(setting_name: str):
@@ -122,6 +174,14 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         truck = Vehicle(lib.truck(0, "hero_house"), path)
         car = Vehicle(lib.car(3), LinePath(path.start - road_dir * 16, road_dir, speed))
         return Group([truck, car], 0), 0.6
+
+    if action == "house_leaves":
+        speed = 8.0
+        path = LinePath(road_point - road_dir * speed * duration / 2, road_dir, speed)
+        truck = Vehicle(lib.truck(int(rng.integers(7)), str(rng.choice(["house0", "house1", "house2", "house3"]))), path)
+        watcher = Figure(_npc(lib, rng), road_point + np.array([road_dir[2], 0, -road_dir[0]]) * 9 + road_dir * 4,
+                         anim="panic", face_target=road_point)
+        return Group([truck, watcher], 0), 0.6
 
     if action == "bus":
         speed = 11.0
@@ -241,6 +301,13 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         monster = giant(m_pos, heading=face(m_pos, hero_pos), anim="lean")
         return Group([bus, hero_fig, monster], 1, look=monster), 1.2
 
+    if action == "faceoff":
+        hero_pos = stage.copy()
+        m_pos = hero_pos + away * 36
+        hero_fig = Figure(hero, hero_pos, heading=face(hero_pos, m_pos), anim="idle" if mood != "storm" else "panic")
+        monster = giant(m_pos, heading=face(m_pos, hero_pos), anim="lean")
+        return Group([hero_fig, monster], 0, look=monster), 1.2
+
     if action == "push":
         speed = 2.4
         start = road_point - road_dir * speed * duration / 2
@@ -272,7 +339,8 @@ def flash_value(flashes: list[float], t: float) -> float:
 
 
 class Director:
-    def __init__(self, world: World, storyboard: Storyboard, durations: list[float], seed: int = 0):
+    def __init__(self, world: World, storyboard: Storyboard, durations: list[float], seed: int = 0,
+                 fast_cuts: bool = True):
         self.world = world
         self.storyboard = storyboard
         self.library = ActorLibrary(seed)
@@ -292,7 +360,9 @@ class Director:
                 while ft < t + dur - 0.3:
                     flashes.append(ft)
                     ft += float(rng.uniform(2.2, 4.5))
-            self.scenes.append(PlannedScene(scene, t, t + dur, actor, yaw, cam_scale, prev_mood, target, flashes))
+            planned = PlannedScene(scene, t, t + dur, actor, yaw, cam_scale, prev_mood, target, flashes)
+            planned.shots = plan_subshots(scene.shot, yaw, dur, actor, rng, fast_cuts)
+            self.scenes.append(planned)
             prev_mood = target
             t += dur
         self.duration = t
@@ -320,7 +390,12 @@ class Director:
     @property
     def impacts(self) -> list[float]:
         """Moments for a dramatic musical hit (monster reveals / confrontations)."""
-        return [s.start for s in self.scenes if s.scene.action in ("monster", "standoff", "panic")]
+        hits, prev = [], None
+        for s in self.scenes:
+            if s.scene.action in ("monster", "standoff", "panic", "faceoff") and prev not in ("monster", "standoff", "faceoff"):
+                hits.append(s.start)
+            prev = s.scene.action
+        return hits
 
     @property
     def storm_spans(self) -> list[tuple[float, float]]:
@@ -363,11 +438,11 @@ class Director:
     def frame(self, t: float):
         ps = self.scene_at(t)
         local = t - ps.start
-        u = local / max(ps.duration, 1e-6)
+        shot, yaw, u, _ = ps.shot_at(local)
         k = min(local / MOOD_BLEND_SECONDS, 1.0)
         mood = mood_lib.blend(ps.mood_from, ps.mood_to, k * k * (3 - 2 * k))
         cam: Camera = shot_camera(
-            ps.scene.shot, u, local, ps.actor.focus, ps.actor.forward, ps.yaw, ps.scale, ground=self.world.ground,
+            shot, u, local, ps.actor.focus, ps.actor.forward, yaw, ps.scale, ground=self.world.ground,
             look=ps.actor.look.focus if isinstance(ps.actor, Group) and ps.actor.look is not None else None,
             obstacles=self._obstacles(ps, local),
         )

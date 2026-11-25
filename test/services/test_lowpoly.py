@@ -180,7 +180,7 @@ class TestMonsterAndScore(unittest.TestCase):
         ]})
         director = Director(build_world(2), board, [6.0, 6.0, 6.0], seed=2)
         self.assertTrue(director.monster_steps)
-        self.assertEqual(director.impacts, [6.0, 12.0])
+        self.assertEqual(director.impacts, [6.0])  # back-to-back monster scenes share one hit
         self.assertEqual(director.library.materials["monster_eyes"], 3)
         monsters = [m for s in director.scenes for m in s.actor.members if isinstance(m, Monster)]
         self.assertEqual(len(monsters), 3)
@@ -199,3 +199,25 @@ class TestMonsterAndScore(unittest.TestCase):
         quiet = float(np.sqrt(np.mean(audio[1 * sr : 4 * sr] ** 2)))
         loud = float(np.sqrt(np.mean(audio[8 * sr : 11 * sr] ** 2)))
         self.assertGreater(loud, quiet)
+
+
+class TestPacing(unittest.TestCase):
+    def test_long_scenes_get_extra_camera_angles(self):
+        from app.services.lowpoly.director import SUBSHOT_MIN
+
+        board = storyboard.from_template("x", "en")
+        director = Director(build_world(4), board, [6.0] * len(board.scenes), seed=4)
+        for ps in director.scenes:
+            self.assertGreaterEqual(len(ps.shots), 2)
+            starts = [s[0] for s in ps.shots] + [ps.duration]
+            self.assertTrue(all(b - a >= SUBSHOT_MIN for a, b in zip(starts, starts[1:])))
+            names = [s[1] for s in ps.shots]
+            self.assertEqual(len(names), len(set(names)))
+        slow = Director(build_world(4), board, [6.0] * len(board.scenes), seed=4, fast_cuts=False)
+        self.assertTrue(all(len(ps.shots) == 1 for ps in slow.scenes))
+
+    def test_hook_banner(self):
+        banner = captions.HookBanner(360, 640, "In this town, liars lose their house", 0.0, 3.0)
+        blank = lambda: np.zeros((640, 360, 3), dtype=np.uint8)  # noqa: E731
+        self.assertGreater(int(banner.composite(blank(), 1.0).sum()), 0)
+        self.assertEqual(int(banner.composite(blank(), 3.5).sum()), 0)

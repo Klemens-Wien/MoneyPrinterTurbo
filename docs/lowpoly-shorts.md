@@ -16,6 +16,20 @@ Ein Befehl macht aus einem Story-Thema ein fertiges, hochladbares Hochformat-Vid
 * Schule auf einem Bus, die liegen bleiben kann
 * Musik wird unter der Stimme geduckt, dazu Wetter-Atmo und Whooshes auf den Schnitten
 
+## Format: „In This Town“
+
+Die Pipeline folgt dem viralen „In This Town“-Format (Roblox-artige Story-Shorts):
+
+* **Hook = Regel:** Der erste Satz stellt die seltsame Regel der Stadt auf („In this town, if you lie, your
+  house drives away.“). Zusätzlich steht oben im Bild eine kurze Schlagzeile (`"hook"` im Storyboard).
+* **Aufbau:** Regel → Alltag mit der Regel (2–3 lustige Beispiele) → persönlicher Einsatz → erster Riss →
+  Eskalation → Enthüllung → Wendung, die die Regel auflöst. Der letzte Satz zahlt auf die Regel ein.
+* **Tempo:** Jede Szene bekommt automatisch 2–3 Kamerawinkel, also etwa alle 2,5 s ein neues Bild.
+* **Vielfalt:** YouTube nimmt seit Juli 2026 Videos von der Monetarisierung aus, die sich nur minimal
+  unterscheiden („Generic or Repetitive Content“). Jede Story sollte eine eigene Regel und Wendung haben.
+
+Beispiele: `docs/lowpoly-example-liars-house.json`, `docs/lowpoly-example-grey-giant.json`.
+
 ## Installation
 
 ```bash

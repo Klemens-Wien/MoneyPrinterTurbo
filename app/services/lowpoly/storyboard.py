@@ -39,6 +39,8 @@ ACTIONS = {
     "standoff": "the narrator stands alone in front of the school bus, the monster stops and leans down",
     "push": "the monster gently pushes the school bus along the road, the narrator walks beside it",
     "friends": "the monster stands calmly and waves while everyone cheers around it",
+    "house_leaves": "somebody's house drives away on a truck while its owner panics",
+    "faceoff": "the narrator stands alone face to face with the giant monster, which leans down to look at them",
 }
 ACTION_NAMES = tuple(ACTIONS)
 SETTING_NAMES = tuple(SETTINGS)
@@ -62,6 +64,7 @@ class Storyboard:
     language: str = "en"
     description: str = ""
     hashtags: list[str] = field(default_factory=list)
+    hook: str = ""  # short on-screen text shown at the top during the first seconds
 
     @property
     def word_count(self) -> int:
@@ -82,6 +85,7 @@ class Storyboard:
             language=language or data.get("language") or "en",
             description=str(data.get("description") or "").strip(),
             hashtags=[str(h).lstrip("#") for h in data.get("hashtags", []) if str(h).strip()][:8],
+            hook=str(data.get("hook") or "").strip()[:80],
         )
 
 
@@ -134,16 +138,22 @@ A first-person narrator ("I") tells a gripping, slightly absurd personal story.
 
 STORY THEME: {theme}
 
-RULES
-- Language of the narration: {lang_name}. First person ("I" / "ich"), spoken, simple, punchy.
+RULES (the viral "In this town" format)
+- Language of the narration: {lang_name}. One calm first-person narrator ("I" / "ich"), spoken, simple, punchy.
 - Total narration: {lo}-{hi} words (about 80-90 seconds when spoken). Count carefully.
-- 12-16 scenes. Each scene: 1-2 short sentences (6-24 words).
-- Scene 1 is the HOOK: a bold, curious statement that makes people stay (no greeting, no intro).
-- Escalate: plan -> first success -> bigger stakes -> crisis / twist (around 65-75 %) -> payoff.
-- The last line is a punchline or a loop back to the hook. No call to action, no emojis, no hashtags.
-- The weather/mood follows the emotion: e.g. calm "day", dramatic "storm" at the crisis,
-  warm "sunset" or "dawn" at the resolution, "night" for secret moments. Change it at least 3 times.
-- Use varied camera shots. Never the same shot twice in a row. Start with a strong visual.
+- 13-17 scenes. Each scene: 1-2 short sentences (5-20 words). Every sentence must be something we can SEE.
+- Scene 1 is the HOOK and states the town's one strange rule: "In this town, ..." / "In dieser Stadt, ..."
+  It must be instantly understandable and make people need to know what happens.
+- Structure: rule -> how normal life works with it (2-3 funny concrete examples) -> the narrator's personal
+  stake -> first crack -> escalation -> reveal -> a twist that pays the rule off in a surprising way.
+- Open curiosity loops ("until the day ...", "and that's when ...") so viewers keep watching.
+- The last line is a punchline that ties back to the rule (it should make people rewatch). No call to action,
+  no emojis, no hashtags in the narration.
+- The weather/mood follows the emotion: calm "day" at the start, "night" or "storm" at the crisis,
+  "dawn" or "sunset" for the resolution. Change it at least 3 times.
+- Use the giant monster (actions chase/monster/standoff/push/friends) only if it fits the story.
+- Varied camera shots, never the same shot twice in a row.
+- "hook": 3-6 word on-screen headline for the first seconds (e.g. "IN THIS TOWN, LIARS LOSE THEIR HOUSE").
 
 For every scene choose exactly one value for each field:
 setting:
@@ -155,7 +165,7 @@ shot:
 mood: {moods}
 
 Return ONLY valid JSON, no markdown:
-{{"title": "...", "description": "one-line video caption", "hashtags": ["...", "..."],
+{{"title": "...", "hook": "...", "description": "one-line video caption", "hashtags": ["...", "..."],
  "scenes": [{{"narration": "...", "setting": "...", "action": "...", "shot": "...", "mood": "..."}}]}}"""
 
 

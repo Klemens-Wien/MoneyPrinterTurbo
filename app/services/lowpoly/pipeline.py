@@ -145,6 +145,8 @@ def generate(opts: Options) -> dict:
         renderer.register_mesh(key, verts, material=director.library.materials.get(key, 0))
 
     captioner = cap.CaptionRenderer(opts.width, opts.height, case=opts.caption_case)
+    hook_end = min(director.scenes[0].end, 4.0) if director.scenes else 3.5
+    banner = cap.HookBanner(opts.width, opts.height, board.hook, 0.0, hook_end)
     video_path = os.path.join(work, f"{_slug(board.title)}.mp4")
     writer = _ffmpeg_writer(video_path, opts, audio_path)
     frames = int(total * opts.fps)
@@ -157,6 +159,7 @@ def generate(opts: Options) -> dict:
             frame = renderer.render(cam, mood, draws, t, flash=flash, shadow_extent=extent)
             word, cursor = cap.active_word(timed, t, cursor)
             frame = captioner.composite(frame, word, t)
+            frame = banner.composite(frame, t)
             writer.stdin.write(frame.tobytes())
             if i % (opts.fps * 5) == 0:
                 elapsed = time.time() - render_started
