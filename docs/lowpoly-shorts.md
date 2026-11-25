@@ -65,6 +65,26 @@ Fenster mit Mondlicht, Tür zum dunklen Flur, Kleiderschrank. Stimmung `indoor`.
 
 Beispiel: `docs/lowpoly-example-dont-get-up.json`.
 
+### Horror-Figuren fürs Glücksrad
+
+Das Rad kann eigene Beschriftungen haben (`"wheel_options"`, `"wheel_pick"`). Statt geschützter Film-Figuren
+(Namen und Aussehen gehören den Studios, das gibt auf YouTube Copyright-Strikes) nutzt die Pipeline
+eigene Figuren, deren **Gewohnheiten** bekannte Horror-Motive aufgreifen:
+
+| Figur (EN / DE) | Gewohnheit |
+|---|---|
+| The Clown / Der Clown | lebt im Gully, lockt mit einem roten Ballon |
+| The Doll / Die Puppe | bewegt sich nur, wenn niemand hinschaut |
+| The Sandman / Der Sandmann | holt dich nur, wenn du einschläfst |
+| The Caller / Der Anrufer | ruft vorher an und stellt Fragen |
+| The TV Girl / Das TV-Mädchen | kriecht aus dem flackernden Fernseher |
+| The Silent Man / Der Stumme Mann | Maske, rennt nie – holt dich trotzdem ein |
+
+Die Puppe ist als Figur gebaut (`doll_desk`, `doll_floor`, `doll_bed`, `doll_behind`): Bei jedem Schnitt
+(„Blinzeln“) ist sie ein Stück näher. Beispiele: `docs/lowpoly-example-doll-en.json` und
+`docs/lowpoly-example-doll-de.json` (deutsch: `--lang de`, Overlays werden automatisch übersetzt,
+Uhr im 24-Stunden-Format).
+
 ## Installation
 
 ```bash

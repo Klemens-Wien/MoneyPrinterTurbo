@@ -1,0 +1,142 @@
+{
+  "title": "Die Puppe darf sich nur bewegen, wenn niemand hinschaut",
+  "description": "Jede Nacht wählt das Rad einen Horror. Heute: die Puppe. Regel: Niemals wegschauen. Dann habe ich geblinzelt…",
+  "hashtags": [
+    "Shorts",
+    "horrorgeschichte",
+    "gruselig",
+    "puppe",
+    "story",
+    "animation"
+  ],
+  "language": "de",
+  "wheel": true,
+  "wheel_options": [
+    "Der Clown",
+    "Die Puppe",
+    "Der Sandmann",
+    "Der Anrufer",
+    "Das TV-Mädchen",
+    "Der Stumme Mann"
+  ],
+  "wheel_pick": "Die Puppe",
+  "night_clock": true,
+  "question": {
+    "text": "Soll ich mich umdrehen?",
+    "a": "Umdrehen",
+    "b": "Augen zu lassen"
+  },
+  "scenes": [
+    {
+      "narration": "Jede Nacht entscheidet in meiner Stadt ein Glücksrad, welcher Horror aufwacht.",
+      "setting": "main_street",
+      "action": "landscape",
+      "shot": "aerial_orbit",
+      "mood": "sunset"
+    },
+    {
+      "narration": "Heute Nacht ist es die Puppe.",
+      "setting": "bedroom",
+      "action": "doll_desk",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "20:55"
+    },
+    {
+      "narration": "Um neun schließt sich jede Tür in der Stadt. Und die Puppe hat nur eine Regel: Sie kann sich nur bewegen, wenn niemand hinschaut.",
+      "setting": "main_street",
+      "action": "lockdown",
+      "shot": "aerial_orbit",
+      "mood": "night",
+      "clock": "21:00"
+    },
+    {
+      "narration": "Also hat meine ganze Familie heute nur eine Aufgabe. Niemals wegschauen. Mama bewacht den Flur. Papa die Treppe. Und ich die Puppe.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "top_down",
+      "mood": "indoor",
+      "clock": "21:10"
+    },
+    {
+      "narration": "Sie saß auf meinem Schreibtisch. Ich habe sie angestarrt. Stundenlang.",
+      "setting": "bedroom",
+      "action": "doll_desk",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "22:00"
+    },
+    {
+      "narration": "Um Mitternacht fingen meine Augen an zu brennen. Wie Sand. Als würde jemand sie zudrücken.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "00:00"
+    },
+    {
+      "narration": "Ich habe geblinzelt. Nur einmal. Und sie stand auf dem Boden.",
+      "setting": "bedroom",
+      "action": "doll_floor",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "clock": "00:12"
+    },
+    {
+      "narration": "Ich habe noch mal geblinzelt. Jetzt saß sie am Ende meines Bettes.",
+      "setting": "bedroom",
+      "action": "doll_bed",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "01:30"
+    },
+    {
+      "narration": "Danach habe ich nicht mehr geblinzelt. Ich glaube, ich habe nicht mal geatmet. Meine Augen haben so getränt, dass ich sie kaum noch gesehen habe.",
+      "setting": "bedroom",
+      "action": "doll_bed",
+      "shot": "crane_up",
+      "mood": "indoor",
+      "clock": "02:40"
+    },
+    {
+      "narration": "Dann knarrte mein Schrank. Drinnen hat etwas gelacht. Ein kleines, hölzernes Lachen.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "clock": "03:30"
+    },
+    {
+      "narration": "Ich habe hingeschaut. Nur eine Sekunde.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "04:10"
+    },
+    {
+      "narration": "Als ich zurückgeschaut habe, war das Ende meines Bettes leer.",
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "05:00"
+    },
+    {
+      "narration": "Und direkt hinter mir, auf meinem Kissen, flüsterte eine kleine Stimme: Du hast geblinzelt.",
+      "setting": "bedroom",
+      "action": "doll_behind",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "05:58"
+    },
+    {
+      "narration": "Es ist fünf Uhr neunundfünfzig. Wenn ich mich umdrehe, kann sie sich nicht bewegen. Aber dann bin ich ihr Auge in Auge. Was soll ich tun?",
+      "setting": "bedroom",
+      "action": "doll_behind",
+      "shot": "pull_back",
+      "mood": "indoor",
+      "clock": "05:59"
+    }
+  ]
+}

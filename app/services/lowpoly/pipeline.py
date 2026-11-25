@@ -109,13 +109,20 @@ def generate(opts: Options) -> dict:
     world = build_world(seed)
     director = Director(world, board, durations, seed)
     wheel = clock = question = None
+    text = overlays.strings(board.language)
     if board.wheel:
         from .props import MONSTER_VARIANTS
 
-        names = list(MONSTER_VARIANTS)
-        wheel = overlays.MonsterWheel(opts.width, opts.height, [MONSTER_VARIANTS[n]["name"] for n in names],
-                                      names.index(board.monster), start=0.25,
-                                      spin=max(2.6, min(3.6, durations[0] - 1.6)), hold=1.2)
+        if board.wheel_options:
+            options = board.wheel_options
+            pick = board.wheel_pick if board.wheel_pick in options else options[0]
+        else:
+            names = list(MONSTER_VARIANTS)
+            options = [MONSTER_VARIANTS[n]["name"] for n in names]
+            pick = MONSTER_VARIANTS[board.monster]["name"]
+        wheel = overlays.MonsterWheel(opts.width, opts.height, options, options.index(pick), start=0.25,
+                                      spin=max(2.6, min(3.6, durations[0] - 1.6)), hold=1.2,
+                                      title=text["wheel_title"])
     if board.night_clock and director.scenes:
         clock_start = director.scenes[1].start if wheel and len(director.scenes) > 1 else 0.0
         clock_end = director.scenes[-1].start if board.question else director.duration
@@ -126,11 +133,12 @@ def generate(opts: Options) -> dict:
                 keys.append((ps.start, hh * 60 + mm))
         start_m = keys[0][1] if keys else 22 * 60
         clock = overlays.NightClock(opts.width, opts.height, clock_start, clock_end, director.duration,
-                                    from_minutes=start_m, keyframes=keys)
+                                    from_minutes=start_m, keyframes=keys, label=text["clock"],
+                                    h24=board.language == "de")
     if board.question and director.scenes:
         q = board.question
         question = overlays.QuestionCard(opts.width, opts.height, overlays.Question(q["text"], q["a"], q["b"]),
-                                         director.scenes[-1].start + 0.3, director.duration + 1)
+                                         director.scenes[-1].start + 0.3, director.duration + 1, cta=text["cta"])
     starts = [s.start for s in director.scenes]
 
     words: list[Word] = []

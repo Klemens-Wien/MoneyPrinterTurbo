@@ -29,7 +29,15 @@ from .storyboard import Scene, Storyboard
 from . import interior
 from .world import HOME_POS, SETTINGS, World
 
-INTERIOR_ACTIONS = {"bed", "sit_up", "noises", "doorway", "closet", "empty_doorway"}
+INTERIOR_ACTIONS = {"bed", "sit_up", "noises", "doorway", "closet", "empty_doorway",
+                    "doll_desk", "doll_floor", "doll_bed", "doll_behind"}
+# where the doll is in each doll scene (room-local position, facing target)
+DOLL_SPOTS = {
+    "doll_desk": ((-2.25, 0.79, -3.35), (2.45, 0.0, -2.35)),
+    "doll_floor": ((0.4, 0.02, -0.9), (2.45, 0.0, -2.35)),
+    "doll_bed": ((2.45, 0.78, -1.15), (2.45, 0.0, -3.5)),
+    "doll_behind": ((2.45, 0.83, -3.45), (2.45, 0.0, 0.0)),
+}
 
 MOOD_BLEND_SECONDS = 1.2
 PEOPLE_ACTIONS = {"walk", "run", "crowd", "celebrate", "argue", "alone", "wave"}
@@ -416,7 +424,7 @@ def _bedroom_scene(action: str, duration: float, lib: ActorLibrary, rng: np.rand
         Prop(lamp_key, w(interior.LAMP_LOCAL)),
     ]
     bed = interior.BED_LOCAL
-    sitting = action in ("sit_up", "doorway", "empty_doorway")
+    sitting = action in ("sit_up", "doorway", "empty_doorway", "doll_behind")
     if sitting:
         hero_fig = Figure(hero, w(bed + np.array([0.0, interior.BED_SURFACE - 0.95 * 0.8 + 0.05, -0.55])),
                           anim="sit", size=0.8, look_turn=-0.95)
@@ -429,6 +437,16 @@ def _bedroom_scene(action: str, duration: float, lib: ActorLibrary, rng: np.rand
                     anim="lean", phase=float(rng.uniform(0, 3)))
         members.append(m)
         look = m
+    if action in DOLL_SPOTS:
+        spot, target = DOLL_SPOTS[action]
+        doll = Figure(lib.figure("doll"), w(spot), anim="doll", size=0.21, face_target=w(target))
+        members.append(doll)
+        look = doll
+        if action == "doll_behind":
+            # frame the narrator's face with the doll peeking over the shoulder (no over-the-shoulder staging)
+            look = None
+            members.append(Marker((hero_fig.focus(0.0) + doll.focus(0.0)) / 2 + np.array([0.0, 0.1, 0.0])))
+            return Group(members, len(members) - 1), 0.35
     if action == "closet":
         blink = lambda t: (t % 2.7) > 0.15  # noqa: E731
         eyes = Prop(eyes_key, w(interior.CLOSET_LOCAL + np.array([-0.45, 1.75, -0.04])), heading=math.pi,
@@ -507,10 +525,12 @@ class Director:
                 out.append((t0 + 0.1, "creak"))
             if a == "doorway":
                 out.append((t0 + 0.9, "breath"))
+            if a in ("doll_floor", "doll_bed", "doll_behind"):
+                out.append((t0 + 0.05, "creak"))  # a tiny wooden creak each time the doll has moved
             if a == "closet":
                 out.append((t0 + d * 0.12, "creak"))
                 out.append((t0 + d * 0.4, "whisper"))
-            if a in ("noises", "doorway", "closet", "sit_up"):
+            if a in ("noises", "doorway", "closet", "sit_up", "doll_floor", "doll_bed", "doll_behind"):
                 for k in range(int(d / 0.8)):
                     out.append((t0 + k * 0.8, "heartbeat"))
         return sorted(out)
@@ -531,7 +551,7 @@ class Director:
         hits, prev = [], None
         for s in self.scenes:
             if s.scene.action in ("monster", "standoff", "panic", "faceoff", "rampage", "street_panic",
-                                  "doorway", "closet", "watch") and \
+                                  "doorway", "closet", "watch", "doll_behind") and \
                     prev not in ("monster", "standoff", "faceoff", "rampage", "street_panic", "doorway", "closet"):
                 hits.append(s.start)
             prev = s.scene.action

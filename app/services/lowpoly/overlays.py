@@ -10,6 +10,16 @@ from PIL import Image, ImageDraw, ImageFont
 
 from .captions import DEFAULT_FONT
 
+STRINGS = {
+    "en": {"wheel_title": "TONIGHT'S MONSTER", "clock": "SURVIVE THE NIGHT", "cta": "COMMENT A OR B"},
+    "de": {"wheel_title": "MONSTER DER NACHT", "clock": "ÜBERLEBE DIE NACHT", "cta": "KOMMENTIERE A ODER B"},
+}
+
+
+def strings(language: str) -> dict:
+    return STRINGS.get(language, STRINGS["en"])
+
+
 WHEEL_COLORS = ["#ff4d4d", "#ffb703", "#3ddc97", "#3d9bff", "#b04dff", "#ff6fb5", "#2ec4b6", "#f77f00"]
 
 
@@ -193,8 +203,9 @@ class MonsterWheel:
 class NightClock:
     def __init__(self, width: int, height: int, start: float, end: float, hold_end: float,
                  from_minutes: int = 22 * 60, to_minutes: int = 5 * 60 + 59, label: str = "SURVIVE THE NIGHT",
-                 keyframes: list[tuple[float, int]] | None = None):
+                 keyframes: list[tuple[float, int]] | None = None, h24: bool = False):
         self.width, self.height = width, height
+        self.h24 = h24
         self.start, self.end, self.hold_end = start, end, hold_end
         self.from_m = from_minutes
         span = (to_minutes - from_minutes) % (24 * 60)
@@ -216,9 +227,10 @@ class NightClock:
         offset = float(np.interp(t, self._kt, self._km))
         return int(self.from_m + offset) % (24 * 60)
 
-    @staticmethod
-    def fmt(m: int) -> str:
+    def fmt(self, m: int) -> str:
         h, mm = divmod(m, 60)
+        if self.h24:
+            return f"{h:02d}:{mm:02d}"
         suffix = "AM" if h < 12 else "PM"
         h12 = h % 12 or 12
         return f"{h12}:{mm:02d} {suffix}"
@@ -268,9 +280,11 @@ class Question:
 
 
 class QuestionCard:
-    def __init__(self, width: int, height: int, question: Question, start: float, end: float):
+    def __init__(self, width: int, height: int, question: Question, start: float, end: float,
+                 cta: str = "COMMENT A OR B"):
         self.width, self.height = width, height
         self.start, self.end = start, end
+        self.cta = cta
         self.card = self._draw(question)
 
     def _draw(self, q: Question) -> np.ndarray:
@@ -288,7 +302,7 @@ class QuestionCard:
                                 outline=(255, 255, 255, 255), width=5)
             box.alpha_composite(label, ((bw - label.width) // 2, (bh - label.height) // 2))
             opts.append(box)
-        cta = _text_img("COMMENT A OR B", int(W * 0.05), fill=(255, 225, 60))
+        cta = _text_img(self.cta, int(W * 0.05), fill=(255, 225, 60))
         gap = int(W * 0.03)
         h = title.height + sum(o.height for o in opts) + cta.height + gap * 4
         card = Image.new("RGBA", (cw, h), (0, 0, 0, 0))

@@ -263,6 +263,24 @@ HERO_COLORS = {
 }
 
 
+DOLL_COLORS = {  # porcelain doll: pale face, black hair, red dress
+    "skin": hex_color("#f4e6dc"),
+    "shirt": hex_color("#b3202a"),
+    "pants": hex_color("#b3202a"),
+    "hair": hex_color("#15121a"),
+    "cap": False,
+}
+
+# Horror archetypes for the wheel: original figures whose *habits* echo classic horror tropes.
+HORROR_ARCHETYPES = {
+    "clown": {"en": "The Clown", "de": "Der Clown"},
+    "doll": {"en": "The Doll", "de": "Die Puppe"},
+    "sandman": {"en": "The Sandman", "de": "Der Sandmann"},
+    "caller": {"en": "The Caller", "de": "Der Anrufer"},
+    "tv_girl": {"en": "The TV Girl", "de": "Das TV-Mädchen"},
+    "silent_man": {"en": "The Silent Man", "de": "Der Stumme Mann"},
+}
+
 SISTER_COLORS = {
     "skin": hex_color("#ffd6a8"),
     "shirt": hex_color("#ff6fb5"),

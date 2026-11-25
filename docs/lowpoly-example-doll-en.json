@@ -1,0 +1,142 @@
+{
+  "title": "The Doll Can Only Move When Nobody Is Looking",
+  "description": "Every night the wheel picks a horror. Tonight: the Doll. Rule: never stop looking. Then I blinked…",
+  "hashtags": [
+    "Shorts",
+    "survivethenight",
+    "horrorstory",
+    "creepydoll",
+    "story",
+    "animation"
+  ],
+  "language": "en",
+  "wheel": true,
+  "wheel_options": [
+    "The Clown",
+    "The Doll",
+    "The Sandman",
+    "The Caller",
+    "The TV Girl",
+    "The Silent Man"
+  ],
+  "wheel_pick": "The Doll",
+  "night_clock": true,
+  "question": {
+    "text": "Do I turn around?",
+    "a": "Turn around",
+    "b": "Keep my eyes shut"
+  },
+  "scenes": [
+    {
+      "narration": "Every night in my town, a wheel picks which horror wakes up.",
+      "setting": "main_street",
+      "action": "landscape",
+      "shot": "aerial_orbit",
+      "mood": "sunset"
+    },
+    {
+      "narration": "Tonight, it's the Doll.",
+      "setting": "bedroom",
+      "action": "doll_desk",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "20:55"
+    },
+    {
+      "narration": "At nine, every door in town locks. And the Doll has only one rule: it can only move when nobody is looking.",
+      "setting": "main_street",
+      "action": "lockdown",
+      "shot": "aerial_orbit",
+      "mood": "night",
+      "clock": "21:00"
+    },
+    {
+      "narration": "So tonight, my whole family has one job. Never stop looking. Mom watches the hallway. Dad watches the stairs. And I watch the Doll.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "top_down",
+      "mood": "indoor",
+      "clock": "21:10"
+    },
+    {
+      "narration": "It sat on my desk. I stared at it. For hours.",
+      "setting": "bedroom",
+      "action": "doll_desk",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "22:00"
+    },
+    {
+      "narration": "At midnight, my eyes started burning. Like sand. Like someone was pushing them shut.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "00:00"
+    },
+    {
+      "narration": "I blinked. Just once. And it was standing on the floor.",
+      "setting": "bedroom",
+      "action": "doll_floor",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "clock": "00:12"
+    },
+    {
+      "narration": "I blinked again. Now it was sitting at the end of my bed.",
+      "setting": "bedroom",
+      "action": "doll_bed",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "01:30"
+    },
+    {
+      "narration": "I didn't blink after that. I don't think I even breathed. My eyes were watering so badly I could barely see it.",
+      "setting": "bedroom",
+      "action": "doll_bed",
+      "shot": "crane_up",
+      "mood": "indoor",
+      "clock": "02:40"
+    },
+    {
+      "narration": "Then my closet creaked. Something inside was laughing. A tiny, wooden laugh.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "clock": "03:30"
+    },
+    {
+      "narration": "I looked. Only for a second.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "04:10"
+    },
+    {
+      "narration": "When I looked back, the end of my bed was empty.",
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "05:00"
+    },
+    {
+      "narration": "And right behind me, on my pillow, a tiny voice whispered: you blinked.",
+      "setting": "bedroom",
+      "action": "doll_behind",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "05:58"
+    },
+    {
+      "narration": "It's five fifty nine. If I turn around, it can't move. But I'll be face to face with it. What do I do?",
+      "setting": "bedroom",
+      "action": "doll_behind",
+      "shot": "pull_back",
+      "mood": "indoor",
+      "clock": "05:59"
+    }
+  ]
+}

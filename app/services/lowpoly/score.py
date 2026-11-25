@@ -220,7 +220,8 @@ ACTION_ENERGY = {
     "build": 0.5, "landscape": 0.35, "house_leaves": 0.5, "faceoff": 0.4,
     "rampage": 0.95, "street_panic": 0.9, "hide": 0.3,
     "lockdown": 0.55, "watch": 0.5, "bed": 0.18, "sit_up": 0.25, "noises": 0.22, "doorway": 0.4,
-    "empty_doorway": 0.2, "closet": 0.35,
+    "empty_doorway": 0.2, "closet": 0.35, "doll_desk": 0.2, "doll_floor": 0.3, "doll_bed": 0.35,
+    "doll_behind": 0.45,
 }
 
 

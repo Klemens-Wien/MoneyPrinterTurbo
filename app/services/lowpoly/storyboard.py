@@ -55,6 +55,10 @@ ACTIONS = {
     "doorway": "(bedroom) glowing eyes of a creature in the dark hallway behind the open door",
     "empty_doorway": "(bedroom) the door is wide open, the hallway is empty",
     "closet": "(bedroom) the closet door creaks open and glowing eyes appear inside",
+    "doll_desk": "(bedroom) a creepy porcelain doll sits on the desk, the narrator stares at it from bed",
+    "doll_floor": "(bedroom) the doll has moved: now it stands on the floor in the middle of the room",
+    "doll_bed": "(bedroom) the doll has moved again: now it sits at the foot of the bed",
+    "doll_behind": "(bedroom) the narrator sits up, the doll is right behind them on the pillow",
 }
 ACTION_NAMES = tuple(ACTIONS)
 SETTING_NAMES = tuple(SETTINGS)
@@ -84,6 +88,8 @@ class Storyboard:
     wheel: bool = False  # open with a spinning "tonight's monster" wheel that lands on `monster`
     night_clock: bool = False  # "survive the night" clock 10:00 PM -> 5:59 AM
     question: dict | None = None  # {"text": ..., "a": ..., "b": ...} shown at the end (comment bait)
+    wheel_options: list[str] = field(default_factory=list)  # custom wheel labels (default: monster names)
+    wheel_pick: str = ""  # which label the wheel lands on
 
     @property
     def word_count(self) -> int:
@@ -109,6 +115,8 @@ class Storyboard:
             wheel=bool(data.get("wheel", False)),
             night_clock=bool(data.get("night_clock", False)),
             question=_parse_question(data.get("question")),
+            wheel_options=[str(o)[:24] for o in data.get("wheel_options", []) if str(o).strip()][:8],
+            wheel_pick=str(data.get("wheel_pick") or "").strip(),
         )
 
 

@@ -42,6 +42,8 @@ class ActorLibrary:
             colors = props.HERO_COLORS
         elif variant == "sister":
             colors = props.SISTER_COLORS
+        elif variant == "doll":
+            colors = props.DOLL_COLORS
         else:
             idx = int(variant[3:]) if variant.startswith("npc") else 0
             colors = props.figure_colors(np.random.default_rng(self.seed * 1000 + idx))
@@ -244,6 +246,10 @@ class Figure(Actor):
             s = math.sin(tt * 14)
             rot["leg_l"], rot["leg_r"] = rotate_x(s * 0.6), rotate_x(-s * 0.6)
             lift = abs(math.cos(tt * 14)) * 0.12
+        elif anim == "doll":  # unnaturally still, head tilted, arms reaching a little
+            twitch = 0.25 if (tt % 4.3) < 0.12 else 0.0
+            rot["head"] = rotate_z(0.38 + twitch) @ rotate_x(0.1)
+            rot["arm_l"], rot["arm_r"] = rotate_x(-0.5), rotate_x(-0.45)
         elif anim == "lie":  # lying in bed, eyes darting around
             rot["head"] = rotate_y(math.sin(tt * 0.9) * 0.45 + math.sin(tt * 2.7) * 0.08)
             rot["arm_l"], rot["arm_r"] = rotate_z(-0.1), rotate_z(0.1)
