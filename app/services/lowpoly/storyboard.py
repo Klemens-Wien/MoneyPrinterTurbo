@@ -32,6 +32,13 @@ ACTIONS = {
     "collapse": "a house shakes, tilts and sinks into the ground, the narrator panics",
     "wave": "the narrator waves at the camera",
     "landscape": "no people, just the scenery",
+    "chase": "the truck convoy flees while the giant grey monster stomps after it",
+    "monster": "the giant grey monster with glowing eyes appears and roars",
+    "breakdown": "the school (a school building on a bus) has broken down on the road, the monster far behind",
+    "panic": "people run around screaming next to the broken-down school bus, the monster approaching",
+    "standoff": "the narrator stands alone in front of the school bus, the monster stops and leans down",
+    "push": "the monster gently pushes the school bus along the road, the narrator walks beside it",
+    "friends": "the monster stands calmly and waves while everyone cheers around it",
 }
 ACTION_NAMES = tuple(ACTIONS)
 SETTING_NAMES = tuple(SETTINGS)

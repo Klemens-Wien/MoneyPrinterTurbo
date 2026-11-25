@@ -1,0 +1,126 @@
+{
+  "title": "A Monster Has Chased My Town for 217 Years",
+  "description": "If your truck breaks down, you never look back. Today it was the school.",
+  "hashtags": [
+    "Shorts",
+    "story",
+    "storytime",
+    "monster",
+    "lowpoly",
+    "animation"
+  ],
+  "scenes": [
+    {
+      "narration": "For 217 years, my whole town has been running from a monster. And today, our school broke down.",
+      "setting": "road",
+      "action": "chase",
+      "shot": "chase_cam",
+      "mood": "day"
+    },
+    {
+      "narration": "Every house here sits on a truck. We never stop. Not to sleep, not to eat. Not ever.",
+      "setting": "fields",
+      "action": "convoy",
+      "shot": "aerial_orbit",
+      "mood": "day"
+    },
+    {
+      "narration": "Because behind us, always, walks the Grey Giant.",
+      "setting": "fields",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Fifty meters tall. Eyes like headlights. It never runs. It never rests. It just follows.",
+      "setting": "road",
+      "action": "chase",
+      "shot": "chase_cam",
+      "mood": "overcast"
+    },
+    {
+      "narration": "There is only one rule. If your truck breaks down, you jump onto the next one, and you never look back.",
+      "setting": "town",
+      "action": "crowd",
+      "shot": "dolly_in",
+      "mood": "day"
+    },
+    {
+      "narration": "But this morning, in the middle of a storm, the school bus coughed. And stopped.",
+      "setting": "fields",
+      "action": "breakdown",
+      "shot": "crane_up",
+      "mood": "storm"
+    },
+    {
+      "narration": "Total panic. Kids climbing out of windows, teachers screaming, everybody running for the trucks.",
+      "setting": "fields",
+      "action": "panic",
+      "shot": "low_angle",
+      "mood": "storm"
+    },
+    {
+      "narration": "And the rest of the town just kept driving. Nobody waits. Nobody ever waits.",
+      "setting": "road",
+      "action": "convoy",
+      "shot": "drone_follow",
+      "mood": "storm"
+    },
+    {
+      "narration": "Then the ground started shaking.",
+      "setting": "fields",
+      "action": "monster",
+      "shot": "dolly_in",
+      "mood": "storm"
+    },
+    {
+      "narration": "I was the last one standing next to the school. Because my little sister was still inside.",
+      "setting": "fields",
+      "action": "standoff",
+      "shot": "closeup",
+      "mood": "storm"
+    },
+    {
+      "narration": "The Giant came closer. Fifty meters. Twenty. Then it stopped. Right in front of me.",
+      "setting": "fields",
+      "action": "standoff",
+      "shot": "low_angle",
+      "mood": "storm"
+    },
+    {
+      "narration": "It bent down, slowly, and stared straight at the school.",
+      "setting": "fields",
+      "action": "standoff",
+      "shot": "crane_up",
+      "mood": "overcast"
+    },
+    {
+      "narration": "And then it did something nobody had ever seen. It pushed the bus. Gently. Like it was helping.",
+      "setting": "fields",
+      "action": "push",
+      "shot": "top_down",
+      "mood": "dawn"
+    },
+    {
+      "narration": "It pushed us all the way back to the others.",
+      "setting": "road",
+      "action": "push",
+      "shot": "aerial_orbit",
+      "mood": "dawn"
+    },
+    {
+      "narration": "For 217 years, we thought it was hunting us. It was just trying to keep up.",
+      "setting": "coast",
+      "action": "friends",
+      "shot": "low_angle",
+      "mood": "sunset"
+    },
+    {
+      "narration": "Turns out, it was our town's very first resident. Left behind on day one. Now it walks with us, and nobody runs anymore.",
+      "setting": "coast",
+      "action": "friends",
+      "shot": "pull_back",
+      "mood": "sunset"
+    }
+  ]
+}

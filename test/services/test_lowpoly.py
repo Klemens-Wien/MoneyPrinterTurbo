@@ -167,3 +167,35 @@ class TestTimingAndDirection(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMonsterAndScore(unittest.TestCase):
+    def test_monster_scene_has_steps_and_impacts(self):
+        from app.services.lowpoly.actors import Group, Monster
+
+        board = storyboard.Storyboard.from_dict({"title": "m", "scenes": [
+            {"narration": "It follows.", "setting": "road", "action": "chase", "shot": "chase_cam", "mood": "day"},
+            {"narration": "It roars.", "setting": "fields", "action": "monster", "shot": "low_angle", "mood": "storm"},
+            {"narration": "It stops.", "setting": "fields", "action": "standoff", "shot": "closeup", "mood": "storm"},
+        ]})
+        director = Director(build_world(2), board, [6.0, 6.0, 6.0], seed=2)
+        self.assertTrue(director.monster_steps)
+        self.assertEqual(director.impacts, [6.0, 12.0])
+        self.assertEqual(director.library.materials["monster_eyes"], 3)
+        monsters = [m for s in director.scenes for m in s.actor.members if isinstance(m, Monster)]
+        self.assertEqual(len(monsters), 3)
+        for t in (1.0, 7.0, 13.0):
+            cam, *_ = director.frame(t)
+            self.assertTrue(np.all(np.isfinite(cam.eye)))
+
+    def test_score_is_normalised_and_follows_energy(self):
+        from app.services.lowpoly.score import Score, Section
+
+        score = Score(12.0, [Section(0, 6, 0.2), Section(6, 12, 1.0)], impacts=[6.0], seed=1)
+        audio = score.render()
+        self.assertEqual(audio.shape[1], 2)
+        self.assertLessEqual(float(np.abs(audio).max()), 0.91)
+        sr = 44100
+        quiet = float(np.sqrt(np.mean(audio[1 * sr : 4 * sr] ** 2)))
+        loud = float(np.sqrt(np.mean(audio[8 * sr : 11 * sr] ** 2)))
+        self.assertGreater(loud, quiet)

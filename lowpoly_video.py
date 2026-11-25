@@ -26,7 +26,7 @@ def main(argv=None) -> int:
     parser.add_argument("--tts", default="auto", choices=["auto", "edge", "espeak", "silent"])
     parser.add_argument("--story-file", help="storyboard JSON instead of generating one")
     parser.add_argument("--no-llm", action="store_true", help="use the built-in story template")
-    parser.add_argument("--music", default="auto", help="'auto' (resource/songs), 'none' or a path")
+    parser.add_argument("--music", default="auto", help="'auto' (generated royalty-free score), 'songs' (resource/songs), 'none' or a path")
     parser.add_argument("--seed", type=int, help="world/camera seed (default: derived from theme)")
     parser.add_argument("--out", default=os.path.join("storage", "lowpoly"), help="output folder")
     parser.add_argument("--preview", action="store_true", help="540x960, faster encode (draft)")

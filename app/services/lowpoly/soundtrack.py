@@ -66,6 +66,15 @@ def thunder(rng: np.random.Generator, seconds: float = 4.5) -> np.ndarray:
     return _norm(rumble * 1.0 + crack * 0.35) * attack
 
 
+def stomp(rng: np.random.Generator, seconds: float = 1.2) -> np.ndarray:
+    n = int(seconds * SR)
+    t = np.arange(n) / SR
+    boom = np.sin(2 * np.pi * np.cumsum(32 + 45 * np.exp(-t * 14)) / SR) * np.exp(-t * 4.5)
+    debris = band(rng.standard_normal((n, 2)).astype(np.float32), 60, 700) * np.exp(-t * 9)[:, None]
+    x = boom[:, None] + _norm(debris) * 0.25
+    return _norm(x)
+
+
 def whoosh(rng: np.random.Generator, seconds: float = 0.45) -> np.ndarray:
     n = int(seconds * SR)
     t = np.linspace(0, 1, n)
@@ -97,6 +106,7 @@ def mix(
     music: str | None,
     seed: int = 0,
     music_volume: float = 0.30,
+    thuds: list[float] | None = None,
 ) -> str:
     rng = np.random.default_rng(seed)
     n = int(duration * SR)
@@ -148,6 +158,14 @@ def mix(
             e = min(n, s + len(clap))
             if e > s:
                 out[s:e] += clap[: e - s]
+
+    # monster footsteps
+    for t in thuds or []:
+        st = stomp(rng) * 0.32
+        s = int(t * SR)
+        e = min(n, s + len(st))
+        if 0 <= s < e:
+            out[s:e] += st[: e - s]
 
     # whooshes on cuts
     for t in cuts:

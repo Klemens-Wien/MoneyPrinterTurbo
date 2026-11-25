@@ -288,3 +288,91 @@ def figure_parts(colors: dict) -> dict[str, MeshBuilder]:
         parts[name].box((0, -0.4, 0), (0.46, 0.8, 0.48), colors["pants"])
         parts[name].box((0, -0.87, 0.06), (0.48, 0.16, 0.6), shoe)
     return parts
+
+
+# --------------------------------------------------------------------------- #
+# The Grey Giant – an original, blocky low-poly monster.
+# Local forward = +z, feet at y=0, ~9.5 units tall (scaled up by the actor).
+# --------------------------------------------------------------------------- #
+
+MONSTER_PARTS = ("body", "head", "eyes", "arm_l", "arm_r", "leg_l", "leg_r")
+MONSTER_HIP = (0.0, 3.0, 0.0)
+MONSTER_OFFSETS = {  # relative to the hip pivot (head/eyes/arms ride on the body)
+    "head": (0.0, 4.1, 0.55),
+    "eyes": (0.0, 4.1, 0.55),
+    "arm_l": (-2.75, 3.7, 0.0),
+    "arm_r": (2.75, 3.7, 0.0),
+}
+MONSTER_LEGS = {"leg_l": (-1.3, 3.0, 0.0), "leg_r": (1.3, 3.0, 0.0)}
+
+
+def monster_parts() -> dict[str, MeshBuilder]:
+    rng = np.random.default_rng(4242)
+    skin = hex_color("#5b6178")
+    belly = hex_color("#8a8fa6")
+    dark = hex_color("#3c4052")
+    moss = hex_color("#5f8f4e")
+    bone = hex_color("#f1ead2")
+    parts = {name: MeshBuilder() for name in MONSTER_PARTS}
+    body = parts["body"]
+    body.box((0, 2.1, 0), (4.4, 4.2, 2.8), skin)
+    body.box((0, 1.9, 1.42), (3.0, 3.2, 0.12), belly)
+    body.box((-1.6, 4.1, 0.2), (1.6, 0.5, 2.4), moss)
+    body.box((1.5, 4.15, -0.2), (1.4, 0.45, 2.0), moss)
+    for i, z in enumerate((-0.9, -0.2, 0.5)):
+        body.cone((0, 4.2, z - 0.4), 0.55 - i * 0.08, 1.4 - i * 0.2, bone, segments=4)
+    for y in (1.0, 2.2, 3.3):
+        body.box((0, y, -1.5), (0.5, 0.5, 0.4), bone)
+    head = parts["head"]
+    head.box((0, 0.95, 0.3), (2.4, 1.9, 2.2), skin)
+    head.box((0, 0.2, 0.55), (2.2, 0.5, 2.0), dark)  # jaw
+    for x in (-0.75, -0.25, 0.25, 0.75):
+        head.box((x, 0.5, 1.48), (0.22, 0.32, 0.12), bone)
+    head.box((0, 1.6, 1.41), (2.0, 0.22, 0.12), dark)  # brow
+    for side in (-1, 1):
+        head.cone((side * 1.0, 1.85, 0.0), 0.32, 1.1, bone, segments=4)
+    eyes = parts["eyes"]
+    for side in (-1, 1):
+        eyes.box((side * 0.55, 1.18, 1.42), (0.5, 0.32, 0.1), hex_color("#ffe14d"))
+    for side, name in ((-1, "arm_l"), (1, "arm_r")):
+        arm = parts[name]
+        arm.box((0, -2.0, 0), (1.2, 4.2, 1.25), skin)
+        arm.box((side * 0.05, -0.4, 0), (1.35, 1.0, 1.4), moss)
+        arm.box((0, -4.35, 0.1), (1.55, 1.1, 1.55), dark)
+        for k in (-0.45, 0.0, 0.45):
+            arm.box((k, -4.95, 0.55), (0.25, 0.35, 0.25), bone)
+    for name in ("leg_l", "leg_r"):
+        leg = parts[name]
+        leg.box((0, -1.4, 0), (1.7, 2.9, 1.8), skin)
+        leg.box((0, -2.8, 0.25), (1.95, 0.45, 2.5), dark)
+    return parts
+
+
+def school_bus(mb: MeshBuilder) -> dict:
+    """A yellow bus chassis carrying a little school building."""
+    yellow = hex_color("#f6c431")
+    brick = hex_color("#d0674f")
+    white = hex_color("#fbf8ef")
+    mb.box((0, 1.25, 0), (14.5, 1.3, 3.0), yellow)
+    mb.box((7.1, 1.9, 0), (0.6, 1.6, 2.9), yellow)
+    mb.box((7.45, 2.3, 0), (0.06, 1.0, 2.5), PALETTE["glass"])
+    mb.box((0, 0.65, 0), (14.6, 0.25, 3.05), hex_color("#30303a"))
+    for z in (-1.2, 1.2):
+        mb.box((7.45, 1.2, z), (0.08, 0.35, 0.45), hex_color("#fff7c2"))
+    _wheels(mb, (5.2, 1.0, -4.8), 1.25, 0.62)
+    # the school on top
+    mb.box((-0.6, 4.4, 0), (12.5, 5.0, 5.6), brick)
+    for x in np.arange(-5.6, 4.6, 2.0):
+        for y in (3.4, 5.4):
+            for zf in (2.82, -2.82):
+                mb.box((x, y, zf), (1.1, 1.0, 0.1), white)
+                mb.box((x, y, zf + (0.03 if zf > 0 else -0.03)), (0.85, 0.75, 0.08), PALETTE["window"])
+    mb.box((-0.6, 7.0, 0), (13.0, 0.3, 6.1), white)
+    with mb.transform(rotate_y(math.pi / 2)):
+        mb.gable_roof((0, 7.1, 0.6), 6.0, 12.5, 2.2, hex_color("#4a5a7a"), overhang=0.3)
+    mb.box((-0.6, 10.2, 0), (1.8, 2.4, 1.8), white)  # bell tower
+    mb.cone((-0.6, 11.4, 0), 1.5, 2.2, hex_color("#4a5a7a"), segments=4)
+    mb.cylinder((-0.6, 10.3, 0.95), 0.6, 0.12, hex_color("#fff7d6"), segments=10, axis="z")
+    mb.box((5.0, 8.6, 0), (0.15, 3.2, 0.15), PALETTE["chrome"])
+    mb.box((5.7, 9.7, 0), (1.3, 0.8, 0.08), hex_color("#3d9bff"))
+    return {"length": 15.0}

@@ -17,6 +17,8 @@ from .actors import (
     Figure,
     Group,
     LinePath,
+    Midpoint,
+    Monster,
     Vehicle,
 )
 from .camera import shot_camera
@@ -81,8 +83,12 @@ def _npc(lib: ActorLibrary, rng: np.random.Generator) -> dict:
     return lib.figure(f"npc{int(rng.integers(NPC_VARIANTS))}")
 
 
+def _flat(x: float, z: float) -> float:
+    return 0.0
+
+
 def build_actor(action: str, setting_name: str, duration: float, yaw: float, mood: str,
-                lib: ActorLibrary, rng: np.random.Generator) -> tuple[Actor, float]:
+                lib: ActorLibrary, rng: np.random.Generator, ground=_flat) -> tuple[Actor, float]:
     """Returns the actor group for a scene and a camera distance scale."""
     s = SETTINGS[setting_name]
     stage = np.array([s.stage[0], 0.0, s.stage[1]])
@@ -175,6 +181,83 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         group = Group([building, watcher], 1)
         return group, 0.7
 
+    toward_cam = np.array([math.sin(yaw), 0.0, math.cos(yaw)])
+    away = -toward_cam
+
+    def giant(pos, heading=0.0, anim="walk", path=None, size=5.0):
+        pos = np.zeros(3) if pos is None else pos
+        return Monster(lib.monster(), np.asarray(pos, dtype=np.float64), heading=heading, size=size,
+                       anim=anim, path=path, phase=float(rng.uniform(0, 3)), ground=ground)
+
+    def face(src, dst) -> float:
+        d = np.asarray(dst) - np.asarray(src)
+        return math.atan2(d[0], d[2])
+
+    if action == "chase":
+        n, spacing, speed = 5, 21.0, 10.0
+        lead = road_point - road_dir * (speed * duration / 2) + road_dir * spacing * (n / 2)
+        members: list[Actor] = []
+        cargos = ["house0", "house1", "shop", "house2", "hall"]
+        for i in range(n):
+            members.append(Vehicle(lib.truck(i + int(rng.integers(3)), cargos[i]),
+                                   LinePath(lead - road_dir * spacing * i, road_dir, speed), phase=float(rng.uniform(0, 6))))
+        members.append(giant(None, path=LinePath(lead - road_dir * (spacing * n + 75), road_dir, speed)))
+        return Group(members, focus_index=n // 2), 1.0
+
+    if action == "monster":
+        pos = stage + away * 95
+        monster = giant(pos, heading=face(pos, stage), anim="roar")
+        viewer = Marker(stage + np.array([0.0, 1.6, 0.0]))
+        head = Marker(np.array([pos[0], ground(pos[0], pos[2]) + 38.0, pos[2]]))
+        return Group([monster, viewer, head], 1, look=head), 1.6
+
+    bus_heading_dir = road_dir
+    if action in ("breakdown", "panic", "standoff"):
+        bus = Vehicle(lib.school_bus(), LinePath(road_point.copy(), bus_heading_dir, 0.0), bounce=0.0)
+        if action == "breakdown":
+            hero_fig = Figure(hero, road_point + toward_cam * 5 + bus_heading_dir * 3, anim="point",
+                              face_target=road_point)
+            m_pos = road_point + away * 230
+            monster = giant(m_pos, path=LinePath(m_pos, -away, 3.0))
+            return Group([bus, hero_fig, monster], 0), 1.3
+        if action == "panic":
+            members = [bus]
+            hero_pos = road_point + toward_cam * 6
+            members.append(Figure(hero, hero_pos, anim="panic", face_target=road_point + away * 100))
+            for i in range(16):
+                ang = rng.uniform(0, 2 * math.pi)
+                d = np.array([math.sin(ang), 0.0, math.cos(ang)])
+                start = road_point + d * rng.uniform(3, 9) + toward_cam * 3
+                members.append(Figure(_npc(lib, rng), start, anim="panic", phase=float(rng.uniform(0, 3)),
+                                      path=LinePath(start, d, float(rng.uniform(2.5, 4.5)))))
+            m_pos = road_point + away * 120
+            monster = giant(m_pos, path=LinePath(m_pos, toward_cam, 4.0))
+            members.append(monster)
+            return Group(members, 0, look=monster), 0.9
+        # standoff: the hero stands on the road in front of the school, the giant faces both
+        hero_pos = road_point + bus_heading_dir * 11 + toward_cam * 1.5
+        m_pos = hero_pos + bus_heading_dir * 40 + away * 8
+        hero_fig = Figure(hero, hero_pos, heading=face(hero_pos, m_pos), anim="idle")
+        monster = giant(m_pos, heading=face(m_pos, hero_pos), anim="lean")
+        return Group([bus, hero_fig, monster], 1, look=monster), 1.2
+
+    if action == "push":
+        speed = 2.4
+        start = road_point - road_dir * speed * duration / 2
+        bus = Vehicle(lib.school_bus(), LinePath(start, road_dir, speed), bounce=0.02)
+        side = np.array([road_dir[2], 0.0, -road_dir[0]]) * np.sign(np.dot(np.array([road_dir[2], 0, -road_dir[0]]), toward_cam) or 1)
+        monster = giant(None, anim="push", path=LinePath(start - road_dir * 25.0, road_dir, speed))
+        hero_fig = Figure(hero, start + side * 4.5, anim="walk", path=LinePath(start + side * 4.5 + road_dir * 3, road_dir, speed))
+        return Group([bus, monster, hero_fig, Midpoint(bus, monster, 0.4, 9.0)], 3), 1.8
+
+    if action == "friends":
+        group, _ = build_actor("celebrate", setting_name, duration, yaw, mood, lib, rng, ground)
+        m_pos = stage + away * 32
+        group.members.append(giant(m_pos, heading=face(m_pos, stage), anim="wave"))
+        group.members.append(Marker(stage + np.array([0.0, 9.0, 0.0])))
+        group.focus_index = len(group.members) - 1
+        return group, 1.6
+
     # landscape
     return Group([Marker(stage + np.array([0.0, 2.0, 0.0]))], 0), 1.6
 
@@ -200,7 +283,8 @@ class Director:
         for scene, dur in zip(storyboard.scenes, durations):
             setting = SETTINGS[scene.setting]
             yaw = setting.view_heading + float(rng.uniform(-0.6, 0.6))
-            actor, cam_scale = build_actor(scene.action, scene.setting, dur, yaw, scene.mood, self.library, rng)
+            actor, cam_scale = build_actor(scene.action, scene.setting, dur, yaw, scene.mood, self.library, rng,
+                                           ground=world.ground)
             target = mood_lib.get(scene.mood)
             flashes = []
             if target.lightning > 0:
@@ -222,6 +306,21 @@ class Director:
     @property
     def flashes(self) -> list[float]:
         return [f for s in self.scenes for f in s.flashes]
+
+    @property
+    def monster_steps(self) -> list[float]:
+        out = []
+        for s in self.scenes:
+            members = s.actor.members if isinstance(s.actor, Group) else [s.actor]
+            for m in members:
+                if isinstance(m, Monster):
+                    out += [s.start + t for t in m.step_times(s.duration)]
+        return out
+
+    @property
+    def impacts(self) -> list[float]:
+        """Moments for a dramatic musical hit (monster reveals / confrontations)."""
+        return [s.start for s in self.scenes if s.scene.action in ("monster", "standoff", "panic")]
 
     @property
     def storm_spans(self) -> list[tuple[float, float]]:
@@ -249,6 +348,12 @@ class Director:
             if isinstance(m, Vehicle) and ("house" in m.key or "shop" in m.key or "hall" in m.key):
                 p = m.focus(local)
                 dynamic.append((p[0], p[2], 8.0, 13.0))
+            elif isinstance(m, Vehicle) and m.key == "school_bus":
+                p = m.focus(local)
+                dynamic.append((p[0], p[2], 8.5, 13.5))
+            elif isinstance(m, Monster):
+                p = m.focus(local)
+                dynamic.append((p[0], p[2], 2.6 * m.size, 9.5 * m.size))
             elif isinstance(m, Building):
                 dynamic.append((m.position[0], m.position[2], 7.5, 16.0))
         if not dynamic:
@@ -263,8 +368,15 @@ class Director:
         mood = mood_lib.blend(ps.mood_from, ps.mood_to, k * k * (3 - 2 * k))
         cam: Camera = shot_camera(
             ps.scene.shot, u, local, ps.actor.focus, ps.actor.forward, ps.yaw, ps.scale, ground=self.world.ground,
+            look=ps.actor.look.focus if isinstance(ps.actor, Group) and ps.actor.look is not None else None,
             obstacles=self._obstacles(ps, local),
         )
+        shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
+        if shake > 0.01:
+            amp = shake * 0.35 * max(1.0, ps.scale)
+            jitter = np.array([math.sin(t * 91.0), math.sin(t * 77.0 + 1.0), math.sin(t * 63.0 + 2.0)]) * amp
+            cam.eye = tuple(np.asarray(cam.eye) + jitter)
+            cam.target = tuple(np.asarray(cam.target) + jitter * 0.6)
         draws = self.static_draws(t) + ps.actor.draws(local)
         flash = flash_value(ps.flashes, t)
         dist = float(np.linalg.norm(np.asarray(cam.eye) - np.asarray(cam.target)))

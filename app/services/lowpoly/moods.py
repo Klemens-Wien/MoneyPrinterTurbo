@@ -61,7 +61,7 @@ MOODS: dict[str, Mood] = {
         sun_elevation=40, sun_azimuth=20, sun_color=hex_color("#9aa4b8"), sun_strength=0.22,
         sky_ambient=hex_color("#7d8aa8"), ground_ambient=hex_color("#4f5a5a"), shadow_tint=hex_color("#5a6080"),
         sky_zenith=hex_color("#2e3648"), sky_horizon=hex_color("#69748a"), fog_color=hex_color("#5d687c"),
-        fog_density=0.0030, cloud_tint=hex_color("#4a5060"), exposure=1.0, saturation=0.7,
+        fog_density=0.0030, cloud_tint=hex_color("#4a5060"), exposure=1.18, saturation=0.75,
         rain=1.0, wind=1.0, lightning=1.0, water_color=hex_color("#3e5a6a"),
     ),
     "overcast": Mood(

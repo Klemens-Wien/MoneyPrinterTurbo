@@ -9,7 +9,12 @@ Ein Befehl macht aus einem Story-Thema ein fertiges, hochladbares Hochformat-Vid
 * weiches Licht mit lila getönten Schatten, wechselnde Stimmungen: `day`, `dawn`, `sunset`, `storm`
   (Regen, Wind, Blitze + Donner), `overcast`, `night`
 * Ich-Erzähler-Stimme, große Wort-für-Wort-Untertitel (gelb, dicke schwarze Kontur, Pop-Animation)
-* Hintergrundmusik mit Ducking unter der Stimme, Wetter-Atmo, Whooshes auf den Schnitten
+* eigene, generierte Filmmusik (lizenzfrei): Spannung folgt der Story – ruhige Drones, treibender Bass
+  bei Verfolgungen, Dur-Auflösung am Ende, „Braam“-Schläge wenn das Monster auftaucht
+* der „Grey Giant“: ein eigenes, 50 m großes Low-Poly-Monster mit leuchtenden Augen (laufen, brüllen,
+  sich herunterbeugen, schieben, winken), stampfende Schritte mit Kamerawackeln und Bass-Wumms
+* Schule auf einem Bus, die liegen bleiben kann
+* Musik wird unter der Stimme geduckt, dazu Wetter-Atmo und Whooshes auf den Schnitten
 
 ## Installation
 
@@ -58,7 +63,7 @@ Ergebnis in `storage/lowpoly/<thema>-<seed>/`:
 | `--voice` | Edge-TTS-Stimme, z. B. `en-US-AndrewNeural`, `en-US-ChristopherNeural`, `de-DE-ConradNeural`, `de-DE-KatjaNeural` |
 | `--tts auto\|edge\|espeak\|silent` | `auto` = Edge (Internet) → espeak-ng → stumm |
 | `--no-llm` | eingebaute Vorlagen-Story statt LLM |
-| `--music auto\|none\|<datei>` | `auto` wählt einen Track aus `resource/songs` |
+| `--music auto\|songs\|none\|<datei>` | `auto` = generierter lizenzfreier Score, `songs` = Track aus `resource/songs` (Lizenz selbst prüfen) |
 | `--seed N` | andere Welt / Kamerawinkel bei gleichem Thema |
 | `--caption-case lower\|upper\|keep` | Schreibweise der Untertitel |
 
@@ -83,10 +88,18 @@ Thema ──► storyboard.py   LLM schreibt 12–16 Szenen (Ich-Perspektive, Ho
 
 * **setting**: `town`, `home`, `fields`, `road`, `coast`, `mountains`, `forest`, `construction`
 * **action**: `convoy` (Lastwagen mit Häusern), `arrive`, `drive` (das eigene Haus auf dem Laster), `bus`, `walk`,
-  `run`, `crowd`, `celebrate`, `argue`, `alone`, `build` (Haus wächst aus dem Boden), `collapse`, `wave`, `landscape`
+  `run`, `crowd`, `celebrate`, `argue`, `alone`, `build` (Haus wächst aus dem Boden), `collapse`, `wave`, `landscape`,
+  Monster: `chase` (Konvoi flieht, Riese stampft hinterher), `monster` (Riese brüllt), `breakdown` (Schulbus liegen
+  geblieben), `panic`, `standoff` (Riese bleibt vor dem Erzähler stehen), `push` (Riese schiebt den Bus), `friends`
 * **shot**: `aerial_orbit`, `flyover`, `drone_follow`, `side_track`, `dolly_in`, `pull_back`, `low_angle`,
-  `top_down`, `crane_up`, `closeup`
+  `top_down`, `crane_up`, `closeup`, `chase_cam` (vor dem Konvoi, Blick zurück auf den Verfolger)
 * **mood**: `day`, `dawn`, `sunset`, `storm`, `overcast`, `night`
+
+Eine fertige Monster-Story liegt als Beispiel in `docs/lowpoly-example-grey-giant.json`:
+
+```bash
+python lowpoly_video.py --story-file docs/lowpoly-example-grey-giant.json
+```
 
 Beispiel `meine_story.json`:
 

@@ -20,6 +20,7 @@ SHOTS = {
     "top_down": "bird's-eye view straight down, slowly rotating",
     "crane_up": "camera rises from ground level to a high view",
     "closeup": "close view on the narrator's face and upper body",
+    "chase_cam": "camera races ahead of the convoy looking back at it - shows what is chasing it",
 }
 
 SHOT_NAMES = tuple(SHOTS)
@@ -44,12 +45,40 @@ def shot_camera(
     scale: float = 1.0,
     ground: Callable[[float, float], float] | None = None,
     obstacles: np.ndarray | None = None,
+    look: Callable[[float], np.ndarray] | None = None,
 ) -> Camera:
-    """u: normalised scene progress 0..1, t: scene time in seconds."""
+    """u: normalised scene progress 0..1, t: scene time in seconds.
+
+    With ``look`` (a second subject, e.g. a towering monster) close shots are
+    staged along the line from the focus to that subject instead of orbiting.
+    """
     f = np.asarray(focus(t), dtype=np.float64)
     e = ease(u)
     s = scale
-    if shot == "aerial_orbit":
+    staged = look is not None and shot in ("closeup", "low_angle", "dolly_in", "crane_up")
+    if staged:
+        lt = np.asarray(look(t), dtype=np.float64)
+        dh = lt - f
+        dh[1] = 0.0
+        dist = np.linalg.norm(dh) + 1e-9
+        dh /= dist
+        side = np.array([dh[2], 0.0, -dh[0]])
+        if np.dot(side, _offset(yaw, 1, 0)) < 0:
+            side = -side
+        if shot == "closeup":  # over the shoulder, looking up at the subject
+            eye = f - dh * (9.0 - 2.0 * e) + side * 2.5 + np.array([0.0, 0.6, 0.0])
+            cam = Camera(eye, f + (lt - f) * (0.42 + 0.2 * e), 62)
+        elif shot == "low_angle":  # from the ground, the subject looms over everything
+            eye = f - dh * 12.0 + side * (4.0 + 2.0 * u)
+            eye[1] = f[1] - 1.2
+            cam = Camera(eye, f + (lt - f) * 0.7, 64)
+        elif shot == "dolly_in":
+            eye = f - dh * (32 - 22 * e) + side * 6 + np.array([0.0, 3.0 + 2 * e, 0.0])
+            cam = Camera(eye, f + (lt - f) * 0.75, 55)
+        else:  # crane_up: rise from behind the focus to a high view of both
+            eye = f - dh * (8 + 30 * e) + side * (4 + 12 * e) + np.array([0.0, 1.0 + 55 * e, 0.0])
+            cam = Camera(eye, f + (lt - f) * (0.6 - 0.25 * e), 55)
+    elif shot == "aerial_orbit":
         eye = f + _offset(yaw + 0.35 * u, 95 * s, 70 * s)
         cam = Camera(eye, f, 42)
     elif shot == "flyover":
@@ -90,8 +119,15 @@ def shot_camera(
         eye = f + _offset(yaw, (18 + 30 * e) * s, 1.5 + 50 * e * s)
         cam = Camera(eye, f + np.array([0, 1.5 * (1 - e), 0]), 50)
     elif shot == "closeup":
-        eye = f + _offset(yaw + 0.12 * u, 4.6 - 0.8 * e, 0.6)
-        cam = Camera(eye, f + np.array([0.0, 0.4, 0.0]), 40)
+        k = max(s, 1.0)
+        eye = f + _offset(yaw + 0.12 * u, (4.6 - 0.8 * e) * k, 0.6 * k)
+        cam = Camera(eye, f + np.array([0.0, 0.4 * k, 0.0]), 40)
+    elif shot == "chase_cam":
+        fw = np.asarray(forward(t), dtype=np.float64)
+        fw = fw / (np.linalg.norm(fw) + 1e-9)
+        side = np.array([fw[2], 0.0, -fw[0]])
+        eye = f + fw * (42 - 8 * e) * s + side * 9 * s + np.array([0.0, 10 * s, 0.0])
+        cam = Camera(eye, f - fw * 45 * s + np.array([0.0, 14 * s, 0.0]), 55)
     else:
         eye = f + _offset(yaw, 40 * s, 20 * s)
         cam = Camera(eye, f, 50)

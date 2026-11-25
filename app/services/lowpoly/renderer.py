@@ -128,10 +128,14 @@ void main() {
     if (u_material == 2) {
         col = albedo * (amb * 0.75 + u_sun_col * (0.35 + 0.35 * ndl));
     }
+    if (u_material == 3) {
+        col = albedo * 1.6;  // glowing (monster eyes)
+    }
     col += albedo * u_flash * 0.9;
     float d = length(V);
     float fog = 1.0 - exp(-pow(d * u_fog_density, 1.35));
     if (u_material == 2) fog *= 0.6;
+    if (u_material == 3) fog *= 0.35;
     col = mix(col, u_fog_col, clamp(fog, 0.0, 1.0));
     f_color = vec4(col, u_alpha);
 }

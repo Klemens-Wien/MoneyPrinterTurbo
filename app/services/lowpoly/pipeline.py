@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from loguru import logger
 
 from . import captions as cap
-from . import narration, soundtrack
+from . import narration, score, soundtrack
 from . import storyboard as sb
 from .director import Director
 from .narration import Word
@@ -34,7 +34,7 @@ class Options:
     story_file: str | None = None
     use_llm: bool = True
     seed: int | None = None
-    music: str | None = "auto"  # auto | none | <path>
+    music: str | None = "auto"  # auto (generated score) | songs | none | <path>
     width: int = 1080
     height: int = 1920
     fps: int = 30
@@ -118,7 +118,12 @@ def generate(opts: Options) -> dict:
 
     # 4. sound
     music = None
+    music_volume = 0.30
     if opts.music == "auto":
+        music = score.write_score(os.path.join(work, "score.wav"), director.duration, director.scenes,
+                                  director.impacts, seed)
+        music_volume = 0.42
+    elif opts.music == "songs":
         music = soundtrack.pick_song(seed)
     elif opts.music and opts.music != "none":
         music = opts.music
@@ -128,6 +133,7 @@ def generate(opts: Options) -> dict:
         audio_path, director.duration,
         [soundtrack.VoicePlacement(c.path, s) for c, s in zip(clips, starts)],
         director.storm_spans, director.flashes, director.cut_times, music, seed,
+        music_volume=music_volume, thuds=director.monster_steps,
     )
 
     # 5. render
@@ -136,7 +142,7 @@ def generate(opts: Options) -> dict:
     renderer.register_mesh("water", world.water, material=1)
     renderer.register_mesh("clouds", world.clouds, material=2)
     for key, verts in director.library.meshes.items():
-        renderer.register_mesh(key, verts)
+        renderer.register_mesh(key, verts, material=director.library.materials.get(key, 0))
 
     captioner = cap.CaptionRenderer(opts.width, opts.height, case=opts.caption_case)
     video_path = os.path.join(work, f"{_slug(board.title)}.mp4")

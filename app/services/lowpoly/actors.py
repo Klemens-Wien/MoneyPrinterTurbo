@@ -25,6 +25,7 @@ class ActorLibrary:
     def __init__(self, seed: int):
         self.seed = seed
         self.meshes: dict[str, np.ndarray] = {}
+        self.materials: dict[str, int] = {"monster_eyes": 3}
 
     def _store(self, key: str, builder: MeshBuilder) -> str:
         if key not in self.meshes:
@@ -82,6 +83,24 @@ class ActorLibrary:
             props.car(mb, props.PALETTE["vehicle"][color_idx % len(props.PALETTE["vehicle"])])
             self._store(key, mb)
         return key
+
+    def monster(self) -> dict[str, str]:
+        keys = {}
+        parts = None
+        for name in props.MONSTER_PARTS:
+            key = f"monster_{name}"
+            if key not in self.meshes:
+                parts = parts or props.monster_parts()
+                self._store(key, parts[name])
+            keys[name] = key
+        return keys
+
+    def school_bus(self) -> str:
+        if "school_bus" not in self.meshes:
+            mb = MeshBuilder()
+            props.school_bus(mb)
+            self._store("school_bus", mb)
+        return "school_bus"
 
     def building(self, kind: str) -> str:
         key = f"building_{kind}"
@@ -287,9 +306,130 @@ class Building(Actor):
 
 
 @dataclass
+class Monster(Actor):
+    """The Grey Giant. size scales the ~9.5 unit model (size 5 ~ 47 m tall)."""
+
+    parts: dict[str, str]
+    position: np.ndarray
+    heading: float = 0.0
+    size: float = 5.0
+    anim: str = "walk"  # walk | roar | lean | push | idle | wave
+    path: LinePath | None = None
+    phase: float = 0.0
+    ground: Callable[[float, float], float] | None = None
+    stride: float = 1.6
+
+    def _state(self, t):
+        if self.path is not None:
+            pos, d = self.path.at(t)
+            heading = heading_for_figure(d)
+        else:
+            pos, heading = self.position, self.heading
+        pos = np.array(pos, dtype=np.float64)
+        if self.ground is not None:
+            pos[1] = self.ground(float(pos[0]), float(pos[2]))
+        return pos, heading
+
+    def focus(self, t: float) -> np.ndarray:
+        pos, _ = self._state(t)
+        return pos + np.array([0.0, 6.0 * self.size, 0.0])
+
+    def forward(self, t: float) -> np.ndarray:
+        _, h = self._state(t)
+        return np.array([math.sin(h), 0.0, math.cos(h)])
+
+    def walking(self) -> bool:
+        return self.anim in ("walk", "push")
+
+    def step_times(self, duration: float) -> list[float]:
+        """Local times at which a foot hits the ground."""
+        if not self.walking():
+            return []
+        period = math.pi / self.stride
+        first = (-self.phase) % period
+        return [first + k * period for k in range(int(duration / period) + 2) if first + k * period < duration]
+
+    def shake(self, t: float) -> float:
+        if not self.walking():
+            return 0.0
+        period = math.pi / self.stride
+        since = (t + self.phase) % period
+        return math.exp(-since * 9.0)
+
+    def draws(self, t: float) -> list[Draw]:
+        pos, heading = self._state(t)
+        tt = t + self.phase
+        rot = {p: np.eye(4) for p in props.MONSTER_PARTS}
+        body = np.eye(4)
+        lift = 0.0
+        if self.anim in ("walk", "push"):
+            s = math.sin(tt * self.stride)
+            rot["leg_l"], rot["leg_r"] = rotate_x(s * 0.45), rotate_x(-s * 0.45)
+            lift = abs(math.cos(tt * self.stride)) * 0.25
+            body = rotate_z(s * 0.06)
+            if self.anim == "walk":
+                rot["arm_l"], rot["arm_r"] = rotate_x(-s * 0.4), rotate_x(s * 0.4)
+                body = body @ rotate_x(0.12)
+            else:
+                rot["arm_l"] = rot["arm_r"] = rotate_x(-1.35 + s * 0.05)
+                body = body @ rotate_x(0.32)
+            rot["head"] = rotate_y(math.sin(tt * 0.5) * 0.2)
+        elif self.anim == "roar":
+            shake = math.sin(tt * 30) * 0.04
+            rot["arm_l"] = rotate_z(-2.2 + shake)
+            rot["arm_r"] = rotate_z(2.2 - shake)
+            rot["head"] = rotate_x(-0.45 + shake)
+            body = rotate_x(-0.15)
+        elif self.anim == "lean":
+            k = min(t / 2.5, 1.0)
+            body = rotate_x(0.55 * k)
+            rot["head"] = rotate_x(0.35 * k) @ rotate_y(math.sin(tt * 0.6) * 0.15)
+            rot["arm_l"] = rotate_x(-0.5 * k) @ rotate_z(-0.15)
+            rot["arm_r"] = rotate_x(-0.5 * k) @ rotate_z(0.15)
+            rot["leg_l"], rot["leg_r"] = rotate_x(-0.25 * k), rotate_x(0.1 * k)
+        elif self.anim == "wave":
+            rot["arm_r"] = rotate_z(2.3 + math.sin(tt * 3) * 0.3)
+            rot["head"] = rotate_z(math.sin(tt * 1.2) * 0.15)
+            body = rotate_z(math.sin(tt * 1.2) * 0.04)
+        else:  # idle
+            b = math.sin(tt * 1.1)
+            body = rotate_x(0.05 + b * 0.02)
+            rot["head"] = rotate_y(math.sin(tt * 0.4) * 0.3)
+            rot["arm_l"], rot["arm_r"] = rotate_z(-0.05 * b), rotate_z(0.05 * b)
+        base = translate(pos[0], pos[1] + lift * self.size, pos[2]) @ rotate_y(heading) @ scale(self.size)
+        body_m = base @ translate(*props.MONSTER_HIP) @ body
+        out = [Draw(self.parts["body"], body_m)]
+        for name, off in props.MONSTER_OFFSETS.items():
+            local = rot["head"] if name == "eyes" else rot[name]
+            out.append(Draw(self.parts[name], body_m @ translate(*off) @ local))
+        for name, off in props.MONSTER_LEGS.items():
+            out.append(Draw(self.parts[name], base @ translate(*off) @ rot[name]))
+        return out
+
+
+class Midpoint(Actor):
+    """Invisible focus between two actors (e.g. the bus and the giant pushing it)."""
+
+    def __init__(self, a: Actor, b: Actor, weight: float = 0.5, height: float = 8.0):
+        self.a, self.b, self.weight, self.height = a, b, weight, height
+
+    def draws(self, t: float) -> list[Draw]:
+        return []
+
+    def focus(self, t: float) -> np.ndarray:
+        p = self.a.focus(t) * (1 - self.weight) + self.b.focus(t) * self.weight
+        p[1] = self.height
+        return p
+
+    def forward(self, t: float) -> np.ndarray:
+        return self.a.forward(t)
+
+
+@dataclass
 class Group(Actor):
     members: list[Actor] = field(default_factory=list)
     focus_index: int = 0
+    look: Actor | None = None  # optional second subject the camera looks toward (e.g. the monster)
 
     def draws(self, t: float) -> list[Draw]:
         out: list[Draw] = []
@@ -302,3 +442,6 @@ class Group(Actor):
 
     def forward(self, t: float) -> np.ndarray:
         return self.members[self.focus_index].forward(t)
+
+    def shake(self, t: float) -> float:
+        return max((m.shake(t) for m in self.members if isinstance(m, Monster)), default=0.0)
