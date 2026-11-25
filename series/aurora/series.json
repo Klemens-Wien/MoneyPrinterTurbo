@@ -1,0 +1,74 @@
+{
+  "series_title": "Die letzte Nacht der Aurora",
+  "slug": "aurora",
+  "language": "de",
+  "premise": "Das Kreuzfahrtschiff Aurora sinkt mitten in der Nacht im Atlantik. Jonas (17) versucht, sich und seine kleine Schwester Mia (9) zu retten. Jede Folge bringt eine neue Gefahr: steigendes Wasser, blockierte Gänge, volle Rettungsboote, ein aufziehender Sturm, etwas Seltsames im Wasser.",
+  "tone": "spannend, düster, Cliffhanger am Ende jeder Folge; keine blutige oder grafische Gewalt, keine Verletzungsdetails, kein Tod von Figuren auf dem Bildschirm",
+  "format": {
+    "aspect": "9:16",
+    "resolution": [
+      1080,
+      1920
+    ],
+    "duration_seconds": [
+      60,
+      90
+    ],
+    "scenes": [
+      6,
+      10
+    ],
+    "hook": "erster Satz in maximal 2 Sekunden, macht sofort neugierig",
+    "ending": "Entscheidungsfrage mit genau 2 Optionen, gesprochen und groß eingeblendet, Aufforderung: 1 oder 2 in die Kommentare"
+  },
+  "visual_style": "cinematic dark digital painting, moody deep blue and teal palette with red emergency light accents, volumetric light, soft film grain, vertical 9:16 composition, consistent character design, no gore, no blood, no text artifacts",
+  "voice": {
+    "edge_voice": "de-DE-ConradNeural-Male",
+    "offline_voice": "de_DE-thorsten-high"
+  },
+  "characters": [
+    {
+      "id": "JONAS",
+      "name": "Jonas",
+      "age": 17,
+      "role": "Hauptfigur, großer Bruder, mutig, aber voller Angst um Mia",
+      "image_prompt": "Jonas, a 17-year-old boy, lean build, messy dark-brown hair, pale face, grey hoodie over a dark-blue T-shirt, black jeans, white sneakers"
+    },
+    {
+      "id": "MIA",
+      "name": "Mia",
+      "age": 9,
+      "role": "kleine Schwester, aufmerksam, bemerkt Dinge, die andere übersehen",
+      "image_prompt": "Mia, a 9-year-old girl, long blond hair in two braids, bright yellow raincoat over pink pajamas, always holding a worn grey stuffed bunny"
+    }
+  ],
+  "story_so_far": [
+    "Folge 1: Um 3:12 Uhr trifft ein dumpfer Schlag den Rumpf der Aurora. Jonas weckt Mia, der Alarm heult, aus dem Treppenhaus steigt schwarzes Wasser. Die Durchsage bricht mitten im Satz ab, die Brandschutztür zum Deck ist verriegelt. Es bleiben zwei Wege: ein überfluteter Gang zur Rettungsstation oder ein enger Wartungsschacht nach oben. Mia glaubt, im Wasser habe sich etwas bewegt."
+  ],
+  "episodes": [
+    {
+      "episode": 1,
+      "title": "Drei Uhr zwölf",
+      "danger": "Das Wasser steigt im Unterdeck, der Weg nach oben ist versperrt.",
+      "previous_choice": null,
+      "summary": "Um 3:12 Uhr trifft ein dumpfer Schlag den Rumpf der Aurora. Jonas weckt Mia, der Alarm heult, aus dem Treppenhaus steigt schwarzes Wasser. Die Durchsage bricht mitten im Satz ab, die Brandschutztür zum Deck ist verriegelt. Es bleiben zwei Wege: ein überfluteter Gang zur Rettungsstation oder ein enger Wartungsschacht nach oben. Mia glaubt, im Wasser habe sich etwas bewegt.",
+      "cliffhanger": "Mia flüstert, dass sich unten im Wasser etwas bewegt hat.",
+      "question": {
+        "text": "Was soll Jonas tun?",
+        "option_1": "Mit Mia durch den überfluteten Gang tauchen",
+        "option_2": "In den dunklen Schacht klettern",
+        "call_to_action": "Schreib 1 oder 2 in die Kommentare!"
+      },
+      "winning_answer": null,
+      "duration_seconds": 77.7,
+      "output_dir": "output/folge_01"
+    }
+  ],
+  "pending_question": {
+    "episode": 1,
+    "text": "Was soll Jonas tun?",
+    "option_1": "Mit Mia durch den überfluteten Gang tauchen",
+    "option_2": "In den dunklen Schacht klettern",
+    "call_to_action": "Schreib 1 oder 2 in die Kommentare!"
+  }
+}

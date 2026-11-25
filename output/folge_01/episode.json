@@ -1,0 +1,155 @@
+{
+  "episode": 1,
+  "title": "Drei Uhr zwölf",
+  "danger": "Das Wasser steigt im Unterdeck, der Weg nach oben ist versperrt.",
+  "summary": "Um 3:12 Uhr trifft ein dumpfer Schlag den Rumpf der Aurora. Jonas weckt Mia, der Alarm heult, aus dem Treppenhaus steigt schwarzes Wasser. Die Durchsage bricht mitten im Satz ab, die Brandschutztür zum Deck ist verriegelt. Es bleiben zwei Wege: ein überfluteter Gang zur Rettungsstation oder ein enger Wartungsschacht nach oben. Mia glaubt, im Wasser habe sich etwas bewegt.",
+  "cliffhanger": "Mia flüstert, dass sich unten im Wasser etwas bewegt hat.",
+  "scenes": [
+    {
+      "id": 1,
+      "art": "ship_night",
+      "camera": "zoom_in",
+      "sfx": [
+        "waves",
+        "creak"
+      ],
+      "narration": "Dieses Schiff wird den Morgen nicht erleben. Und Jonas ist der Einzige, der es schon spürt.",
+      "image_prompt": "Wide shot of a huge white cruise ship named AURORA alone on the black Atlantic at night, hundreds of warm lit windows, a pale moon behind thin clouds, the ship leaning very slightly to one side, fog drifting over calm dark water"
+    },
+    {
+      "id": 2,
+      "art": "cabin",
+      "camera": "pan_right",
+      "sfx": [
+        "creak",
+        "hum"
+      ],
+      "narration": "Die Aurora. Mitten im Atlantik. Drei Uhr zwölf. Jonas liegt wach in Kabine 418. Neben ihm schläft seine kleine Schwester Mia.",
+      "image_prompt": "Inside a small dark cruise ship cabin at night, moonlight through a round porthole, {JONAS} sitting awake on the edge of his bed, his face lit by the cold glow of his phone showing 03:12, {MIA} asleep in the bed next to him hugging her bunny, her yellow raincoat hanging on a hook"
+    },
+    {
+      "id": 3,
+      "art": "glass",
+      "camera": "zoom_in",
+      "transition": "flash",
+      "effects": [
+        "shake"
+      ],
+      "sfx": [
+        "boom",
+        "creak"
+      ],
+      "narration": "Dann ein dumpfer Schlag. Tief unten im Rumpf. Das Wasserglas auf dem Tisch rutscht. Langsam. Zur Seite.",
+      "image_prompt": "Extreme close-up of a glass of water on a small cabin table, the table tilted while the water surface stays level, a few drops spilling, deep shadows, faint moonlight reflections"
+    },
+    {
+      "id": 4,
+      "art": "corridor_alarm",
+      "camera": "zoom_out",
+      "effects": [
+        "alarm_pulse"
+      ],
+      "sfx": [
+        "alarm"
+      ],
+      "narration": "Ein Alarm heult los. Rote Lichter flackern im Gang. Jonas reißt Mia aus dem Bett. Sie hält ihren Stoffhasen fest.",
+      "image_prompt": "Long narrow cruise ship corridor lit by pulsing red emergency lights, {JONAS} running towards the camera pulling {MIA} by the hand, cabin doors on both sides, dramatic perspective"
+    },
+    {
+      "id": 5,
+      "art": "stairs_water",
+      "camera": "pan_down",
+      "effects": [
+        "alarm_pulse"
+      ],
+      "sfx": [
+        "water_rush",
+        "alarm_far"
+      ],
+      "narration": "Die Treppe nach oben. Doch auf halber Höhe bleibt Jonas stehen. Von unten steigt schwarzes Wasser. Leise. Viel zu schnell.",
+      "image_prompt": "View down a steep metal ship stairwell, black water rising from below and reflecting red emergency light, {JONAS} and {MIA} standing halfway up, seen from behind, looking down in fear"
+    },
+    {
+      "id": 6,
+      "art": "speaker",
+      "camera": "zoom_in",
+      "effects": [
+        "flicker"
+      ],
+      "sfx": [
+        "static",
+        "alarm_far"
+      ],
+      "narration": "Eine Durchsage knistert. Dann bricht sie ab. Mitten im Satz.",
+      "image_prompt": "Close-up of an old wall-mounted ship loudspeaker in a dim corridor, a small sign reading DECK 4, flickering light, sparks of static, empty hallway behind"
+    },
+    {
+      "id": 7,
+      "art": "fire_door",
+      "camera": "zoom_in",
+      "effects": [
+        "alarm_pulse"
+      ],
+      "sfx": [
+        "knock",
+        "creak"
+      ],
+      "narration": "Der Weg zum Deck ist versperrt. Eine Brandschutztür. Verriegelt. Dahinter Stimmen. Und Klopfen.",
+      "image_prompt": "A massive closed steel fire door with a locking wheel and yellow-black warning stripes, red emergency light, {JONAS} with one hand flat on the door and {MIA} pressed against him, both seen from behind"
+    },
+    {
+      "id": 8,
+      "art": "fork",
+      "camera": "pan_up",
+      "sfx": [
+        "water_rush",
+        "drip"
+      ],
+      "narration": "Nur zwei Wege bleiben. Links ein überfluteter Gang zur Rettungsstation. Rechts ein enger Wartungsschacht. Nach oben. Ins Dunkle.",
+      "image_prompt": "A corridor that splits in two: on the left a half-flooded passage glowing teal under the water with a distant sign RETTUNGSSTATION, on the right a narrow metal ladder shaft leading up into darkness, {JONAS} and {MIA} standing in the middle from behind, holding hands"
+    },
+    {
+      "id": 9,
+      "art": "water_shadow",
+      "camera": "zoom_in",
+      "sfx": [
+        "heartbeat",
+        "drip"
+      ],
+      "narration": "Da flüstert Mia: Jonas. Da unten im Wasser. Da hat sich etwas bewegt.",
+      "image_prompt": "Looking down at dark still water in a flooded ship corridor, small ripples spreading in rings, a huge pale blurry shape barely visible deep under the surface, the reflections of {JONAS} and {MIA} at the edge of the water, eerie and mysterious, no monster visible"
+    },
+    {
+      "id": 10,
+      "art": "decision",
+      "camera": "zoom_out",
+      "decision": true,
+      "sfx": [
+        "riser"
+      ],
+      "narration": "Was soll Jonas tun? Eins: mit Mia durch den überfluteten Gang tauchen. Oder zwei: in den dunklen Schacht klettern. Schreib eins oder zwei in die Kommentare!",
+      "image_prompt": "Split composition: left side a flooded glowing teal corridor, right side a dark ladder shaft going up, {JONAS} and {MIA} small in the center between both paths, cinematic, space for text overlay"
+    }
+  ],
+  "question": {
+    "text": "Was soll Jonas tun?",
+    "option_1": "Mit Mia durch den überfluteten Gang tauchen",
+    "option_2": "In den dunklen Schacht klettern",
+    "call_to_action": "Schreib 1 oder 2 in die Kommentare!"
+  },
+  "upload": {
+    "title": "Das Schiff sinkt – und nur Jonas weiß es | Die letzte Nacht der Aurora #1",
+    "description": "3:12 Uhr nachts, mitten im Atlantik. Ein Schlag im Rumpf – und das Wasser steigt. Jonas (17) muss seine kleine Schwester Mia (9) retten. Doch der Weg nach oben ist versperrt …\n\nDU entscheidest, wie es weitergeht: 1 oder 2? Die meistgewählte Antwort bestimmt Folge 2!",
+    "hashtags": [
+      "#dieletztenachtderaurora",
+      "#serie",
+      "#spannung",
+      "#kreuzfahrtschiff",
+      "#duentscheidest",
+      "#storytime",
+      "#mystery",
+      "#fy",
+      "#deutsch"
+    ]
+  }
+}
