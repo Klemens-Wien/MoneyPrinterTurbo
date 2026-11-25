@@ -51,6 +51,20 @@ Optionale Felder im Storyboard machen aus der Story eine Art Spiel-Show:
 
 Beispiel: `docs/lowpoly-example-lava-night.json`.
 
+### Innenraum: Kinderzimmer (Grusel-Variante)
+
+Ort `bedroom` ist ein Kinderzimmer bei Nacht: Bett, Nachttischlampe (warmes Licht, flackert bei Gefahr),
+Fenster mit Mondlicht, Tür zum dunklen Flur, Kleiderschrank. Stimmung `indoor`.
+
+* `lockdown` – 21 Uhr: alle Türen knallen zu, die Lichter der Stadt gehen in einer Welle aus
+* `bed`, `sit_up` – Erzähler liegt wach im Bett / sitzt auf und starrt zur Tür
+* `noises` – Schritte im Haus, die Tür knarrt auf (mit Herzschlag)
+* `doorway` – leuchtende Augen der Kreatur im Flur, `empty_doorway` – Flur plötzlich leer
+* `closet` – Schranktür knarrt, Augen im Dunkeln, Flüstern
+* `watch` – draußen steht das Monster auf der Straße und starrt das Haus an
+
+Beispiel: `docs/lowpoly-example-dont-get-up.json`.
+
 ## Installation
 
 ```bash

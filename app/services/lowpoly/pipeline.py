@@ -124,8 +124,9 @@ def generate(opts: Options) -> dict:
             if ps.scene.clock:
                 hh, mm = map(int, ps.scene.clock.split(":"))
                 keys.append((ps.start, hh * 60 + mm))
+        start_m = keys[0][1] if keys else 22 * 60
         clock = overlays.NightClock(opts.width, opts.height, clock_start, clock_end, director.duration,
-                                    keyframes=keys)
+                                    from_minutes=start_m, keyframes=keys)
     if board.question and director.scenes:
         q = board.question
         question = overlays.QuestionCard(opts.width, opts.height, overlays.Question(q["text"], q["a"], q["b"]),
@@ -157,6 +158,7 @@ def generate(opts: Options) -> dict:
         director.storm_spans, director.flashes, director.cut_times, music, seed,
         music_volume=music_volume, thuds=director.monster_steps,
         ticks=wheel.tick_times() if wheel else None, dings=[wheel.land_time] if wheel else None,
+        sfx=director.sfx,
     )
 
     # 5. render
@@ -178,8 +180,8 @@ def generate(opts: Options) -> dict:
     try:
         for i in range(frames):
             t = i / opts.fps
-            cam, mood, draws, flash, extent = director.frame(t)
-            frame = renderer.render(cam, mood, draws, t, flash=flash, shadow_extent=extent)
+            cam, mood, draws, flash, extent, extras = director.frame(t)
+            frame = renderer.render(cam, mood, draws, t, flash=flash, shadow_extent=extent, extras=extras)
             word, cursor = cap.active_word(timed, t, cursor)
             if wheel is not None:
                 frame = wheel.composite(frame, t)

@@ -78,6 +78,13 @@ MOODS: dict[str, Mood] = {
         fog_density=0.0018, cloud_tint=hex_color("#3a4470"), exposure=1.1, saturation=1.0,
         stars=1.0, water_color=hex_color("#1a2a5a"), window_glow=1.0,
     ),
+    "indoor": Mood(
+        sun_elevation=26, sun_azimuth=90, sun_color=hex_color("#9fb8ff"), sun_strength=1.1,
+        sky_ambient=hex_color("#2c3566"), ground_ambient=hex_color("#1a1f3a"), shadow_tint=hex_color("#1e2450"),
+        sky_zenith=hex_color("#0b1030"), sky_horizon=hex_color("#24326c"), fog_color=hex_color("#10142c"),
+        fog_density=0.004, cloud_tint=hex_color("#3a4470"), exposure=1.45, saturation=1.0,
+        stars=1.0, water_color=hex_color("#1a2a5a"),
+    ),
 }
 
 MOOD_NAMES = tuple(MOODS)

@@ -219,6 +219,8 @@ ACTION_ENERGY = {
     "celebrate": 0.7, "crowd": 0.45, "argue": 0.55, "alone": 0.25, "walk": 0.4, "wave": 0.4,
     "build": 0.5, "landscape": 0.35, "house_leaves": 0.5, "faceoff": 0.4,
     "rampage": 0.95, "street_panic": 0.9, "hide": 0.3,
+    "lockdown": 0.55, "watch": 0.5, "bed": 0.18, "sit_up": 0.25, "noises": 0.22, "doorway": 0.4,
+    "empty_doorway": 0.2, "closet": 0.35,
 }
 
 

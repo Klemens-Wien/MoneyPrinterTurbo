@@ -75,6 +75,52 @@ def stomp(rng: np.random.Generator, seconds: float = 1.2) -> np.ndarray:
     return _norm(x)
 
 
+def foley(kind: str, rng: np.random.Generator) -> np.ndarray:
+    """Small synthesized sound effects (stereo)."""
+    if kind == "slam":
+        n = int(0.7 * SR)
+        t = np.arange(n) / SR
+        knock = np.sin(2 * np.pi * np.cumsum(70 + 90 * np.exp(-t * 30)) / SR) * np.exp(-t * 9)
+        crack = band(rng.standard_normal(n).astype(np.float32), 300, 2500) * np.exp(-t * 35)
+        x = knock + _norm(crack) * 0.4
+        pan = rng.uniform(-0.8, 0.8)
+        return (_norm(x)[:, None] * np.array([1 - max(pan, 0), 1 + min(pan, 0)]) * 0.34).astype(np.float32)
+    if kind == "step":
+        n = int(0.45 * SR)
+        t = np.arange(n) / SR
+        thud = np.sin(2 * np.pi * np.cumsum(55 + 40 * np.exp(-t * 25)) / SR) * np.exp(-t * 12)
+        wood = band(rng.standard_normal(n).astype(np.float32), 150, 900) * np.exp(-t * 30)
+        return ((_norm(thud) + _norm(wood) * 0.3)[:, None] * 0.3).astype(np.float32)
+    if kind == "creak":
+        n = int(1.6 * SR)
+        t = np.arange(n) / SR
+        f = 180 + 120 * np.sin(t * 2.3) + 40 * np.sin(t * 17)
+        tone = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * 0.5
+        grain = (rng.random(n) < 0.04).astype(float) * rng.standard_normal(n)
+        x = band((tone + grain).astype(np.float32), 120, 2200) * np.sin(np.pi * np.minimum(t / 1.6, 1)) ** 0.5
+        return (_norm(x)[:, None] * 0.16).astype(np.float32)
+    if kind == "breath":
+        n = int(2.6 * SR)
+        t = np.arange(n) / SR
+        env = np.sin(np.pi * t / 1.3) ** 2 * (t < 1.3) + np.sin(np.pi * (t - 1.3) / 1.3) ** 2 * (t >= 1.3) * 0.8
+        x = band(rng.standard_normal(n).astype(np.float32), 80, 900) * env
+        growl = np.sin(2 * np.pi * 48 * t) * env * 0.4
+        return ((_norm(x) + growl)[:, None] * 0.22).astype(np.float32)
+    if kind == "whisper":
+        n = int(1.8 * SR)
+        t = np.arange(n) / SR
+        syll = np.clip(np.sin(2 * np.pi * 3.2 * t), 0, 1) ** 2 * np.sin(np.pi * t / 1.8)
+        x = band(rng.standard_normal((n, 2)).astype(np.float32), 1500, 7000) * syll[:, None]
+        return (_norm(x) * 0.12).astype(np.float32)
+    if kind == "heartbeat":
+        n = int(0.6 * SR)
+        t = np.arange(n) / SR
+        beat = lambda d: np.sin(2 * np.pi * 50 * np.maximum(t - d, 0)) * np.exp(-np.maximum(t - d, 0) * 18) * (t >= d)  # noqa: E731
+        x = beat(0.0) + 0.7 * beat(0.22)
+        return (x[:, None] * 0.28).astype(np.float32)
+    return np.zeros((1, 2), dtype=np.float32)
+
+
 def whoosh(rng: np.random.Generator, seconds: float = 0.45) -> np.ndarray:
     n = int(seconds * SR)
     t = np.linspace(0, 1, n)
@@ -109,6 +155,7 @@ def mix(
     thuds: list[float] | None = None,
     ticks: list[float] | None = None,
     dings: list[float] | None = None,
+    sfx: list[tuple[float, str]] | None = None,
 ) -> str:
     rng = np.random.default_rng(seed)
     n = int(duration * SR)
@@ -188,6 +235,14 @@ def mix(
         if 0 <= s < n:
             e = min(n, s + nn)
             out[s:e] += ((bell * 0.3 + boom * 0.45)[: e - s])[:, None]
+
+    # horror foley: door slams, creaks, footsteps, breathing, whispers, heartbeat
+    for t, kind in sfx or []:
+        clip = foley(kind, rng)
+        s = int(t * SR)
+        if 0 <= s < n:
+            e = min(n, s + len(clip))
+            out[s:e] += clip[: e - s]
 
     # whooshes on cuts
     for t in cuts:

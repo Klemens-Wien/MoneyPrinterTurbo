@@ -160,7 +160,7 @@ class TestTimingAndDirection(unittest.TestCase):
         self.assertEqual(len(director.cut_times), len(board.scenes) - 1)
         self.assertTrue(director.storm_spans)
         self.assertTrue(director.flashes)
-        cam, mood, draws, flash, extent = director.frame(47.3)
+        cam, mood, draws, flash, extent, extras = director.frame(47.3)
         self.assertGreater(len(draws), 3)
         self.assertGreater(extent, 0)
 

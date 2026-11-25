@@ -27,7 +27,9 @@ uniform mat4 u_vp;
 uniform mat4 u_light_vp;
 uniform float u_time;
 uniform vec2 u_wind;
+uniform vec3 u_cam;
 out vec3 v_world;
+out vec3 v_rel;
 out vec3 v_col;
 out vec4 v_light;
 void main() {
@@ -36,6 +38,7 @@ void main() {
     float gust = 0.55 + 0.45 * sin(u_time * 2.1 + w.x * 0.13 + w.z * 0.09);
     w.xz += u_wind * in_sway * gust * 0.06 * h;
     v_world = w.xyz;
+    v_rel = w.xyz - u_cam;  // camera-relative: keeps derivative normals precise far from the origin
     v_col = in_col;
     v_light = u_light_vp * w;
     gl_Position = u_vp * w;
@@ -68,6 +71,7 @@ void main() {}
 SCENE_FS = """
 #version 330
 in vec3 v_world;
+in vec3 v_rel;
 in vec3 v_col;
 in vec4 v_light;
 uniform sampler2DShadow u_shadow;
@@ -87,6 +91,10 @@ uniform vec3 u_sky_horizon;
 uniform float u_flash;
 uniform float u_alpha;
 uniform float u_window_glow;
+uniform float u_lights_out;   // windows within this radius of the town centre are dark (-1 = none)
+uniform vec3 u_pl_pos;        // optional point light (night lamp)
+uniform vec3 u_pl_col;
+uniform float u_pl_radius;
 out vec4 f_color;
 
 float shadow_at(vec3 N) {
@@ -103,8 +111,8 @@ float shadow_at(vec3 N) {
 }
 
 void main() {
-    vec3 N = normalize(cross(dFdx(v_world), dFdy(v_world)));
-    vec3 V = u_cam - v_world;
+    vec3 N = normalize(cross(dFdx(v_rel), dFdy(v_rel)));
+    vec3 V = -v_rel;
     if (dot(N, V) < 0.0) N = -N;
     vec3 albedo = v_col * u_tint;
     if (u_material == 1) {
@@ -118,6 +126,12 @@ void main() {
     vec3 amb = mix(u_ground_amb, u_sky_amb, N.y * 0.5 + 0.5);
     float lit = ndl * sh;
     vec3 light = amb * 0.48 + u_sun_col * lit * 0.85 + u_shadow_tint * 0.3 * (1.0 - lit);
+    if (u_pl_radius > 0.0) {
+        vec3 Lp = u_pl_pos - v_world;
+        float dp = length(Lp);
+        float att = pow(clamp(1.0 - dp / u_pl_radius, 0.0, 1.0), 2.0);
+        light += u_pl_col * att * (0.35 + 0.65 * max(dot(N, Lp / max(dp, 1e-4)), 0.0));
+    }
     vec3 col = albedo * light;
     if (u_material == 1) {
         vec3 Vn = normalize(V);
@@ -134,6 +148,7 @@ void main() {
     }
     if (u_window_glow > 0.0 && distance(v_col, vec3(0.1725, 0.2431, 0.4706)) < 0.03) {
         float lit_window = step(0.3, fract(sin(dot(floor(v_world * 0.7), vec3(12.9898, 78.233, 37.719))) * 43758.5453));
+        if (u_lights_out >= 0.0 && length(v_world.xz) < u_lights_out) lit_window = 0.0;
         col = mix(col, vec3(1.0, 0.78, 0.42) * 1.25, u_window_glow * lit_window);
     }
     col += albedo * u_flash * 0.9;
@@ -367,7 +382,8 @@ class Renderer:
                 prog[name].value = value
 
     def render(self, camera: Camera, mood: Mood, draws: list[Draw], time: float, flash: float = 0.0,
-               shadow_focus=None, shadow_extent: float = 120.0) -> np.ndarray:
+               shadow_focus=None, shadow_extent: float = 120.0, extras: dict | None = None) -> np.ndarray:
+        extras = extras or {}
         ctx = self.ctx
         mgl = self.moderngl
         aspect = self.width / self.height
@@ -446,6 +462,14 @@ class Renderer:
         self._set(p, "u_flash", flash)
         self._set(p, "u_alpha", 1.0)
         self._set(p, "u_window_glow", float(mood.window_glow))
+        self._set(p, "u_lights_out", float(extras.get("lights_out", -1.0)))
+        light = extras.get("point_light")
+        if light:
+            self._set(p, "u_pl_pos", tuple(float(v) for v in light[0]))
+            self._set(p, "u_pl_col", tuple(float(v) for v in light[1]))
+            self._set(p, "u_pl_radius", float(light[2]))
+        else:
+            self._set(p, "u_pl_radius", 0.0)
         for d in draws:
             scene_vao, _, _ = self.meshes[d.key]
             material = self.materials.get(d.key, 0)

@@ -82,6 +82,8 @@ SETTINGS: dict[str, Setting] = {
     "mountains": Setting("mountains", (8.0, -300.0), "z", 0.0, 3.4, "foot of the snowy mountains"),
     "forest": Setting("forest", (210.0, -120.0), "x", 0.0, 2.2, "a dense green forest"),
     "construction": Setting("construction", (72.0, 34.0), "x", 0.0, 0.7, "an empty building lot with a crane"),
+    "bedroom": Setting("bedroom", (2.45, 1497.65), "x", 0.0, -0.8,
+                       "the narrator's dark bedroom at night (bed, door to the hallway, closet, window)", clear_radius=0.0),
     "main_street": Setting("main_street", (-62.0, 7.0), "x", 0.0, 0.45,
                            "the main street of the town, houses on both sides", clear_radius=6.0),
 }
@@ -379,10 +381,12 @@ def build_world(seed: int = 7) -> World:
     obstacles: list = []
     specs = _town(static, rng, obstacles)
     _trees(static, terrain, rng, fields)
+    from . import interior
+
     return World(
         seed=seed,
         terrain=terrain,
-        static=static.build(),
+        static=np.concatenate([static.build(), interior.build_static()]),
         water=_water().build(),
         clouds=_clouds(rng).build(),
         house_specs=specs,

@@ -104,6 +104,13 @@ class ActorLibrary:
             keys[name] = key
         return keys
 
+    def raw(self, key: str, vertices: np.ndarray, material: int = 0) -> str:
+        if key not in self.meshes:
+            self.meshes[key] = vertices
+        if material:
+            self.materials[key] = material
+        return key
+
     def school_bus(self) -> str:
         if "school_bus" not in self.meshes:
             mb = MeshBuilder()
@@ -184,6 +191,7 @@ class Figure(Actor):
     path: LinePath | None = None
     size: float = 1.0
     face_target: np.ndarray | None = None
+    look_turn: float = 0.0  # head yaw offset for the "sit" pose
 
     def _state(self, t: float):
         if self.path is not None:
@@ -236,6 +244,14 @@ class Figure(Actor):
             s = math.sin(tt * 14)
             rot["leg_l"], rot["leg_r"] = rotate_x(s * 0.6), rotate_x(-s * 0.6)
             lift = abs(math.cos(tt * 14)) * 0.12
+        elif anim == "lie":  # lying in bed, eyes darting around
+            rot["head"] = rotate_y(math.sin(tt * 0.9) * 0.45 + math.sin(tt * 2.7) * 0.08)
+            rot["arm_l"], rot["arm_r"] = rotate_z(-0.1), rotate_z(0.1)
+        elif anim == "sit":  # sitting up in bed, staring at something
+            rot["leg_l"], rot["leg_r"] = rotate_x(-1.5), rotate_x(-1.5)
+            rot["arm_l"], rot["arm_r"] = rotate_x(-0.4), rotate_x(-0.35)
+            rot["head"] = rotate_y(self.look_turn + math.sin(tt * 3.1) * 0.05)
+            lift = 0.0
         elif anim == "crouch":
             rot["leg_l"], rot["leg_r"] = rotate_x(-1.2), rotate_x(-1.0)
             rot["arm_l"], rot["arm_r"] = rotate_x(-1.0), rotate_x(-1.1)
@@ -258,7 +274,10 @@ class Figure(Actor):
             rot["arm_l"], rot["arm_r"] = rotate_z(-0.06 * b), rotate_z(0.06 * b)
             rot["head"] = rotate_y(math.sin(tt * 0.7) * 0.25)
             lift = 0.02 * (b + 1)
-        base = translate(pos[0], pos[1] + lift, pos[2]) @ rotate_y(heading) @ scale(self.size)
+        base = translate(pos[0], pos[1] + lift, pos[2]) @ rotate_y(heading)
+        if anim == "lie":
+            base = base @ rotate_x(-math.pi / 2)
+        base = base @ scale(self.size)
         if body_tilt:
             base = base @ translate(0, 0.95, 0) @ rotate_x(body_tilt) @ translate(0, -0.95, 0)
         out = []
@@ -427,6 +446,30 @@ class Monster(Actor):
             if key:
                 out.append(Draw(key, matrices[name]))
         return out
+
+
+@dataclass
+class Prop(Actor):
+    """A static or hinged mesh (doors, lamp shade, glowing eyes...).
+
+    angle(t) rotates around the local y axis at `position` (a hinge);
+    visible(t) can hide it (e.g. blinking eyes).
+    """
+
+    key: str
+    position: np.ndarray
+    heading: float = 0.0
+    angle: Callable[[float], float] | None = None
+    visible: Callable[[float], bool] | None = None
+
+    def focus(self, t: float) -> np.ndarray:
+        return self.position
+
+    def draws(self, t: float) -> list[Draw]:
+        if self.visible is not None and not self.visible(t):
+            return []
+        a = self.angle(t) if self.angle else 0.0
+        return [Draw(self.key, translate(*self.position) @ rotate_y(self.heading + a))]
 
 
 class Midpoint(Actor):

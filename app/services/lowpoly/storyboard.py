@@ -47,6 +47,14 @@ ACTIONS = {
     "rampage": "the monster stomps down the street while the narrator and townspeople run ahead of it",
     "street_panic": "people scatter screaming in the street while the monster approaches",
     "hide": "the narrator and their little sister crouch and hide while the monster walks past in the distance",
+    "lockdown": "9 PM: every door in town slams shut and all the lights go out, one house after another",
+    "watch": "outside, the monster stands in the dark street staring at the narrator's house",
+    "bed": "(bedroom) the narrator lies awake in bed, eyes darting around",
+    "sit_up": "(bedroom) the narrator sits up in bed and stares at the door",
+    "noises": "(bedroom) footsteps in the house, the bedroom door creaks open a little",
+    "doorway": "(bedroom) glowing eyes of a creature in the dark hallway behind the open door",
+    "empty_doorway": "(bedroom) the door is wide open, the hallway is empty",
+    "closet": "(bedroom) the closet door creaks open and glowing eyes appear inside",
 }
 ACTION_NAMES = tuple(ACTIONS)
 SETTING_NAMES = tuple(SETTINGS)

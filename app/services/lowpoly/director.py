@@ -19,13 +19,17 @@ from .actors import (
     LinePath,
     Midpoint,
     Monster,
+    Prop,
     Vehicle,
 )
 from .camera import shot_camera
 from .mesh import translate
 from .renderer import Camera, Draw
 from .storyboard import Scene, Storyboard
-from .world import SETTINGS, World
+from . import interior
+from .world import HOME_POS, SETTINGS, World
+
+INTERIOR_ACTIONS = {"bed", "sit_up", "noises", "doorway", "closet", "empty_doorway"}
 
 MOOD_BLEND_SECONDS = 1.2
 PEOPLE_ACTIONS = {"walk", "run", "crowd", "celebrate", "argue", "alone", "wave"}
@@ -302,6 +306,19 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         monster = giant(m_pos, heading=face(m_pos, hero_pos), anim="lean")
         return Group([bus, hero_fig, monster], 1, look=monster), 1.2
 
+    if setting_name == "bedroom" or action in INTERIOR_ACTIONS:
+        return _bedroom_scene(action, duration, lib, rng, hero)
+
+    if action == "lockdown":
+        return Group([Marker(np.array([0.0, 6.0, 10.0]))], 0), 1.5
+
+    if action == "watch":
+        home = np.array(HOME_POS)
+        m_pos = home + np.array([0.0, 0.0, 34.0])
+        monster = giant(m_pos, heading=math.pi, anim="idle")
+        window = Marker(home + np.array([0.0, 3.5, 4.5]))
+        return Group([monster, window], 1, look=monster), 1.0
+
     if action == "rampage":
         speed = 5.5
         start = road_point - road_dir * (speed * duration / 2 + 40)
@@ -374,6 +391,54 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
     return Group([Marker(stage + np.array([0.0, 2.0, 0.0]))], 0), 1.6
 
 
+def _bedroom_scene(action: str, duration: float, lib: ActorLibrary, rng: np.random.Generator, hero):
+    w = interior.world
+    door_key = lib.raw("door", interior.door_mesh())
+    closet_key = lib.raw("closet_door", interior.closet_door_mesh())
+    lamp_key = lib.raw("lamp_glow", interior.lamp_glow_mesh(), material=3)
+    eyes_key = lib.raw("eyes_glow", interior.eyes_mesh(), material=3)
+
+    def ramp(a0, a1, t0=0.15, t1=0.85):
+        def f(t):
+            u = min(max((t / max(duration, 1e-6) - t0) / (t1 - t0), 0.0), 1.0)
+            return a0 + (a1 - a0) * (u * u * (3 - 2 * u))
+        return f
+
+    door_angle = {"noises": ramp(0.0, 0.45), "doorway": ramp(0.55, 1.2, 0.0, 0.5),
+                  "empty_doorway": ramp(1.2, 1.35)}.get(action, lambda t: 0.0)
+    closet_angle = ramp(0.0, 0.55, 0.1, 0.6) if action == "closet" else (lambda t: 0.0)
+    members: list[Actor] = [
+        # hinge on the far side so the opening door swings away from the bed's line of sight
+        Prop(door_key, w(interior.DOOR_HINGE_LOCAL + np.array([0.0, 0.0, interior.DOOR_WIDTH])), heading=math.pi,
+             angle=lambda t: -door_angle(t)),
+        Prop(closet_key, w(interior.CLOSET_LOCAL + np.array([-1.0, 0.0, -0.15])), angle=closet_angle),
+        Prop(closet_key, w(interior.CLOSET_LOCAL + np.array([1.0, 0.0, -0.15])), heading=math.pi),
+        Prop(lamp_key, w(interior.LAMP_LOCAL)),
+    ]
+    bed = interior.BED_LOCAL
+    sitting = action in ("sit_up", "doorway", "empty_doorway")
+    if sitting:
+        hero_fig = Figure(hero, w(bed + np.array([0.0, interior.BED_SURFACE - 0.95 * 0.8 + 0.05, -0.55])),
+                          anim="sit", size=0.8, look_turn=-0.95)
+    else:
+        hero_fig = Figure(hero, w(bed + np.array([0.0, interior.BED_SURFACE + 0.2, 1.05])), anim="lie", size=0.8)
+    members.insert(0, hero_fig)
+    look = None
+    if action == "doorway":
+        m = Monster(lib.monster(), w(interior.HALLWAY_MONSTER_LOCAL), heading=math.pi / 2, size=0.25,
+                    anim="lean", phase=float(rng.uniform(0, 3)))
+        members.append(m)
+        look = m
+    if action == "closet":
+        blink = lambda t: (t % 2.7) > 0.15  # noqa: E731
+        eyes = Prop(eyes_key, w(interior.CLOSET_LOCAL + np.array([-0.45, 1.75, -0.04])), heading=math.pi,
+                    visible=lambda t: t > duration * 0.35 and blink(t))
+        members.append(eyes)
+        look = eyes
+    group = Group(members, 0, look=look)
+    return group, 0.12
+
+
 def flash_value(flashes: list[float], t: float) -> float:
     v = 0.0
     for f in flashes:
@@ -388,6 +453,7 @@ class Director:
                  fast_cuts: bool = True):
         self.world = world
         self.storyboard = storyboard
+        self.seed = seed
         self.library = ActorLibrary(seed)
         self.library.monster_variant = getattr(storyboard, "monster", "grey") or "grey"
         rng = np.random.default_rng(seed + 99)
@@ -424,6 +490,32 @@ class Director:
         return [f for s in self.scenes for f in s.flashes]
 
     @property
+    def sfx(self) -> list[tuple[float, str]]:
+        """Sound effects implied by the scenes: (time, kind)."""
+        rng = np.random.default_rng(self.seed + 5)
+        out: list[tuple[float, str]] = []
+        for s in self.scenes:
+            a, t0, d = s.scene.action, s.start, s.duration
+            if a == "lockdown":
+                for k in range(14):
+                    out.append((t0 + 0.8 + k * (d - 1.6) / 14 + float(rng.uniform(-0.1, 0.1)), "slam"))
+            if a == "noises":
+                for k in range(int(d / 0.95)):
+                    out.append((t0 + 0.3 + k * 0.95, "step"))
+                out.append((t0 + d * 0.2, "creak"))
+            if a in ("doorway", "empty_doorway"):
+                out.append((t0 + 0.1, "creak"))
+            if a == "doorway":
+                out.append((t0 + 0.9, "breath"))
+            if a == "closet":
+                out.append((t0 + d * 0.12, "creak"))
+                out.append((t0 + d * 0.4, "whisper"))
+            if a in ("noises", "doorway", "closet", "sit_up"):
+                for k in range(int(d / 0.8)):
+                    out.append((t0 + k * 0.8, "heartbeat"))
+        return sorted(out)
+
+    @property
     def monster_steps(self) -> list[float]:
         out = []
         for s in self.scenes:
@@ -438,8 +530,9 @@ class Director:
         """Moments for a dramatic musical hit (monster reveals / confrontations)."""
         hits, prev = [], None
         for s in self.scenes:
-            if s.scene.action in ("monster", "standoff", "panic", "faceoff", "rampage", "street_panic") and \
-                    prev not in ("monster", "standoff", "faceoff", "rampage", "street_panic"):
+            if s.scene.action in ("monster", "standoff", "panic", "faceoff", "rampage", "street_panic",
+                                  "doorway", "closet", "watch") and \
+                    prev not in ("monster", "standoff", "faceoff", "rampage", "street_panic", "doorway", "closet"):
                 hits.append(s.start)
             prev = s.scene.action
         return hits
@@ -486,12 +579,14 @@ class Director:
         ps = self.scene_at(t)
         local = t - ps.start
         shot, yaw, u, _ = ps.shot_at(local)
+        indoor = ps.scene.setting == "bedroom" or ps.scene.action in INTERIOR_ACTIONS
         k = min(local / MOOD_BLEND_SECONDS, 1.0)
         mood = mood_lib.blend(ps.mood_from, ps.mood_to, k * k * (3 - 2 * k))
         cam: Camera = shot_camera(
             shot, u, local, ps.actor.focus, ps.actor.forward, yaw, ps.scale, ground=self.world.ground,
             look=ps.actor.look.focus if isinstance(ps.actor, Group) and ps.actor.look is not None else None,
-            obstacles=self._obstacles(ps, local),
+            obstacles=None if indoor else self._obstacles(ps, local),
+            bounds=(interior.BOUNDS_MIN, interior.BOUNDS_MAX) if indoor else None,
         )
         shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
         if shake > 0.01:
@@ -503,4 +598,21 @@ class Director:
         flash = flash_value(ps.flashes, t)
         dist = float(np.linalg.norm(np.asarray(cam.eye) - np.asarray(cam.target)))
         extent = float(np.clip(dist * 0.9 + 14, 22, 320))
-        return cam, mood, draws, flash, extent
+        extras: dict = {"lights_out": self._lights_out(ps, local)}
+        if indoor:
+            extent = 14.0
+            flicker = 1.0
+            if ps.scene.action in ("noises", "doorway", "closet"):
+                flicker = 0.75 + 0.25 * math.sin(t * 23.0) * math.sin(t * 7.3)
+            extras["point_light"] = (interior.world(interior.LAMP_LOCAL + np.array([0.0, 0.15, 0.0])),
+                                     (1.0 * flicker, 0.72 * flicker, 0.4 * flicker), 4.5)
+        return cam, mood, draws, flash, extent, extras
+
+    def _lights_out(self, ps: PlannedScene, local: float) -> float:
+        """Radius around the town centre in which all windows are dark (-1: none)."""
+        idx = self.scenes.index(ps)
+        if ps.scene.action == "lockdown":
+            return max(-1.0, (local - 0.8) * 70.0)
+        if any(s.scene.action == "lockdown" for s in self.scenes[:idx]):
+            return 1e5
+        return -1.0

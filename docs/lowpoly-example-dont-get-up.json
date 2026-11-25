@@ -1,0 +1,26 @@
+{
+  "title": "Rule #1 In My Town: Once You're In Bed, Don't Get Up",
+  "description": "At 9 PM every door slams shut. Then I heard footsteps inside our house… what would you do?",
+  "hashtags": ["Shorts", "survivethenight", "horrorstory", "story", "lowpoly", "animation"],
+  "monster": "shadow",
+  "wheel": true,
+  "night_clock": true,
+  "question": {"text": "Do I get out of bed?", "a": "Get up", "b": "Stay in bed"},
+  "scenes": [
+    {"narration": "Every night in my town, a wheel decides which monster gets to walk the streets.", "setting": "main_street", "action": "landscape", "shot": "aerial_orbit", "mood": "sunset"},
+    {"narration": "Tonight, it's the Shadow Beast.", "setting": "town", "action": "monster", "shot": "low_angle", "mood": "night", "clock": "20:55"},
+    {"narration": "At nine o'clock sharp, every door in town slams shut. And every light goes out.", "setting": "main_street", "action": "lockdown", "shot": "aerial_orbit", "mood": "night", "clock": "21:00"},
+    {"narration": "There's only one rule. Once you're in bed, you do not get up. No matter what you hear.", "setting": "bedroom", "action": "bed", "shot": "top_down", "mood": "indoor", "clock": "21:05"},
+    {"narration": "I've followed that rule my whole life. Until tonight.", "setting": "bedroom", "action": "bed", "shot": "closeup", "mood": "indoor", "clock": "22:30"},
+    {"narration": "At eleven, I heard footsteps. Inside our house.", "setting": "bedroom", "action": "noises", "shot": "low_angle", "mood": "indoor", "clock": "23:00"},
+    {"narration": "Slow. Heavy. Coming up the stairs. Then my bedroom door started to open.", "setting": "bedroom", "action": "noises", "shot": "dolly_in", "mood": "indoor", "clock": "23:20"},
+    {"narration": "Mom always said: if you ever see the eyes, close yours.", "setting": "bedroom", "action": "doorway", "shot": "closeup", "mood": "indoor", "clock": "00:10"},
+    {"narration": "So I closed my eyes, and I counted to one hundred.", "setting": "bedroom", "action": "bed", "shot": "top_down", "mood": "indoor", "clock": "00:30"},
+    {"narration": "When I opened them, the door was wide open. And the hallway was empty.", "setting": "bedroom", "action": "empty_doorway", "shot": "crane_up", "mood": "indoor", "clock": "01:40"},
+    {"narration": "I looked out of the window. The Shadow Beast was standing in the street. Staring at our house.", "setting": "home", "action": "watch", "shot": "low_angle", "mood": "night", "clock": "03:00"},
+    {"narration": "Which means the thing in our hallway was not the Shadow Beast.", "setting": "bedroom", "action": "sit_up", "shot": "closeup", "mood": "indoor", "clock": "03:30"},
+    {"narration": "Then my closet creaked open.", "setting": "bedroom", "action": "closet", "shot": "low_angle", "mood": "indoor", "clock": "05:00"},
+    {"narration": "And a voice whispered, in my mom's voice: sweetie, it's safe now. You can get up.", "setting": "bedroom", "action": "closet", "shot": "closeup", "mood": "indoor", "clock": "05:58"},
+    {"narration": "It's five fifty nine. One minute until morning. Do I get up, or do I stay in bed? Tell me.", "setting": "bedroom", "action": "sit_up", "shot": "pull_back", "mood": "indoor", "clock": "05:59"}
+  ]
+}

@@ -46,6 +46,7 @@ def shot_camera(
     ground: Callable[[float, float], float] | None = None,
     obstacles: np.ndarray | None = None,
     look: Callable[[float], np.ndarray] | None = None,
+    bounds: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> Camera:
     """u: normalised scene progress 0..1, t: scene time in seconds.
 
@@ -65,18 +66,19 @@ def shot_camera(
         side = np.array([dh[2], 0.0, -dh[0]])
         if np.dot(side, _offset(yaw, 1, 0)) < 0:
             side = -side
+        ks = 1.0 if s >= 0.5 else max(s * 1.2, 0.12)  # indoor scenes are staged much tighter
         if shot == "closeup":  # over the shoulder, looking up at the subject
-            eye = f - dh * (9.0 - 2.0 * e) + side * 2.5 + np.array([0.0, 0.6, 0.0])
+            eye = f - dh * (9.0 - 2.0 * e) * ks + side * max(2.5 * ks, 0.9) + np.array([0.0, 0.6 * max(ks, 0.5), 0.0])
             cam = Camera(eye, f + (lt - f) * (0.42 + 0.2 * e), 62)
         elif shot == "low_angle":  # from the ground, the subject looms over everything
-            eye = f - dh * 12.0 + side * (4.0 + 2.0 * u)
-            eye[1] = f[1] - 1.2
+            eye = f - dh * 12.0 * ks + side * (4.0 + 2.0 * u) * ks
+            eye[1] = f[1] - 1.2 * max(ks, 0.5)
             cam = Camera(eye, f + (lt - f) * 0.7, 64)
         elif shot == "dolly_in":
-            eye = f - dh * (32 - 22 * e) + side * 6 + np.array([0.0, 3.0 + 2 * e, 0.0])
+            eye = f - dh * (32 - 22 * e) * ks + side * 6 * ks + np.array([0.0, (3.0 + 2 * e) * ks, 0.0])
             cam = Camera(eye, f + (lt - f) * 0.75, 55)
         else:  # crane_up: rise from behind the focus to a high view of both
-            eye = f - dh * (8 + 30 * e) + side * (4 + 12 * e) + np.array([0.0, 1.0 + 55 * e, 0.0])
+            eye = f - dh * (8 + 30 * e) * ks + side * (4 + 12 * e) * ks + np.array([0.0, (1.0 + 55 * e) * ks, 0.0])
             cam = Camera(eye, f + (lt - f) * (0.6 - 0.25 * e), 55)
     elif shot == "aerial_orbit":
         eye = f + _offset(yaw + 0.35 * u, 95 * s, 70 * s)
@@ -137,8 +139,15 @@ def shot_camera(
             cam.eye = (cam.eye[0], g + 0.6, cam.eye[2])
     if obstacles is not None and len(obstacles):
         cam.eye = avoid_obstacles(np.asarray(cam.eye, dtype=np.float64), np.asarray(cam.target, dtype=np.float64), obstacles)
+    if bounds is not None:  # indoor: keep the camera inside the room
+        eye = np.clip(np.asarray(cam.eye, dtype=np.float64), bounds[0], bounds[1])
+        if np.linalg.norm(eye - np.asarray(cam.target)) < 0.8:
+            eye = np.clip(eye + (eye - np.asarray(cam.target)) * 2 + np.array([0, 0.5, 0]), bounds[0], bounds[1])
+        cam.eye = eye
     # subtle handheld drift keeps static moments alive
     drift = np.array([math.sin(t * 0.9), math.sin(t * 1.3 + 1.0) * 0.6, math.cos(t * 0.7)]) * 0.12 * (1 + 0.02 * np.linalg.norm(np.asarray(cam.eye) - f))
+    if bounds is not None:
+        drift *= 0.25
     cam.eye = tuple(np.asarray(cam.eye, dtype=np.float64) + drift)
     cam.target = tuple(np.asarray(cam.target, dtype=np.float64))
     return cam
