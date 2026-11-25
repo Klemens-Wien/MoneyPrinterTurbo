@@ -34,7 +34,7 @@ Beispiele: `docs/lowpoly-example-liars-house.json`, `docs/lowpoly-example-grey-g
 
 Optionale Felder im Storyboard machen aus der Story eine Art Spiel-Show:
 
-```json
+```jsonc
 {
   "monster": "lava",            // grey | lava | ice | shadow | swamp
   "wheel": true,                // Glücksrad am Anfang, landet auf diesem Monster (mit Tick-Sound + Gong)
