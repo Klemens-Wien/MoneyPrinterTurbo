@@ -107,6 +107,8 @@ def mix(
     seed: int = 0,
     music_volume: float = 0.30,
     thuds: list[float] | None = None,
+    ticks: list[float] | None = None,
+    dings: list[float] | None = None,
 ) -> str:
     rng = np.random.default_rng(seed)
     n = int(duration * SR)
@@ -166,6 +168,26 @@ def mix(
         e = min(n, s + len(st))
         if 0 <= s < e:
             out[s:e] += st[: e - s]
+
+    # wheel ticks and the landing "ding"
+    for t in ticks or []:
+        nn = int(0.03 * SR)
+        x = np.arange(nn) / SR
+        click = (np.sin(2 * np.pi * 2400 * x) * 0.6 + rng.standard_normal(nn) * 0.4) * np.exp(-x * 220)
+        s = int(t * SR)
+        if 0 <= s < n:
+            e = min(n, s + nn)
+            out[s:e] += (click[: e - s] * 0.22)[:, None]
+    for t in dings or []:
+        nn = int(1.6 * SR)
+        x = np.arange(nn) / SR
+        bell = sum(np.sin(2 * np.pi * f * x) * a for f, a in ((880, 0.5), (1320, 0.35), (1760, 0.25), (2640, 0.1)))
+        bell *= np.exp(-x * 2.8)
+        boom = np.sin(2 * np.pi * np.cumsum(40 + 60 * np.exp(-x * 8)) / SR) * np.exp(-x * 2.5)
+        s = int(t * SR)
+        if 0 <= s < n:
+            e = min(n, s + nn)
+            out[s:e] += ((bell * 0.3 + boom * 0.45)[: e - s])[:, None]
 
     # whooshes on cuts
     for t in cuts:

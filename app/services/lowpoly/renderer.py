@@ -86,6 +86,7 @@ uniform vec3 u_water_col;
 uniform vec3 u_sky_horizon;
 uniform float u_flash;
 uniform float u_alpha;
+uniform float u_window_glow;
 out vec4 f_color;
 
 float shadow_at(vec3 N) {
@@ -129,7 +130,11 @@ void main() {
         col = albedo * (amb * 0.75 + u_sun_col * (0.35 + 0.35 * ndl));
     }
     if (u_material == 3) {
-        col = albedo * 1.6;  // glowing (monster eyes)
+        col = albedo * 1.12;  // glowing (monster eyes, lava cracks)
+    }
+    if (u_window_glow > 0.0 && distance(v_col, vec3(0.1725, 0.2431, 0.4706)) < 0.03) {
+        float lit_window = step(0.3, fract(sin(dot(floor(v_world * 0.7), vec3(12.9898, 78.233, 37.719))) * 43758.5453));
+        col = mix(col, vec3(1.0, 0.78, 0.42) * 1.25, u_window_glow * lit_window);
     }
     col += albedo * u_flash * 0.9;
     float d = length(V);
@@ -440,6 +445,7 @@ class Renderer:
         self._set(p, "u_sky_horizon", mood.sky_horizon)
         self._set(p, "u_flash", flash)
         self._set(p, "u_alpha", 1.0)
+        self._set(p, "u_window_glow", float(mood.window_glow))
         for d in draws:
             scene_vao, _, _ = self.meshes[d.key]
             material = self.materials.get(d.key, 0)

@@ -218,6 +218,7 @@ ACTION_ENERGY = {
     "run": 0.8, "collapse": 0.85, "breakdown": 0.7, "standoff": 0.38, "push": 0.5, "friends": 0.7,
     "celebrate": 0.7, "crowd": 0.45, "argue": 0.55, "alone": 0.25, "walk": 0.4, "wave": 0.4,
     "build": 0.5, "landscape": 0.35, "house_leaves": 0.5, "faceoff": 0.4,
+    "rampage": 0.95, "street_panic": 0.9, "hide": 0.3,
 }
 
 

@@ -30,6 +30,27 @@ Die Pipeline folgt dem viralen „In This Town“-Format (Roblox-artige Story-Sh
 
 Beispiele: `docs/lowpoly-example-liars-house.json`, `docs/lowpoly-example-grey-giant.json`.
 
+## Format: „Survive the Night“ (Glücksrad + Entscheidungsfrage)
+
+Optionale Felder im Storyboard machen aus der Story eine Art Spiel-Show:
+
+```json
+{
+  "monster": "lava",            // grey | lava | ice | shadow | swamp
+  "wheel": true,                // Glücksrad am Anfang, landet auf diesem Monster (mit Tick-Sound + Gong)
+  "night_clock": true,          // Uhr oben im Bild: 10:00 PM -> 5:59 AM
+  "question": {"text": "Should I open the door?", "a": "Open it", "b": "Wait one more minute"},
+  "scenes": [ {"narration": "...", "clock": "02:00", ...} ]   // "clock" stellt die Uhr passend zur Erzählung
+}
+```
+
+* Nachts leuchten die Fenster der Stadt, Lava-Golem und Schattenbestie haben glühende Risse.
+* Die Frage-Karte erscheint in der letzten Szene („COMMENT A OR B“) und bringt Kommentare und Stoff für Teil 2.
+* Neue Aktionen dafür: `rampage` (Monster stampft durch die Hauptstraße, alle rennen), `street_panic`,
+  `hide` (Erzähler und kleine Schwester verstecken sich), Ort `main_street`.
+
+Beispiel: `docs/lowpoly-example-lava-night.json`.
+
 ## Installation
 
 ```bash

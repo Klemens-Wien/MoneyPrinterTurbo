@@ -15,7 +15,10 @@ from loguru import logger
 
 from .camera import SHOTS
 from .moods import MOOD_NAMES
+from .props import MONSTER_VARIANTS
 from .world import SETTINGS
+
+MONSTER_VARIANT_NAMES = tuple(MONSTER_VARIANTS)
 
 ACTIONS = {
     "convoy": "a line of colourful trucks carrying whole houses drives down the road",
@@ -41,6 +44,9 @@ ACTIONS = {
     "friends": "the monster stands calmly and waves while everyone cheers around it",
     "house_leaves": "somebody's house drives away on a truck while its owner panics",
     "faceoff": "the narrator stands alone face to face with the giant monster, which leans down to look at them",
+    "rampage": "the monster stomps down the street while the narrator and townspeople run ahead of it",
+    "street_panic": "people scatter screaming in the street while the monster approaches",
+    "hide": "the narrator and their little sister crouch and hide while the monster walks past in the distance",
 }
 ACTION_NAMES = tuple(ACTIONS)
 SETTING_NAMES = tuple(SETTINGS)
@@ -55,6 +61,7 @@ class Scene:
     mood: str = "day"
     action: str = "landscape"
     shot: str = "aerial_orbit"
+    clock: str = ""  # optional time of night shown when this scene starts, e.g. "02:00"
 
 
 @dataclass
@@ -65,6 +72,10 @@ class Storyboard:
     description: str = ""
     hashtags: list[str] = field(default_factory=list)
     hook: str = ""  # short on-screen text shown at the top during the first seconds
+    monster: str = "grey"  # monster variant (grey, lava, ice, shadow, swamp)
+    wheel: bool = False  # open with a spinning "tonight's monster" wheel that lands on `monster`
+    night_clock: bool = False  # "survive the night" clock 10:00 PM -> 5:59 AM
+    question: dict | None = None  # {"text": ..., "a": ..., "b": ...} shown at the end (comment bait)
 
     @property
     def word_count(self) -> int:
@@ -86,7 +97,20 @@ class Storyboard:
             description=str(data.get("description") or "").strip(),
             hashtags=[str(h).lstrip("#") for h in data.get("hashtags", []) if str(h).strip()][:8],
             hook=str(data.get("hook") or "").strip()[:80],
+            monster=_pick(data.get("monster"), MONSTER_VARIANT_NAMES, "grey"),
+            wheel=bool(data.get("wheel", False)),
+            night_clock=bool(data.get("night_clock", False)),
+            question=_parse_question(data.get("question")),
         )
+
+
+def _parse_question(raw) -> dict | None:
+    if not isinstance(raw, dict):
+        return None
+    text, a, b = (str(raw.get(k) or "").strip() for k in ("text", "a", "b"))
+    if not (text and a and b):
+        return None
+    return {"text": text[:90], "a": a[:40], "b": b[:40]}
 
 
 def _pick(value, allowed, default):
@@ -106,7 +130,15 @@ def normalize_scene(raw: dict) -> Scene:
         mood=_pick(raw.get("mood"), MOOD_NAMES, "day"),
         action=_pick(raw.get("action"), ACTION_NAMES, "landscape"),
         shot=_pick(raw.get("shot"), tuple(SHOTS), "aerial_orbit"),
+        clock=_parse_clock(raw.get("clock")),
     )
+
+
+def _parse_clock(value) -> str:
+    m = re.match(r"^\s*(\d{1,2}):(\d{2})\s*$", str(value or ""))
+    if not m or int(m.group(1)) > 23 or int(m.group(2)) > 59:
+        return ""
+    return f"{int(m.group(1)):02d}:{m.group(2)}"
 
 
 def _vary_shots(scenes: list[Scene]) -> None:

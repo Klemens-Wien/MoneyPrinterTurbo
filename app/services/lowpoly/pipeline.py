@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from loguru import logger
 
 from . import captions as cap
-from . import narration, score, soundtrack
+from . import narration, overlays, score, soundtrack
 from . import storyboard as sb
 from .director import Director
 from .narration import Word
@@ -108,6 +108,28 @@ def generate(opts: Options) -> dict:
     # 3. direction
     world = build_world(seed)
     director = Director(world, board, durations, seed)
+    wheel = clock = question = None
+    if board.wheel:
+        from .props import MONSTER_VARIANTS
+
+        names = list(MONSTER_VARIANTS)
+        wheel = overlays.MonsterWheel(opts.width, opts.height, [MONSTER_VARIANTS[n]["name"] for n in names],
+                                      names.index(board.monster), start=0.25,
+                                      spin=max(2.6, min(3.6, durations[0] - 1.6)), hold=1.2)
+    if board.night_clock and director.scenes:
+        clock_start = director.scenes[1].start if wheel and len(director.scenes) > 1 else 0.0
+        clock_end = director.scenes[-1].start if board.question else director.duration
+        keys = []
+        for ps in director.scenes:
+            if ps.scene.clock:
+                hh, mm = map(int, ps.scene.clock.split(":"))
+                keys.append((ps.start, hh * 60 + mm))
+        clock = overlays.NightClock(opts.width, opts.height, clock_start, clock_end, director.duration,
+                                    keyframes=keys)
+    if board.question and director.scenes:
+        q = board.question
+        question = overlays.QuestionCard(opts.width, opts.height, overlays.Question(q["text"], q["a"], q["b"]),
+                                         director.scenes[-1].start + 0.3, director.duration + 1)
     starts = [s.start for s in director.scenes]
 
     words: list[Word] = []
@@ -134,6 +156,7 @@ def generate(opts: Options) -> dict:
         [soundtrack.VoicePlacement(c.path, s) for c, s in zip(clips, starts)],
         director.storm_spans, director.flashes, director.cut_times, music, seed,
         music_volume=music_volume, thuds=director.monster_steps,
+        ticks=wheel.tick_times() if wheel else None, dings=[wheel.land_time] if wheel else None,
     )
 
     # 5. render
@@ -146,7 +169,7 @@ def generate(opts: Options) -> dict:
 
     captioner = cap.CaptionRenderer(opts.width, opts.height, case=opts.caption_case)
     hook_end = min(director.scenes[0].end, 4.0) if director.scenes else 3.5
-    banner = cap.HookBanner(opts.width, opts.height, board.hook, 0.0, hook_end)
+    banner = cap.HookBanner(opts.width, opts.height, "" if wheel else board.hook, 0.0, hook_end)
     video_path = os.path.join(work, f"{_slug(board.title)}.mp4")
     writer = _ffmpeg_writer(video_path, opts, audio_path)
     frames = int(total * opts.fps)
@@ -158,7 +181,14 @@ def generate(opts: Options) -> dict:
             cam, mood, draws, flash, extent = director.frame(t)
             frame = renderer.render(cam, mood, draws, t, flash=flash, shadow_extent=extent)
             word, cursor = cap.active_word(timed, t, cursor)
-            frame = captioner.composite(frame, word, t)
+            if wheel is not None:
+                frame = wheel.composite(frame, t)
+            if clock is not None:
+                frame = clock.composite(frame, t)
+            if question is not None:
+                frame = question.composite(frame, t)
+            low = (wheel is not None and t < wheel.end)
+            frame = captioner.composite(frame, word, t, y_frac=0.85 if low else None)
             frame = banner.composite(frame, t)
             writer.stdin.write(frame.tobytes())
             if i % (opts.fps * 5) == 0:

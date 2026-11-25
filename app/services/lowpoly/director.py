@@ -198,7 +198,8 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         side = np.array([d[2], 0.0, -d[0]])
         members: list[Actor] = [Figure(hero, start, anim=action, path=LinePath(start, d, speed))]
         if action == "walk":
-            members.append(Figure(_npc(lib, rng), start + side * 1.7, anim="walk", phase=0.4,
+            buddy, size = (lib.figure("sister"), 0.72) if setting_name == "home" else (_npc(lib, rng), 1.0)
+            members.append(Figure(buddy, start + side * 1.7, anim="walk", phase=0.4, size=size,
                                   path=LinePath(start + side * 1.7, d, speed)))
         else:
             for i in range(3):
@@ -301,9 +302,53 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         monster = giant(m_pos, heading=face(m_pos, hero_pos), anim="lean")
         return Group([bus, hero_fig, monster], 1, look=monster), 1.2
 
+    if action == "rampage":
+        speed = 5.5
+        start = road_point - road_dir * (speed * duration / 2 + 40)
+        monster = giant(start, path=LinePath(start, road_dir, speed))
+        monster.stride = 1.9
+        members: list[Actor] = []
+        crowd_start = start + road_dir * 48
+        hero_fig = Figure(hero, crowd_start + np.array([0.0, 0.0, 1.5]), anim="run",
+                          path=LinePath(crowd_start + np.array([0.0, 0.0, 1.5]), road_dir, speed * 1.08))
+        members.append(hero_fig)
+        side = np.array([road_dir[2], 0.0, -road_dir[0]])
+        for i in range(10):
+            p = crowd_start + road_dir * rng.uniform(-4, 14) + side * rng.uniform(-4, 4)
+            members.append(Figure(_npc(lib, rng), p, anim="run", phase=float(rng.uniform(0, 3)),
+                                  path=LinePath(p, road_dir, speed * float(rng.uniform(1.0, 1.2)))))
+        members.append(monster)
+        return Group(members, 0, look=monster), 1.0
+
+    if action == "street_panic":
+        members = [Figure(hero, stage.copy(), anim="panic", face_target=stage + away * 100)]
+        for i in range(14):
+            ang = rng.uniform(0, 2 * math.pi)
+            d = np.array([math.sin(ang), 0.0, math.cos(ang)])
+            p = stage + d * rng.uniform(2, 8)
+            members.append(Figure(_npc(lib, rng), p, anim="panic", phase=float(rng.uniform(0, 3)),
+                                  path=LinePath(p, d, float(rng.uniform(2.5, 4.5)))))
+        m_pos = stage + away * 110
+        monster = giant(m_pos, path=LinePath(m_pos, toward_cam, 4.0))
+        members.append(monster)
+        return Group(members, 0, look=monster), 0.9
+
+    # at the narrator's home the threat always comes from the street in front of the door (+z)
+    threat = np.array([0.0, 0.0, 1.0]) if setting_name == "home" else away
+
+    if action == "hide":
+        hero_pos = stage.copy()
+        sister = Figure(lib.figure("sister"), hero_pos + np.array([1.1, 0.0, 0.4]), anim="crouch", size=0.72,
+                        face_target=hero_pos + threat * 50 + np.array([1.1, 0, 0.4]), phase=1.3)
+        hero_fig = Figure(hero, hero_pos, anim="crouch", face_target=hero_pos + threat * 50)
+        side = np.array([threat[2], 0.0, -threat[0]])
+        m_start = stage + threat * 70 - side * 40
+        monster = giant(m_start, path=LinePath(m_start, side, 3.5))
+        return Group([hero_fig, sister, monster], 0, look=monster), 0.45
+
     if action == "faceoff":
         hero_pos = stage.copy()
-        m_pos = hero_pos + away * 36
+        m_pos = hero_pos + threat * 36
         hero_fig = Figure(hero, hero_pos, heading=face(hero_pos, m_pos), anim="idle" if mood != "storm" else "panic")
         monster = giant(m_pos, heading=face(m_pos, hero_pos), anim="lean")
         return Group([hero_fig, monster], 0, look=monster), 1.2
@@ -344,6 +389,7 @@ class Director:
         self.world = world
         self.storyboard = storyboard
         self.library = ActorLibrary(seed)
+        self.library.monster_variant = getattr(storyboard, "monster", "grey") or "grey"
         rng = np.random.default_rng(seed + 99)
         self.scenes: list[PlannedScene] = []
         t = 0.0
@@ -392,7 +438,8 @@ class Director:
         """Moments for a dramatic musical hit (monster reveals / confrontations)."""
         hits, prev = [], None
         for s in self.scenes:
-            if s.scene.action in ("monster", "standoff", "panic", "faceoff") and prev not in ("monster", "standoff", "faceoff"):
+            if s.scene.action in ("monster", "standoff", "panic", "faceoff", "rampage", "street_panic") and \
+                    prev not in ("monster", "standoff", "faceoff", "rampage", "street_panic"):
                 hits.append(s.start)
             prev = s.scene.action
         return hits

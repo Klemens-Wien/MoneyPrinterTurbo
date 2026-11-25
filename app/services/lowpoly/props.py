@@ -263,6 +263,15 @@ HERO_COLORS = {
 }
 
 
+SISTER_COLORS = {
+    "skin": hex_color("#ffd6a8"),
+    "shirt": hex_color("#ff6fb5"),
+    "pants": hex_color("#7a6cf0"),
+    "hair": hex_color("#e8c25a"),
+    "cap": False,
+}
+
+
 def figure_parts(colors: dict) -> dict[str, MeshBuilder]:
     """Return one MeshBuilder per limb, each in pivot-local coordinates."""
     parts = {name: MeshBuilder() for name in FIGURE_PARTS}
@@ -306,19 +315,44 @@ MONSTER_OFFSETS = {  # relative to the hip pivot (head/eyes/arms ride on the bod
 MONSTER_LEGS = {"leg_l": (-1.3, 3.0, 0.0), "leg_r": (1.3, 3.0, 0.0)}
 
 
-def monster_parts() -> dict[str, MeshBuilder]:
-    rng = np.random.default_rng(4242)
-    skin = hex_color("#5b6178")
-    belly = hex_color("#8a8fa6")
-    dark = hex_color("#3c4052")
-    moss = hex_color("#5f8f4e")
-    bone = hex_color("#f1ead2")
-    parts = {name: MeshBuilder() for name in MONSTER_PARTS}
+MONSTER_VARIANTS = {
+    # name: skin, belly, dark, accent (moss/cracks), bone, eye, accent glows?, display name
+    "grey": dict(skin="#5b6178", belly="#8a8fa6", dark="#3c4052", accent="#5f8f4e", bone="#f1ead2",
+                 eye="#ffe14d", glow=False, name="Grey Giant"),
+    "lava": dict(skin="#4a2620", belly="#6e3226", dark="#2a1512", accent="#ff7a1a", bone="#3a2a26",
+                 eye="#ffd23f", glow=True, name="Lava Golem"),
+    "ice": dict(skin="#8fc1e3", belly="#dff3ff", dark="#5a8fb8", accent="#ffffff", bone="#e8fbff",
+                eye="#3ff6ff", glow=False, name="Ice Titan"),
+    "shadow": dict(skin="#1f1b2e", belly="#2c2742", dark="#110f1a", accent="#b04dff", bone="#3a3450",
+                   eye="#ff3df2", glow=True, name="Shadow Beast"),
+    "swamp": dict(skin="#3f5a35", belly="#7a8a4a", dark="#26361f", accent="#2f6f3a", bone="#d8d0a0",
+                  eye="#c6ff3d", glow=False, name="Swamp King"),
+}
+MONSTER_NAMES = {k: v["name"] for k, v in MONSTER_VARIANTS.items()}
+
+
+def monster_parts(variant: str = "grey") -> dict[str, MeshBuilder]:
+    """Blocky giant in one of several colour variants.
+
+    Glowing details (eyes, lava cracks, shadow runes) live in separate "*_glow"
+    meshes that the renderer draws unlit; they share the transform of their part.
+    """
+    spec = MONSTER_VARIANTS.get(variant, MONSTER_VARIANTS["grey"])
+    skin, belly, dark = hex_color(spec["skin"]), hex_color(spec["belly"]), hex_color(spec["dark"])
+    accent, bone, eye = hex_color(spec["accent"]), hex_color(spec["bone"]), hex_color(spec["eye"])
+    glow = spec["glow"]
+    names = list(MONSTER_PARTS) + ["body_glow", "arm_l_glow", "arm_r_glow", "leg_l_glow", "leg_r_glow"]
+    parts = {name: MeshBuilder() for name in names}
     body = parts["body"]
+    acc_body = parts["body_glow"] if glow else body
     body.box((0, 2.1, 0), (4.4, 4.2, 2.8), skin)
     body.box((0, 1.9, 1.42), (3.0, 3.2, 0.12), belly)
-    body.box((-1.6, 4.1, 0.2), (1.6, 0.5, 2.4), moss)
-    body.box((1.5, 4.15, -0.2), (1.4, 0.45, 2.0), moss)
+    acc_body.box((-1.6, 4.1, 0.2), (1.6, 0.5, 2.4), accent)
+    acc_body.box((1.5, 4.15, -0.2), (1.4, 0.45, 2.0), accent)
+    if glow:  # cracks / runes across chest and back
+        for (x, y, w, h) in ((-0.8, 2.6, 0.18, 1.6), (0.6, 1.4, 1.4, 0.16), (0.2, 3.2, 0.16, 1.0), (-0.9, 0.9, 1.0, 0.16)):
+            acc_body.box((x, y, 1.5), (w, h, 0.06), accent)
+            acc_body.box((-x, y + 0.3, -1.43), (w, h, 0.06), accent)
     for i, z in enumerate((-0.9, -0.2, 0.5)):
         body.cone((0, 4.2, z - 0.4), 0.55 - i * 0.08, 1.4 - i * 0.2, bone, segments=4)
     for y in (1.0, 2.2, 3.3):
@@ -327,17 +361,22 @@ def monster_parts() -> dict[str, MeshBuilder]:
     head.box((0, 0.95, 0.3), (2.4, 1.9, 2.2), skin)
     head.box((0, 0.2, 0.55), (2.2, 0.5, 2.0), dark)  # jaw
     for x in (-0.75, -0.25, 0.25, 0.75):
-        head.box((x, 0.5, 1.48), (0.22, 0.32, 0.12), bone)
+        head.box((x, 0.5, 1.48), (0.22, 0.32, 0.12), bone if variant != "lava" else hex_color("#ffb347"))
     head.box((0, 1.6, 1.41), (2.0, 0.22, 0.12), dark)  # brow
     for side in (-1, 1):
         head.cone((side * 1.0, 1.85, 0.0), 0.32, 1.1, bone, segments=4)
     eyes = parts["eyes"]
     for side in (-1, 1):
-        eyes.box((side * 0.55, 1.18, 1.42), (0.5, 0.32, 0.1), hex_color("#ffe14d"))
+        eyes.box((side * 0.55, 1.18, 1.42), (0.5, 0.32, 0.1), eye)
+    if variant == "lava":
+        eyes.box((0, 0.42, 1.45), (1.9, 0.16, 0.05), accent)  # glowing mouth
     for side, name in ((-1, "arm_l"), (1, "arm_r")):
         arm = parts[name]
+        acc = parts[name + "_glow"] if glow else arm
         arm.box((0, -2.0, 0), (1.2, 4.2, 1.25), skin)
-        arm.box((side * 0.05, -0.4, 0), (1.35, 1.0, 1.4), moss)
+        acc.box((side * 0.05, -0.4, 0), (1.35, 1.0, 1.4), accent)
+        if glow:
+            acc.box((0, -2.4, 0.64), (0.16, 2.2, 0.05), accent)
         arm.box((0, -4.35, 0.1), (1.55, 1.1, 1.55), dark)
         for k in (-0.45, 0.0, 0.45):
             arm.box((k, -4.95, 0.55), (0.25, 0.35, 0.25), bone)
@@ -345,6 +384,8 @@ def monster_parts() -> dict[str, MeshBuilder]:
         leg = parts[name]
         leg.box((0, -1.4, 0), (1.7, 2.9, 1.8), skin)
         leg.box((0, -2.8, 0.25), (1.95, 0.45, 2.5), dark)
+        if glow:
+            parts[name + "_glow"].box((0.3, -1.2, 0.92), (0.16, 1.6, 0.05), accent)
     return parts
 
 

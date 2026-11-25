@@ -122,7 +122,7 @@ class CaptionRenderer:
             return 1.12 - 0.12 * ((age - 0.09) / 0.11)
         return 1.0
 
-    def composite(self, frame: np.ndarray, word: TimedWord | None, t: float) -> np.ndarray:
+    def composite(self, frame: np.ndarray, word: TimedWord | None, t: float, y_frac: float | None = None) -> np.ndarray:
         if word is None:
             return frame
         img = self.word_image(word)
@@ -133,7 +133,7 @@ class CaptionRenderer:
             h, w = img.shape[:2]
             img = np.asarray(Image.fromarray(img).resize((max(1, int(w * s)), max(1, int(h * s))), Image.BILINEAR))
         h, w = img.shape[:2]
-        cx, cy = self.width // 2, int(self.height * self.y_frac)
+        cx, cy = self.width // 2, int(self.height * (y_frac if y_frac is not None else self.y_frac))
         x0, y0 = cx - w // 2, cy - h // 2
         fx0, fy0 = max(0, x0), max(0, y0)
         fx1, fy1 = min(self.width, x0 + w), min(self.height, y0 + h)

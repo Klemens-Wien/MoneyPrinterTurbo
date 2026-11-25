@@ -70,6 +70,7 @@ class Setting:
     road_line: float
     view_heading: float  # preferred camera yaw (radians) looking at stage
     description: str
+    clear_radius: float = 24.0  # no buildings are placed this close to the stage
 
 
 SETTINGS: dict[str, Setting] = {
@@ -81,6 +82,8 @@ SETTINGS: dict[str, Setting] = {
     "mountains": Setting("mountains", (8.0, -300.0), "z", 0.0, 3.4, "foot of the snowy mountains"),
     "forest": Setting("forest", (210.0, -120.0), "x", 0.0, 2.2, "a dense green forest"),
     "construction": Setting("construction", (72.0, 34.0), "x", 0.0, 0.7, "an empty building lot with a crane"),
+    "main_street": Setting("main_street", (-62.0, 7.0), "x", 0.0, 0.45,
+                           "the main street of the town, houses on both sides", clear_radius=6.0),
 }
 
 HOME_POS = (40.0, 0.0, -34.0)
@@ -244,8 +247,8 @@ def _town(mb: MeshBuilder, rng: np.random.Generator, obstacles: list) -> list[di
         obstacles.append((pos[0], pos[2], math.hypot(info["width"], info["depth"]) / 2 + 0.6, info["height"] + 1.5))
         return info
 
-    def near_stage(x, z, radius=24.0):
-        return any(math.hypot(x - st.stage[0], z - st.stage[1]) < radius for st in SETTINGS.values())
+    def near_stage(x, z):
+        return any(math.hypot(x - st.stage[0], z - st.stage[1]) < st.clear_radius for st in SETTINGS.values())
 
     props.town_hall(mb, TOWN_HALL_POS, rng, rot=math.pi)
     obstacles.append((TOWN_HALL_POS[0], TOWN_HALL_POS[2], 14.0, 24.0))

@@ -31,6 +31,7 @@ class Mood:
     lightning: float = 0.0  # probability weight of flashes
     stars: float = 0.0
     water_color: tuple = hex_color("#4cc3e6")
+    window_glow: float = 0.0
 
     def sun_direction(self) -> np.ndarray:
         el, az = math.radians(self.sun_elevation), math.radians(self.sun_azimuth)
@@ -55,14 +56,14 @@ MOODS: dict[str, Mood] = {
         sky_ambient=hex_color("#b58fc9"), ground_ambient=hex_color("#8a6a70"), shadow_tint=hex_color("#7a5fb8"),
         sky_zenith=hex_color("#4a4aa8"), sky_horizon=hex_color("#ffae63"), fog_color=hex_color("#f0a58a"),
         fog_density=0.0015, cloud_tint=hex_color("#ffb08a"), exposure=1.02, saturation=1.2,
-        water_color=hex_color("#c77a8a"),
+        water_color=hex_color("#c77a8a"), window_glow=0.35,
     ),
     "storm": Mood(
         sun_elevation=40, sun_azimuth=20, sun_color=hex_color("#9aa4b8"), sun_strength=0.22,
         sky_ambient=hex_color("#7d8aa8"), ground_ambient=hex_color("#4f5a5a"), shadow_tint=hex_color("#5a6080"),
         sky_zenith=hex_color("#2e3648"), sky_horizon=hex_color("#69748a"), fog_color=hex_color("#5d687c"),
         fog_density=0.0030, cloud_tint=hex_color("#4a5060"), exposure=1.18, saturation=0.75,
-        rain=1.0, wind=1.0, lightning=1.0, water_color=hex_color("#3e5a6a"),
+        rain=1.0, wind=1.0, lightning=1.0, water_color=hex_color("#3e5a6a"), window_glow=0.6,
     ),
     "overcast": Mood(
         sun_elevation=45, sun_azimuth=30, sun_color=hex_color("#e6e8f0"), sun_strength=0.45,
@@ -75,7 +76,7 @@ MOODS: dict[str, Mood] = {
         sky_ambient=hex_color("#3a4a8c"), ground_ambient=hex_color("#1c2438"), shadow_tint=hex_color("#28305e"),
         sky_zenith=hex_color("#0b1030"), sky_horizon=hex_color("#2a3a78"), fog_color=hex_color("#1e2a5a"),
         fog_density=0.0018, cloud_tint=hex_color("#3a4470"), exposure=1.1, saturation=1.0,
-        stars=1.0, water_color=hex_color("#1a2a5a"),
+        stars=1.0, water_color=hex_color("#1a2a5a"), window_glow=1.0,
     ),
 }
 

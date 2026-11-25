@@ -1,0 +1,141 @@
+{
+  "title": "Survive the Night: The Lava Golem Knocked on My Door",
+  "description": "Every night the wheel picks a monster. Tonight it stopped at my door at 5:59… what would you do?",
+  "hashtags": [
+    "Shorts",
+    "survivethenight",
+    "monster",
+    "story",
+    "lowpoly",
+    "animation"
+  ],
+  "monster": "lava",
+  "wheel": true,
+  "night_clock": true,
+  "question": {
+    "text": "Should I open the door?",
+    "a": "Open it",
+    "b": "Wait one more minute"
+  },
+  "scenes": [
+    {
+      "narration": "Every night at ten, the wheel decides which monster breaks out of the mountain.",
+      "setting": "main_street",
+      "action": "landscape",
+      "shot": "aerial_orbit",
+      "mood": "night"
+    },
+    {
+      "narration": "Tonight, it's the Lava Golem. And the rule is simple: survive until six A M.",
+      "setting": "town",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "night",
+      "clock": "22:00"
+    },
+    {
+      "narration": "I grabbed my little sister and we ran home. Doors locked. Lights off.",
+      "setting": "home",
+      "action": "walk",
+      "shot": "closeup",
+      "mood": "night",
+      "clock": "22:20"
+    },
+    {
+      "narration": "Dad's only rule: if you can hear it breathing, it can hear you too.",
+      "setting": "home",
+      "action": "alone",
+      "shot": "low_angle",
+      "mood": "night",
+      "clock": "22:40"
+    },
+    {
+      "narration": "At eleven, the first scream. Mister Peterson forgot to lock his door, and the whole street started running.",
+      "setting": "main_street",
+      "action": "street_panic",
+      "shot": "aerial_orbit",
+      "mood": "night",
+      "clock": "23:00"
+    },
+    {
+      "narration": "His house melted like butter.",
+      "setting": "main_street",
+      "action": "collapse",
+      "shot": "dolly_in",
+      "mood": "night",
+      "clock": "23:30"
+    },
+    {
+      "narration": "We hid under the window and held our breath. Every single step shook the whole house.",
+      "setting": "home",
+      "action": "hide",
+      "shot": "closeup",
+      "mood": "night",
+      "clock": "00:40"
+    },
+    {
+      "narration": "At two A M, it came down our street. Slowly. Checking every door. Three houses away. Then two.",
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "low_angle",
+      "mood": "night",
+      "clock": "02:00"
+    },
+    {
+      "narration": "Then the rain started. And lava hates rain.",
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "crane_up",
+      "mood": "storm",
+      "clock": "03:10"
+    },
+    {
+      "narration": "It screamed so loud, every window in town cracked.",
+      "setting": "town",
+      "action": "monster",
+      "shot": "dolly_in",
+      "mood": "storm",
+      "clock": "03:40"
+    },
+    {
+      "narration": "My sister grabbed my arm and whispered: it's not angry. It's freezing. It just needs somewhere dry.",
+      "setting": "home",
+      "action": "hide",
+      "shot": "low_angle",
+      "mood": "storm",
+      "clock": "04:30"
+    },
+    {
+      "narration": "At five fifty nine, the stomping stopped. Right outside our front door.",
+      "setting": "home",
+      "action": "faceoff",
+      "shot": "crane_up",
+      "mood": "overcast",
+      "clock": "05:50"
+    },
+    {
+      "narration": "Then it knocked. Three times. Gently.",
+      "setting": "home",
+      "action": "faceoff",
+      "shot": "closeup",
+      "mood": "overcast",
+      "clock": "05:58"
+    },
+    {
+      "narration": "One minute until sunrise. Its fire was going out, it was shivering, and it was looking right at me.",
+      "setting": "home",
+      "action": "faceoff",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "clock": "05:59"
+    },
+    {
+      "narration": "The rule says never open the door. So what do I do? Open it, or wait one more minute? Tell me.",
+      "setting": "home",
+      "action": "faceoff",
+      "shot": "pull_back",
+      "mood": "overcast",
+      "clock": "05:59"
+    }
+  ]
+}

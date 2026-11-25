@@ -26,6 +26,7 @@ class ActorLibrary:
         self.seed = seed
         self.meshes: dict[str, np.ndarray] = {}
         self.materials: dict[str, int] = {"monster_eyes": 3}
+        self.monster_variant = "grey"
 
     def _store(self, key: str, builder: MeshBuilder) -> str:
         if key not in self.meshes:
@@ -39,6 +40,8 @@ class ActorLibrary:
             return {p: k for k, p in keys.items()}
         if variant == "hero":
             colors = props.HERO_COLORS
+        elif variant == "sister":
+            colors = props.SISTER_COLORS
         else:
             idx = int(variant[3:]) if variant.startswith("npc") else 0
             colors = props.figure_colors(np.random.default_rng(self.seed * 1000 + idx))
@@ -84,14 +87,20 @@ class ActorLibrary:
             self._store(key, mb)
         return key
 
-    def monster(self) -> dict[str, str]:
+    def monster(self, variant: str | None = None) -> dict[str, str]:
+        variant = variant or self.monster_variant
+        prefix = "monster" if variant == "grey" else f"monster_{variant}"
         keys = {}
         parts = None
-        for name in props.MONSTER_PARTS:
-            key = f"monster_{name}"
+        for name in list(props.MONSTER_PARTS) + [p + "_glow" for p in ("body", "arm_l", "arm_r", "leg_l", "leg_r")]:
+            key = f"{prefix}_{name}"
             if key not in self.meshes:
-                parts = parts or props.monster_parts()
+                parts = parts or props.monster_parts(variant)
+                if len(parts[name]) == 0:
+                    continue
                 self._store(key, parts[name])
+            if name == "eyes" or name.endswith("_glow"):
+                self.materials[key] = 3
             keys[name] = key
         return keys
 
@@ -227,6 +236,12 @@ class Figure(Actor):
             s = math.sin(tt * 14)
             rot["leg_l"], rot["leg_r"] = rotate_x(s * 0.6), rotate_x(-s * 0.6)
             lift = abs(math.cos(tt * 14)) * 0.12
+        elif anim == "crouch":
+            rot["leg_l"], rot["leg_r"] = rotate_x(-1.2), rotate_x(-1.0)
+            rot["arm_l"], rot["arm_r"] = rotate_x(-1.0), rotate_x(-1.1)
+            rot["head"] = rotate_y(math.sin(tt * 2.2) * 0.35)  # nervously looking around
+            lift = -0.42
+            body_tilt = 0.35
         elif anim == "sad":
             rot["head"] = rotate_x(0.38)
             rot["arm_l"], rot["arm_r"] = rotate_z(0.05), rotate_z(-0.05)
@@ -399,11 +414,18 @@ class Monster(Actor):
         base = translate(pos[0], pos[1] + lift * self.size, pos[2]) @ rotate_y(heading) @ scale(self.size)
         body_m = base @ translate(*props.MONSTER_HIP) @ body
         out = [Draw(self.parts["body"], body_m)]
+        matrices = {"body": body_m}
         for name, off in props.MONSTER_OFFSETS.items():
             local = rot["head"] if name == "eyes" else rot[name]
-            out.append(Draw(self.parts[name], body_m @ translate(*off) @ local))
+            matrices[name] = body_m @ translate(*off) @ local
+            out.append(Draw(self.parts[name], matrices[name]))
         for name, off in props.MONSTER_LEGS.items():
-            out.append(Draw(self.parts[name], base @ translate(*off) @ rot[name]))
+            matrices[name] = base @ translate(*off) @ rot[name]
+            out.append(Draw(self.parts[name], matrices[name]))
+        for name in ("body", "arm_l", "arm_r", "leg_l", "leg_r"):
+            key = self.parts.get(name + "_glow")
+            if key:
+                out.append(Draw(key, matrices[name]))
         return out
 
 
