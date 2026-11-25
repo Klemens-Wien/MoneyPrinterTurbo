@@ -114,7 +114,8 @@ def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str) -> Clip:
 
     async def run():
         rate = f"{rate_pct:+d}%"
-        communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary")
+        proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy") or None
+        communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary", proxy=proxy)
         with open(mp3, "wb") as fh:
             async for chunk in communicate.stream():
                 if chunk["type"] == "audio":
