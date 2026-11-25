@@ -51,3 +51,29 @@ Kann das LLM kein Skript schreiben, speichert `next` den fertigen Prompt unter
   `boom`, `alarm`, `alarm_far`, `water_rush`, `static`, `knock`, `drip`, `heartbeat`, `riser`
 * eine Entscheidungskarte in der letzten Szene, ein Label „KI-generiert“ und Upload-Texte für
   TikTok, YouTube Shorts und Instagram Reels
+
+## Stimmen und Dialoge
+
+Szenen können statt `narration` eine Liste `lines` mit Sprechern enthalten:
+
+```json
+"lines": [
+  {"speaker": "narrator", "text": "Oben die Brandschutztür. Verriegelt."},
+  {"speaker": "JONAS", "text": "Hallo! Hier unten sind noch Kinder!", "style": "angry"},
+  {"speaker": "MIA", "text": "Da hat sich was bewegt.", "style": "whisper"}
+]
+```
+
+Die Stimmen stehen in `series.json` unter `voices`. Ist Edge TTS nicht erreichbar, spricht jede
+Figur mit einer eigenen Piper-Stimme. Mia klingt durch `pitch` in Halbtönen kindlich. Der Erzähler
+kann `whisper`, `angry` oder `surprised` sprechen (Modell `de_DE-thorsten_emotional-medium`).
+Benötigte Modelle (nach `storage/series_models/` entpacken):
+`thorsten-high`, `thorsten_emotional-medium`, `karlsson-low`, `kerstin-low` von
+<https://github.com/k2-fsa/sherpa-onnx/releases/tag/tts-models> (`vits-piper-de_DE-<name>.tar.bz2`).
+
+## Kostenlose Bilder (Pollinations)
+
+Ohne OpenAI-Key nutzt `--images auto` den freien Dienst image.pollinations.ai. Er braucht keinen Key,
+erlaubt aber nur eine Anfrage gleichzeitig und liefert 576x1024. Kurze Prompts mit der Handlung am
+Anfang funktionieren am besten. Ausgewählte Bilder können mit `"image_file"` pro Szene fest
+eingetragen werden (siehe `series/aurora/bilder/`).

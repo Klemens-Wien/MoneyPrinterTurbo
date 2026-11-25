@@ -21,38 +21,34 @@
     "hook": "erster Satz in maximal 2 Sekunden, macht sofort neugierig",
     "ending": "Entscheidungsfrage mit genau 2 Optionen, gesprochen und groß eingeblendet, Aufforderung: 1 oder 2 in die Kommentare"
   },
-  "visual_style": "cinematic dark digital painting, moody deep blue and teal palette with red emergency light accents, volumetric light, soft film grain, vertical 9:16 composition, consistent character design, no gore, no blood, no text artifacts",
-  "voice": {
-    "edge_voice": "de-DE-ConradNeural-Male",
-    "offline_voice": "de_DE-thorsten-high"
-  },
+  "visual_style": "Pixar style 3D animation, dramatic cinematic lighting, no gore",
   "characters": [
     {
       "id": "JONAS",
       "name": "Jonas",
       "age": 17,
       "role": "Hauptfigur, großer Bruder, mutig, aber voller Angst um Mia",
-      "image_prompt": "Jonas, a 17-year-old boy, lean build, messy dark-brown hair, pale face, grey hoodie over a dark-blue T-shirt, black jeans, white sneakers"
+      "image_prompt": "teen boy with messy brown hair in a grey hoodie"
     },
     {
       "id": "MIA",
       "name": "Mia",
       "age": 9,
       "role": "kleine Schwester, aufmerksam, bemerkt Dinge, die andere übersehen",
-      "image_prompt": "Mia, a 9-year-old girl, long blond hair in two braids, bright yellow raincoat over pink pajamas, always holding a worn grey stuffed bunny"
+      "image_prompt": "little blond girl with two braids in a bright yellow raincoat"
     }
   ],
   "story_so_far": [
-    "Folge 1: Um 3:12 Uhr trifft ein dumpfer Schlag den Rumpf der Aurora. Jonas weckt Mia, der Alarm heult, aus dem Treppenhaus steigt schwarzes Wasser. Die Durchsage bricht mitten im Satz ab, die Brandschutztür zum Deck ist verriegelt. Es bleiben zwei Wege: ein überfluteter Gang zur Rettungsstation oder ein enger Wartungsschacht nach oben. Mia glaubt, im Wasser habe sich etwas bewegt."
+    "Folge 1: Um 3:12 Uhr reißt ein Knall Jonas und Mia aus dem Schlaf, das Schiff kippt. Der Alarm heult, Jonas rennt mit Mia los, doch im Treppenhaus schießt eiskaltes Wasser herauf. Die Brandschutztür nach oben ist verriegelt, die Durchsage bricht mitten im Satz ab. Es bleiben zwei Wege: ein überfluteter Gang zu den Rettungsbooten oder ein dunkler Schacht nach oben. Mia sieht, dass sich im Wasser etwas bewegt – und es kommt näher."
   ],
   "episodes": [
     {
       "episode": 1,
       "title": "Drei Uhr zwölf",
-      "danger": "Das Wasser steigt im Unterdeck, der Weg nach oben ist versperrt.",
+      "danger": "Das Schiff kippt, eiskaltes Wasser steigt im Unterdeck, der Weg nach oben ist verriegelt.",
       "previous_choice": null,
-      "summary": "Um 3:12 Uhr trifft ein dumpfer Schlag den Rumpf der Aurora. Jonas weckt Mia, der Alarm heult, aus dem Treppenhaus steigt schwarzes Wasser. Die Durchsage bricht mitten im Satz ab, die Brandschutztür zum Deck ist verriegelt. Es bleiben zwei Wege: ein überfluteter Gang zur Rettungsstation oder ein enger Wartungsschacht nach oben. Mia glaubt, im Wasser habe sich etwas bewegt.",
-      "cliffhanger": "Mia flüstert, dass sich unten im Wasser etwas bewegt hat.",
+      "summary": "Um 3:12 Uhr reißt ein Knall Jonas und Mia aus dem Schlaf, das Schiff kippt. Der Alarm heult, Jonas rennt mit Mia los, doch im Treppenhaus schießt eiskaltes Wasser herauf. Die Brandschutztür nach oben ist verriegelt, die Durchsage bricht mitten im Satz ab. Es bleiben zwei Wege: ein überfluteter Gang zu den Rettungsbooten oder ein dunkler Schacht nach oben. Mia sieht, dass sich im Wasser etwas bewegt – und es kommt näher.",
+      "cliffhanger": "Im Wasser bewegt sich etwas Großes – und es kommt näher.",
       "question": {
         "text": "Was soll Jonas tun?",
         "option_1": "Mit Mia durch den überfluteten Gang tauchen",
@@ -60,7 +56,7 @@
         "call_to_action": "Schreib 1 oder 2 in die Kommentare!"
       },
       "winning_answer": null,
-      "duration_seconds": 77.7,
+      "duration_seconds": 66.1,
       "output_dir": "output/folge_01"
     }
   ],
@@ -70,5 +66,28 @@
     "option_1": "Mit Mia durch den überfluteten Gang tauchen",
     "option_2": "In den dunklen Schacht klettern",
     "call_to_action": "Schreib 1 oder 2 in die Kommentare!"
+  },
+  "voices": {
+    "narrator": {
+      "edge_voice": "de-DE-ConradNeural-Male",
+      "piper_model": "de_DE-thorsten-high",
+      "emotions": true,
+      "speed": 1.05
+    },
+    "JONAS": {
+      "edge_voice": "de-DE-KillianNeural-Male",
+      "piper_model": "de_DE-karlsson-low",
+      "pitch": 1.5,
+      "speed": 1.12,
+      "gain": 1.0
+    },
+    "MIA": {
+      "edge_voice": "de-DE-AmalaNeural-Female",
+      "edge_pitch": 3,
+      "piper_model": "de_DE-kerstin-low",
+      "pitch": 5,
+      "speed": 1.05,
+      "gain": 1.0
+    }
   }
 }

@@ -52,8 +52,8 @@ def main(argv=None) -> int:
         p.add_argument("--output", default=None, help="Ausgabe-Wurzel (Standard: output/)")
         p.add_argument("--voice", choices=("auto", "edge", "piper"), default="auto",
                        help="auto = Edge TTS, bei Fehler Offline-Stimme Piper")
-        p.add_argument("--images", choices=("auto", "ai", "placeholder"), default="auto",
-                       help="auto = openai_image falls konfiguriert, sonst Platzhalter")
+        p.add_argument("--images", choices=("auto", "ai", "pollinations", "placeholder"), default="auto",
+                       help="auto = openai_image falls konfiguriert, sonst Pollinations (kostenlos), sonst Platzhalter")
 
     p_render = sub.add_parser("render", help="eine Folge aus einem Episoden-Skript rendern")
     common(p_render)

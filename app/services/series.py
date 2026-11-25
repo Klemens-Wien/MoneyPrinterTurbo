@@ -101,8 +101,8 @@ def validate_episode_spec(spec: dict) -> list[str]:
         if not str(q.get(key, "")).strip():
             problems.append(f"question.{key} fehlt")
     for i, s in enumerate(scenes, 1):
-        if not str(s.get("narration", "")).strip():
-            problems.append(f"Szene {i}: narration fehlt")
+        if not scene_text(s).strip():
+            problems.append(f"Szene {i}: narration/lines fehlt")
         if not str(s.get("image_prompt", "")).strip():
             problems.append(f"Szene {i}: image_prompt fehlt")
         for name in s.get("sfx", []):
@@ -132,10 +132,8 @@ def expand_image_prompt(series: dict, scene: dict) -> str:
             prompt = prompt.replace(token, ch["image_prompt"])
             used.append(ch["name"])
     style = series.get("visual_style", "")
-    consistency = (
-        " Keep the exact same character designs in every image." if used else ""
-    )
-    return f"{prompt}. Style: {style}.{consistency}"
+    # action first: small free models only read the first ~70 tokens
+    return f"{prompt}, {style}"
 
 
 # --------------------------------------------------------------------------
@@ -147,14 +145,30 @@ def _ffmpeg() -> str:
     return utils.get_ffmpeg_binary() or "ffmpeg"
 
 
-def _to_wav44k(src: str, dst: str, voice_filter: bool = True) -> None:
-    af = "aresample=44100"
-    if voice_filter:
-        af += ",highpass=f=60,acompressor=threshold=-20dB:ratio=3:attack=5:release=120"
+def _to_wav44k(src: str, dst: str, pitch: float = 0, whisper: bool = False) -> None:
+    """Resample to 44.1 kHz mono; ``pitch`` in semitones keeps the tempo."""
+    filters = []
+    if pitch:
+        factor = 2 ** (pitch / 12)
+        with wave.open(src, "rb") if src.endswith(".wav") else _nullwave() as w:
+            rate = w.getframerate() if w else 24000
+        filters += [f"asetrate={int(rate * factor)}", f"atempo={1 / factor:.5f}"]
+    filters += ["aresample=44100", "highpass=f=70"]
+    if whisper:
+        filters += ["lowpass=f=5000", "volume=0.8"]
+    filters += ["acompressor=threshold=-20dB:ratio=3:attack=5:release=120"]
     subprocess.run(
-        [_ffmpeg(), "-y", "-loglevel", "error", "-i", src, "-ac", "1", "-af", af, dst],
+        [_ffmpeg(), "-y", "-loglevel", "error", "-i", src, "-ac", "1", "-af", ",".join(filters), dst],
         check=True,
     )
+
+
+class _nullwave:
+    def __enter__(self):
+        return None
+
+    def __exit__(self, *exc):
+        return False
 
 
 def _read_wav(path: str) -> np.ndarray:
@@ -165,79 +179,100 @@ def _read_wav(path: str) -> np.ndarray:
     return (data.astype(np.float32) / 32768.0)
 
 
-def piper_model_path() -> str:
+DEFAULT_VOICES = {
+    "narrator": {"edge_voice": "de-DE-ConradNeural-Male", "piper_model": "de_DE-thorsten-high", "speed": 1.0},
+}
+# Erzähler-Stile, die das emotionale Thorsten-Modell sprechen kann
+EMOTION_MODEL = "de_DE-thorsten_emotional-medium"
+EMOTIONS = {"amused": 0, "angry": 1, "neutral": 4, "surprised": 6, "whisper": 7}
+
+
+def _piper_path(model_name: str) -> str:
     from app.config import config
 
-    configured = str(config.app.get("series_piper_model", "") or "").strip()
-    if configured:
-        return configured
-    return os.path.join(
-        utils.storage_dir("series_models"),
-        f"vits-piper-{PIPER_MODEL_NAME}",
-        f"{PIPER_MODEL_NAME}.onnx",
-    )
+    if model_name == PIPER_MODEL_NAME:
+        configured = str(config.app.get("series_piper_model", "") or "").strip()
+        if configured:
+            return configured
+    return os.path.join(utils.storage_dir("series_models"), f"vits-piper-{model_name}", f"{model_name}.onnx")
+
+
+def piper_model_path() -> str:
+    return _piper_path(PIPER_MODEL_NAME)
 
 
 class Narrator:
-    """Edge TTS when reachable, otherwise the local Piper voice."""
+    """Speaks the lines of all speakers (narrator, Jonas, Mia, ...).
 
-    def __init__(self, engine: str, edge_voice: str, speed: float = 0.9):
+    Every speaker has its own voice from ``series.json`` → ``voices``. Edge TTS
+    is used when reachable; otherwise each speaker gets its own local Piper
+    model (with optional pitch shift, e.g. a child voice for Mia).
+    """
+
+    def __init__(self, engine: str, voices: dict | None = None):
         self.engine = engine
-        self.edge_voice = edge_voice
-        self.speed = speed
-        self._piper = None
+        self.voices = {**DEFAULT_VOICES, **(voices or {})}
+        self._models: dict = {}
         self.used = None
 
-    def _edge(self, text: str, out_wav: str) -> bool:
+    def voice(self, speaker: str) -> dict:
+        return self.voices.get(speaker) or self.voices["narrator"]
+
+    def _edge(self, text: str, cfg: dict, out_wav: str) -> bool:
         from app.services import voice
 
         mp3 = out_wav[:-4] + ".mp3"
-        rate = self.speed if self.speed else 1.0
         try:
-            sub_maker = voice.tts(text=text, voice_name=self.edge_voice, voice_rate=rate, voice_file=mp3)
+            sub_maker = voice.tts(text=text, voice_name=cfg.get("edge_voice", "de-DE-ConradNeural-Male"),
+                                  voice_rate=cfg.get("speed", 1.0), voice_file=mp3)
         except Exception as exc:  # network/auth problems surface as exceptions
             logger.warning(f"edge tts failed: {exc}")
             return False
         if not sub_maker or not os.path.exists(mp3):
             return False
-        _to_wav44k(mp3, out_wav)
+        _to_wav44k(mp3, out_wav, cfg.get("edge_pitch", 0))
         return True
 
-    def _piper_tts(self, text: str, out_wav: str) -> None:
-        if self._piper is None:
+    def _load(self, model_name: str):
+        if model_name not in self._models:
             try:
                 from piper import PiperVoice
             except ImportError as exc:
-                raise RuntimeError(
-                    "Offline-Stimme nicht installiert: `uv pip install piper-tts`"
-                ) from exc
-            model = piper_model_path()
-            if not os.path.exists(model):
-                raise RuntimeError(
-                    f"Piper-Stimmmodell fehlt: {model}\n"
-                    f"Download: {PIPER_MODEL_URL} (entpacken nach storage/series_models/)"
-                )
-            self._piper = PiperVoice.load(model)
+                raise RuntimeError("Offline-Stimme nicht installiert: `uv pip install piper-tts`") from exc
+            path = _piper_path(model_name)
+            if not os.path.exists(path):
+                url = f"https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-{model_name}.tar.bz2"
+                raise RuntimeError(f"Piper-Stimmmodell fehlt: {path}\nDownload: {url} (entpacken nach storage/series_models/)")
+            self._models[model_name] = PiperVoice.load(path)
+        return self._models[model_name]
+
+    def _piper_tts(self, text: str, cfg: dict, style: str, out_wav: str) -> None:
         from piper import SynthesisConfig
 
+        model_name, speaker = cfg.get("piper_model", PIPER_MODEL_NAME), cfg.get("piper_speaker")
+        if style in EMOTIONS and cfg.get("emotions", False):
+            model_name, speaker = EMOTION_MODEL, EMOTIONS[style]
+        model = self._load(model_name)
         raw = out_wav[:-4] + ".raw.wav"
-        cfg = SynthesisConfig(length_scale=1.0 / max(self.speed, 0.5), noise_scale=0.6, noise_w_scale=0.7)
+        speed = float(cfg.get("speed", 1.0)) * (0.9 if style == "whisper" else 1.0)
+        syn = SynthesisConfig(speaker_id=speaker, length_scale=1.0 / max(speed, 0.5), noise_scale=0.667, noise_w_scale=0.8)
         with wave.open(raw, "wb") as w:
-            self._piper.synthesize_wav(text, w, syn_config=cfg)
-        _to_wav44k(raw, out_wav)
+            model.synthesize_wav(text, w, syn_config=syn)
+        _to_wav44k(raw, out_wav, cfg.get("pitch", 0), whisper=style == "whisper" and model_name != EMOTION_MODEL)
         os.remove(raw)
 
-    def synth(self, text: str, out_wav: str) -> np.ndarray:
+    def synth(self, text: str, out_wav: str, speaker: str = "narrator", style: str = "") -> np.ndarray:
+        cfg = self.voice(speaker)
         if self.engine in ("auto", "edge") and self.used in (None, "edge"):
-            if self._edge(text, out_wav):
+            if self._edge(text, cfg, out_wav):
                 self.used = "edge"
-                return _read_wav(out_wav)
+                return _read_wav(out_wav) * float(cfg.get("gain", 1.0))
             if self.engine == "edge":
                 raise RuntimeError("Edge TTS nicht erreichbar")
-            logger.warning("edge tts unavailable, switching to the offline piper voice")
+            logger.warning("edge tts unavailable, switching to the offline piper voices")
         self.used = "piper"
-        self._piper_tts(text, out_wav)
-        return _read_wav(out_wav)
+        self._piper_tts(text, cfg, style, out_wav)
+        return _read_wav(out_wav) * float(cfg.get("gain", 1.0))
 
 
 # --------------------------------------------------------------------------
@@ -250,6 +285,7 @@ class Word:
     text: str
     start: float
     end: float
+    speaker: str = "narrator"
 
 
 @dataclass
@@ -265,6 +301,21 @@ class Scene:
     @property
     def duration(self) -> float:
         return self.end - self.start
+
+
+SPEAKER_COLORS = {"narrator": HIGHLIGHT, "JONAS": (80, 210, 255), "MIA": (255, 120, 190)}
+
+
+def scene_lines(scene: dict) -> list[dict]:
+    """Spoken lines of a scene: ``lines`` (with speakers) or plain ``narration``."""
+    if scene.get("lines"):
+        return [{"speaker": l.get("speaker", "narrator"), "text": l["text"], "style": l.get("style", "")}
+                for l in scene["lines"] if str(l.get("text", "")).strip()]
+    return [{"speaker": "narrator", "text": scene.get("narration", ""), "style": ""}]
+
+
+def scene_text(scene: dict) -> str:
+    return " ".join(l["text"] for l in scene_lines(scene))
 
 
 def split_sentences(text: str) -> list[str]:
@@ -285,7 +336,7 @@ def _speech_bounds(samples: np.ndarray) -> tuple[float, float]:
     return active[0] * win / SR, min(samples.size, (active[-1] + 1) * win) / SR
 
 
-def distribute_words(sentence: str, start: float, end: float) -> list[Word]:
+def distribute_words(sentence: str, start: float, end: float, speaker: str = "narrator") -> list[Word]:
     """Spread the words of one spoken sentence across its speech interval."""
     tokens = sentence.split()
     weights = []
@@ -301,7 +352,7 @@ def distribute_words(sentence: str, start: float, end: float) -> list[Word]:
     out, t = [], start
     for tok, w in zip(tokens, weights):
         dur = (end - start) * w / total
-        out.append(Word(tok, t, t + dur))
+        out.append(Word(tok, t, t + dur, speaker))
         t += dur
     return out
 
@@ -311,7 +362,7 @@ def group_words(words: list[Word], max_words: int = 3, max_chars: int = 16) -> l
     for w in words:
         clean = display_word(w.text)
         cur_len = sum(len(display_word(x.text)) + 1 for x in cur)
-        if cur and (len(cur) >= max_words or cur_len + len(clean) > max_chars):
+        if cur and (len(cur) >= max_words or cur_len + len(clean) > max_chars or cur[-1].speaker != w.speaker):
             groups.append(cur)
             cur = []
         cur.append(w)
@@ -367,14 +418,51 @@ def _cover(img: Image.Image, w: int, h: int) -> Image.Image:
     return img.crop((x, y, x + w, y + h))
 
 
+POLLINATIONS_URL = "https://image.pollinations.ai/prompt/"
+
+
+def pollinations_image(prompt: str, seed: int = 1, timeout: int = 180) -> Image.Image | None:
+    """Free text-to-image via Pollinations.ai (no API key). Returns None on failure."""
+    import io
+    import urllib.parse
+
+    import requests
+
+    url = POLLINATIONS_URL + urllib.parse.quote(prompt[:1400])
+    params = {"width": 1080, "height": 1920, "nologo": "true", "seed": seed, "model": "flux"}
+    import time
+
+    for attempt in range(6):
+        if attempt:
+            time.sleep(6 * attempt)  # the free tier allows one request at a time
+        try:
+            resp = requests.get(url, params=params, timeout=timeout)
+            if resp.status_code == 200 and resp.headers.get("content-type", "").startswith("image"):
+                img = Image.open(io.BytesIO(resp.content)).convert("RGB")
+                # the free tier stamps a small logo into the bottom-right corner
+                return img.crop((0, 0, img.width, int(img.height * 0.94)))
+            logger.warning(f"pollinations returned {resp.status_code}")
+        except Exception as exc:
+            logger.warning(f"pollinations request failed: {exc}")
+    return None
+
+
+def _upscale(img: Image.Image) -> Image.Image:
+    out = _cover(img, ART_W, ART_H)
+    return out.filter(ImageFilter.UnsharpMask(radius=2.2, percent=70, threshold=2))
+
+
 def scene_image(series: dict, scene: dict, images_mode: str, save_dir: str) -> tuple[Image.Image, str]:
-    """AI image via the configured openai_image source, else offline placeholder art."""
+    """Scene image from (in order): a fixed file, openai_image, Pollinations, offline placeholder art."""
+    if scene.get("image_file") and os.path.exists(os.path.join(utils.root_dir(), scene["image_file"])):
+        with Image.open(os.path.join(utils.root_dir(), scene["image_file"])) as im:
+            return _upscale(im), "file"
+    prompt = expand_image_prompt(series, scene)
     if images_mode in ("auto", "ai"):
         from app.models.schema import VideoAspect
         from app.services import material
 
         if material.is_openai_image_enabled():
-            prompt = expand_image_prompt(series, scene)
             try:
                 items = material.generate_images_openai(prompt, 5, VideoAspect.portrait, save_dir)
             except Exception as exc:
@@ -382,14 +470,13 @@ def scene_image(series: dict, scene: dict, images_mode: str, save_dir: str) -> t
                 items = []
             if items:
                 with Image.open(items[0].url) as im:
-                    return _cover(im, ART_W, ART_H), "ai"
-            if images_mode == "ai":
-                raise RuntimeError("Bildgenerierung fehlgeschlagen (openai_image)")
-        elif images_mode == "ai":
-            raise RuntimeError(
-                "Keine Bildquelle konfiguriert: openai_image_base_url / openai_image_model / "
-                "openai_image_api_keys in config.toml eintragen"
-            )
+                    return _cover(im, ART_W, ART_H), "openai_image"
+    if images_mode in ("auto", "ai", "pollinations"):
+        img = pollinations_image(prompt, int(scene.get("seed", scene.get("id", 1))))
+        if img is not None:
+            return _upscale(img), "pollinations"
+        if images_mode != "auto":
+            raise RuntimeError("Bildgenerierung fehlgeschlagen")
     return series_art.render(scene.get("art", "ship_night")), "placeholder"
 
 
@@ -414,8 +501,8 @@ class SubtitleRenderer:
         self.size, self.stroke, self.max_width = size, stroke, max_width
         self.cache: dict = {}
 
-    def render(self, words: list[str], active: int) -> Image.Image:
-        key = (tuple(words), active)
+    def render(self, words: list[str], active: int, color=HIGHLIGHT) -> Image.Image:
+        key = (tuple(words), active, color)
         if key in self.cache:
             return self.cache[key]
         size = self.size
@@ -447,9 +534,9 @@ class SubtitleRenderer:
             x = (w_img - lw) / 2
             y = pad + li * line_h
             for j in ln:
-                color = HIGHLIGHT if j == active else (255, 255, 255)
+                fill = color if j == active else (255, 255, 255)
                 ds.text((x + 6, y + 8), words[j], font=font, fill=(0, 0, 0, 170), stroke_width=stroke, stroke_fill=(0, 0, 0, 170))
-                d.text((x, y), words[j], font=font, fill=color, stroke_width=stroke, stroke_fill=(0, 0, 0))
+                d.text((x, y), words[j], font=font, fill=fill, stroke_width=stroke, stroke_fill=(0, 0, 0))
                 x += _text_w(font, words[j]) + space
         shadow = shadow.filter(ImageFilter.GaussianBlur(8))
         out = Image.alpha_composite(shadow, img)
@@ -669,7 +756,8 @@ class EpisodeRenderer:
         for g, (a, b) in zip(self.groups, self.spans):
             if a <= t < b:
                 active = next((k for k, w in enumerate(g) if w.start <= t < w.end), len(g) - 1)
-                img = self.subs.render([display_word(w.text) for w in g], active)
+                color = SPEAKER_COLORS.get(g[0].speaker, HIGHLIGHT)
+                img = self.subs.render([display_word(w.text) for w in g], active, color)
                 scale = _get_subtitle_spring_scale(t - a, 0.3)
                 if abs(scale - 1.0) > 0.01:
                     img = img.resize((max(1, int(img.width * scale)), max(1, int(img.height * scale))), Image.BILINEAR)
@@ -691,12 +779,15 @@ def _place(track: np.ndarray, samples: np.ndarray, at: float, gain: float) -> No
 
 
 def mix_audio(voice_track: np.ndarray, scenes: list[Scene], total: float, path: str,
-              music_gain: float = 0.16, sfx_gain: float = 0.55) -> None:
+              music_gain: float = 0.2, sfx_gain: float = 0.6) -> None:
     n = int(total * SR)
     voice = np.zeros(n, np.float32)
     voice[: min(n, voice_track.size)] = voice_track[:n]
     music = series_audio.dark_drone(total)[:n]
     sfx = np.zeros(n, np.float32)
+    hit = series_audio.boom(1.4, seed=11)
+    for sc in scenes[1:]:
+        _place(sfx, hit, max(0.0, sc.start - 0.05), 0.28)  # low impact on every cut
     for sc in scenes:
         for name in sc.spec.get("sfx", []):
             samples, gain = series_audio.render_sfx(name, sc.duration + 0.4)
@@ -735,13 +826,15 @@ def write_script(path: str, series: dict, spec: dict, scenes: list[Scene], total
     ]
     if spec.get("previous_choice"):
         lines += [f"**Zuschauer-Entscheidung aus der letzten Folge:** {spec['previous_choice']}", ""]
-    lines += [f"**Hook (0–2 s):** {split_sentences(scenes[0].spec['narration'])[0]}", ""]
+    lines += [f"**Hook (0–2 s):** {split_sentences(scene_text(scenes[0].spec))[0]}", ""]
+    names = {c["id"]: c["name"] for c in series.get("characters", [])}
     for sc in scenes:
         s = sc.spec
         lines += [
             f"## Szene {sc.index} ({_fmt(sc.start)}–{_fmt(sc.end)})" + (" – Entscheidungsfrage" if s.get("decision") else ""),
             "",
-            f"**Erzähler:** {s['narration']}",
+            *[f"**{names.get(l['speaker'], 'Erzähler')}**" + (f" _({l['style']})_" if l["style"] else "") + f": {l['text']}  "
+              for l in scene_lines(s)],
             "",
             f"- Kamera: {s.get('camera', 'zoom_in')} · Übergang: {s.get('transition', 'crossfade')}"
             + (f" · Effekte: {', '.join(s['effects'])}" if s.get("effects") else ""),
@@ -843,7 +936,7 @@ def render_episode(slug: str, spec: dict, output_root: str | None = None, *, voi
     os.makedirs(img_dir, exist_ok=True)
     work = tempfile.mkdtemp(prefix="series-")
     try:
-        narrator = Narrator(voice_engine, series.get("voice", {}).get("edge_voice", "de-DE-ConradNeural-Male"))
+        narrator = Narrator(voice_engine, series.get("voices"))
         scenes = [Scene(i + 1, s) for i, s in enumerate(spec["scenes"])]
 
         # 1) narration, sentence by sentence -> exact sentence timing
@@ -852,14 +945,18 @@ def render_episode(slug: str, spec: dict, output_root: str | None = None, *, voi
         chunks.append(np.zeros(int(0.15 * SR), np.float32))
         for sc in scenes:
             sc.start = t if sc.index > 1 else 0.0
-            sentences = split_sentences(sc.spec["narration"])
-            for si, sentence in enumerate(sentences):
-                samples = narrator.synth(sentence, os.path.join(work, f"s{sc.index:02d}_{si:02d}.wav"))
+            parts = [(l, sent) for l in scene_lines(sc.spec) for sent in split_sentences(l["text"])]
+            for si, (line, sentence) in enumerate(parts):
+                samples = narrator.synth(sentence, os.path.join(work, f"s{sc.index:02d}_{si:02d}.wav"),
+                                         line["speaker"], line["style"])
                 a, b = _speech_bounds(samples)
-                sc.words += distribute_words(sentence, t + a, t + b)
+                sc.words += distribute_words(sentence, t + a, t + b, line["speaker"])
                 chunks.append(samples)
                 t += samples.size / SR
-                gap = 0.22 if si < len(sentences) - 1 else (1.6 if sc.spec.get("decision") else 0.5)
+                if si < len(parts) - 1:
+                    gap = 0.12 if parts[si + 1][0] is line else 0.2
+                else:
+                    gap = 1.6 if sc.spec.get("decision") else float(sc.spec.get("pause_after", 0.3))
                 chunks.append(np.zeros(int(gap * SR), np.float32))
                 t += gap
             sc.end = t

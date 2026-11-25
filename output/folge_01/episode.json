@@ -1,9 +1,9 @@
 {
   "episode": 1,
   "title": "Drei Uhr zwölf",
-  "danger": "Das Wasser steigt im Unterdeck, der Weg nach oben ist versperrt.",
-  "summary": "Um 3:12 Uhr trifft ein dumpfer Schlag den Rumpf der Aurora. Jonas weckt Mia, der Alarm heult, aus dem Treppenhaus steigt schwarzes Wasser. Die Durchsage bricht mitten im Satz ab, die Brandschutztür zum Deck ist verriegelt. Es bleiben zwei Wege: ein überfluteter Gang zur Rettungsstation oder ein enger Wartungsschacht nach oben. Mia glaubt, im Wasser habe sich etwas bewegt.",
-  "cliffhanger": "Mia flüstert, dass sich unten im Wasser etwas bewegt hat.",
+  "danger": "Das Schiff kippt, eiskaltes Wasser steigt im Unterdeck, der Weg nach oben ist verriegelt.",
+  "summary": "Um 3:12 Uhr reißt ein Knall Jonas und Mia aus dem Schlaf, das Schiff kippt. Der Alarm heult, Jonas rennt mit Mia los, doch im Treppenhaus schießt eiskaltes Wasser herauf. Die Brandschutztür nach oben ist verriegelt, die Durchsage bricht mitten im Satz ab. Es bleiben zwei Wege: ein überfluteter Gang zu den Rettungsbooten oder ein dunkler Schacht nach oben. Mia sieht, dass sich im Wasser etwas bewegt – und es kommt näher.",
+  "cliffhanger": "Im Wasser bewegt sich etwas Großes – und es kommt näher.",
   "scenes": [
     {
       "id": 1,
@@ -11,26 +11,27 @@
       "camera": "zoom_in",
       "sfx": [
         "waves",
-        "creak"
+        "creak",
+        "boom"
       ],
-      "narration": "Dieses Schiff wird den Morgen nicht erleben. Und Jonas ist der Einzige, der es schon spürt.",
-      "image_prompt": "Wide shot of a huge white cruise ship named AURORA alone on the black Atlantic at night, hundreds of warm lit windows, a pale moon behind thin clouds, the ship leaning very slightly to one side, fog drifting over calm dark water"
+      "pause_after": 0.25,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Noch zwanzig Minuten. Dann ist dieses Schiff unter Wasser."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Und Jonas sitzt mit seiner kleinen Schwester ganz unten fest."
+        }
+      ],
+      "image_prompt": "a giant white cruise ship called AURORA tilting dangerously in a stormy black ocean at night, huge waves crashing against the hull, lightning in the sky, hundreds of glowing windows, lifeboats swinging",
+      "image_file": "series/aurora/bilder/folge_01/szene_01.jpg"
     },
     {
       "id": 2,
       "art": "cabin",
       "camera": "pan_right",
-      "sfx": [
-        "creak",
-        "hum"
-      ],
-      "narration": "Die Aurora. Mitten im Atlantik. Drei Uhr zwölf. Jonas liegt wach in Kabine 418. Neben ihm schläft seine kleine Schwester Mia.",
-      "image_prompt": "Inside a small dark cruise ship cabin at night, moonlight through a round porthole, {JONAS} sitting awake on the edge of his bed, his face lit by the cold glow of his phone showing 03:12, {MIA} asleep in the bed next to him hugging her bunny, her yellow raincoat hanging on a hook"
-    },
-    {
-      "id": 3,
-      "art": "glass",
-      "camera": "zoom_in",
       "transition": "flash",
       "effects": [
         "shake"
@@ -39,8 +40,40 @@
         "boom",
         "creak"
       ],
-      "narration": "Dann ein dumpfer Schlag. Tief unten im Rumpf. Das Wasserglas auf dem Tisch rutscht. Langsam. Zur Seite.",
-      "image_prompt": "Extreme close-up of a glass of water on a small cabin table, the table tilted while the water surface stays level, a few drops spilling, deep shadows, faint moonlight reflections"
+      "pause_after": 0.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Drei Uhr zwölf. Kabine 418. Ein Knall reißt Jonas aus dem Schlaf."
+        },
+        {
+          "speaker": "MIA",
+          "text": "Jonas? Warum ist der Boden so schief?"
+        }
+      ],
+      "image_prompt": "inside a dark cruise ship cabin at night, {MIA} sitting up in bed, scared big eyes, clutching her bunny, the whole room tilted, objects sliding off shelves, moonlight through a round porthole",
+      "image_file": "series/aurora/bilder/folge_01/szene_02.jpg"
+    },
+    {
+      "id": 3,
+      "art": "glass",
+      "camera": "zoom_in",
+      "effects": [
+        "shake"
+      ],
+      "sfx": [
+        "creak",
+        "water_rush"
+      ],
+      "pause_after": 0.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Das Wasserglas rutscht vom Tisch. Zerspringt. Und dann kippt das ganze Schiff."
+        }
+      ],
+      "image_prompt": "dramatic close-up of a glass of water sliding off a tilted cabin table and shattering in mid-air, water droplets flying, dark cabin, blue moonlight, motion blur",
+      "image_file": "series/aurora/bilder/folge_01/szene_03.jpg"
     },
     {
       "id": 4,
@@ -52,8 +85,20 @@
       "sfx": [
         "alarm"
       ],
-      "narration": "Ein Alarm heult los. Rote Lichter flackern im Gang. Jonas reißt Mia aus dem Bett. Sie hält ihren Stoffhasen fest.",
-      "image_prompt": "Long narrow cruise ship corridor lit by pulsing red emergency lights, {JONAS} running towards the camera pulling {MIA} by the hand, cabin doors on both sides, dramatic perspective"
+      "pause_after": 0.2,
+      "lines": [
+        {
+          "speaker": "JONAS",
+          "text": "Mia, nimm meine Hand! Lauf!",
+          "style": "angry"
+        },
+        {
+          "speaker": "narrator",
+          "text": "Rote Lichter. Sirenen. Alle rennen zu den Treppen."
+        }
+      ],
+      "image_prompt": "{JONAS} running and pulling {MIA} by the hand through a ship corridor, red alarm lights, water splashing",
+      "image_file": "series/aurora/bilder/folge_01/szene_04.jpg"
     },
     {
       "id": 5,
@@ -66,25 +111,22 @@
         "water_rush",
         "alarm_far"
       ],
-      "narration": "Die Treppe nach oben. Doch auf halber Höhe bleibt Jonas stehen. Von unten steigt schwarzes Wasser. Leise. Viel zu schnell.",
-      "image_prompt": "View down a steep metal ship stairwell, black water rising from below and reflecting red emergency light, {JONAS} and {MIA} standing halfway up, seen from behind, looking down in fear"
+      "pause_after": 0.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Doch auf halber Höhe bleibt Jonas stehen."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Von unten schießt eiskaltes Wasser herauf. Stufe für Stufe."
+        }
+      ],
+      "image_prompt": "{JONAS} standing on a steep metal staircase inside a ship, looking down in shock, dark ice-cold water gushing up the stairs below him, red emergency light, foam and spray",
+      "image_file": "series/aurora/bilder/folge_01/szene_05.jpg"
     },
     {
       "id": 6,
-      "art": "speaker",
-      "camera": "zoom_in",
-      "effects": [
-        "flicker"
-      ],
-      "sfx": [
-        "static",
-        "alarm_far"
-      ],
-      "narration": "Eine Durchsage knistert. Dann bricht sie ab. Mitten im Satz.",
-      "image_prompt": "Close-up of an old wall-mounted ship loudspeaker in a dim corridor, a small sign reading DECK 4, flickering light, sparks of static, empty hallway behind"
-    },
-    {
-      "id": 7,
       "art": "fire_door",
       "camera": "zoom_in",
       "effects": [
@@ -94,8 +136,49 @@
         "knock",
         "creak"
       ],
-      "narration": "Der Weg zum Deck ist versperrt. Eine Brandschutztür. Verriegelt. Dahinter Stimmen. Und Klopfen.",
-      "image_prompt": "A massive closed steel fire door with a locking wheel and yellow-black warning stripes, red emergency light, {JONAS} with one hand flat on the door and {MIA} pressed against him, both seen from behind"
+      "pause_after": 0.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Oben die Brandschutztür. Verriegelt."
+        },
+        {
+          "speaker": "JONAS",
+          "text": "Hallo! Hier unten sind noch Kinder!",
+          "style": "angry"
+        },
+        {
+          "speaker": "narrator",
+          "text": "Keine Antwort. Nur Klopfen."
+        }
+      ],
+      "image_prompt": "{JONAS} banging his fists on a huge locked steel ship door with a round wheel, red alarm light",
+      "image_file": "series/aurora/bilder/folge_01/szene_06.jpg"
+    },
+    {
+      "id": 7,
+      "art": "speaker",
+      "camera": "zoom_in",
+      "effects": [
+        "flicker"
+      ],
+      "sfx": [
+        "static"
+      ],
+      "pause_after": 0.15,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Dann knistert eine Durchsage. Alle Passagiere sofort zu den Rettungs..."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Stille.",
+          "style": "whisper"
+        }
+      ],
+      "image_prompt": "old ship wall loudspeaker sparking with electricity, dark flooded corridor, flickering light",
+      "image_file": "series/aurora/bilder/folge_01/szene_07.jpg"
     },
     {
       "id": 8,
@@ -105,8 +188,19 @@
         "water_rush",
         "drip"
       ],
-      "narration": "Nur zwei Wege bleiben. Links ein überfluteter Gang zur Rettungsstation. Rechts ein enger Wartungsschacht. Nach oben. Ins Dunkle.",
-      "image_prompt": "A corridor that splits in two: on the left a half-flooded passage glowing teal under the water with a distant sign RETTUNGSSTATION, on the right a narrow metal ladder shaft leading up into darkness, {JONAS} and {MIA} standing in the middle from behind, holding hands"
+      "pause_after": 0.2,
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Zwei Wege. Links ein überfluteter Gang zu den Rettungsbooten."
+        },
+        {
+          "speaker": "narrator",
+          "text": "Rechts ein Schacht. Steil nach oben. Stockdunkel."
+        }
+      ],
+      "image_prompt": "{JONAS} and {MIA} from behind, flooded glowing corridor on the left, dark ladder shaft going up on the right",
+      "image_file": "series/aurora/bilder/folge_01/szene_08.jpg"
     },
     {
       "id": 9,
@@ -116,8 +210,21 @@
         "heartbeat",
         "drip"
       ],
-      "narration": "Da flüstert Mia: Jonas. Da unten im Wasser. Da hat sich etwas bewegt.",
-      "image_prompt": "Looking down at dark still water in a flooded ship corridor, small ripples spreading in rings, a huge pale blurry shape barely visible deep under the surface, the reflections of {JONAS} and {MIA} at the edge of the water, eerie and mysterious, no monster visible"
+      "pause_after": 0.3,
+      "lines": [
+        {
+          "speaker": "MIA",
+          "text": "Jonas. Da unten im Wasser. Da hat sich was bewegt.",
+          "style": "whisper"
+        },
+        {
+          "speaker": "narrator",
+          "text": "Und es kommt näher.",
+          "style": "whisper"
+        }
+      ],
+      "image_prompt": "dark flooded ship corridor, a huge mysterious glowing shadow moving under the water surface towards the viewer, ripples in rings, two small glowing eyes deep underwater, eerie teal light, suspense, no gore",
+      "image_file": "series/aurora/bilder/folge_01/szene_09.jpg"
     },
     {
       "id": 10,
@@ -127,8 +234,14 @@
       "sfx": [
         "riser"
       ],
-      "narration": "Was soll Jonas tun? Eins: mit Mia durch den überfluteten Gang tauchen. Oder zwei: in den dunklen Schacht klettern. Schreib eins oder zwei in die Kommentare!",
-      "image_prompt": "Split composition: left side a flooded glowing teal corridor, right side a dark ladder shaft going up, {JONAS} and {MIA} small in the center between both paths, cinematic, space for text overlay"
+      "lines": [
+        {
+          "speaker": "narrator",
+          "text": "Was soll Jonas tun? Eins: mit Mia durch den überfluteten Gang tauchen. Oder zwei: in den dunklen Schacht klettern. Schreib eins oder zwei in die Kommentare!"
+        }
+      ],
+      "image_prompt": "{JONAS} hugging scared {MIA}, standing in glowing teal water in a dark ship corridor, looking at the viewer",
+      "image_file": "series/aurora/bilder/folge_01/szene_10.jpg"
     }
   ],
   "question": {
@@ -138,8 +251,8 @@
     "call_to_action": "Schreib 1 oder 2 in die Kommentare!"
   },
   "upload": {
-    "title": "Das Schiff sinkt – und nur Jonas weiß es | Die letzte Nacht der Aurora #1",
-    "description": "3:12 Uhr nachts, mitten im Atlantik. Ein Schlag im Rumpf – und das Wasser steigt. Jonas (17) muss seine kleine Schwester Mia (9) retten. Doch der Weg nach oben ist versperrt …\n\nDU entscheidest, wie es weitergeht: 1 oder 2? Die meistgewählte Antwort bestimmt Folge 2!",
+    "title": "Noch 20 Minuten, dann sinkt das Schiff 😱 | Die letzte Nacht der Aurora #1",
+    "description": "3:12 Uhr nachts, mitten im Atlantik. Ein Knall – das Schiff kippt – und eiskaltes Wasser steigt. Jonas (17) muss seine kleine Schwester Mia (9) retten. Doch der Weg nach oben ist verriegelt … und im Wasser bewegt sich etwas.\n\nDU entscheidest, wie es weitergeht: 1 oder 2? Die meistgewählte Antwort bestimmt Folge 2!",
     "hashtags": [
       "#dieletztenachtderaurora",
       "#serie",
