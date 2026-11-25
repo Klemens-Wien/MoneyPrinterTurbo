@@ -85,6 +85,21 @@ Die Puppe ist als Figur gebaut (`doll_desk`, `doll_floor`, `doll_bed`, `doll_beh
 `docs/lowpoly-example-doll-de.json` (deutsch: `--lang de`, Overlays werden automatisch übersetzt,
 Uhr im 24-Stunden-Format).
 
+## Schauplatz „Skyline“: Reich oben, Arm unten
+
+Eine eigene Stadt (fern der Hauptwelt): unten enge Hütten, Wäscheleinen und Gassen im ewigen Schatten,
+darüber auf riesigen Säulen eine Plattform in 70 m Höhe mit goldenen Villen, Pools, Gärten, einem
+Palast und einem Feld goldener Sonnenspiegel. Ein goldener Aufzug mit Wachen ist der einzige offizielle
+Weg nach oben – an Säule 7 führt eine alte Wartungsleiter zu einer Luke.
+
+* Orte: `slums`, `under_deck`, `lift_gate`, `ladder`, `sky_edge`, `sky_city`, `sky_mirrors`
+* Aktionen: `slum_life`, `look_up`, `lift_ride`, `gate_guards`, `climb`, `climb_high`, `sky_view`,
+  `rich_party`, `guards_chase`, `mirrors`, `edge_look`
+* Figuren in Klassen-Kleidung: Arme (erdige Farben), Reiche (Weiß/Gold), Wachen (Schwarz mit Goldkappe)
+* Stimme pro Story: `"voice"` und `"pitch"` (z. B. `"+12Hz"` für einen jugendlichen Erzähler) oder `--pitch`
+
+Beispiele: `docs/lowpoly-example-skyline-en.json`, `docs/lowpoly-example-skyline-de.json`.
+
 ## Installation
 
 ```bash

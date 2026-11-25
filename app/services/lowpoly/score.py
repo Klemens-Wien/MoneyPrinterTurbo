@@ -221,7 +221,9 @@ ACTION_ENERGY = {
     "rampage": 0.95, "street_panic": 0.9, "hide": 0.3,
     "lockdown": 0.55, "watch": 0.5, "bed": 0.18, "sit_up": 0.25, "noises": 0.22, "doorway": 0.4,
     "empty_doorway": 0.2, "closet": 0.35, "doll_desk": 0.2, "doll_floor": 0.3, "doll_bed": 0.35,
-    "doll_behind": 0.45,
+    "doll_behind": 0.45, "slum_life": 0.35, "look_up": 0.3, "lift_ride": 0.45, "gate_guards": 0.5,
+    "climb": 0.6, "climb_high": 0.8, "sky_view": 0.55, "rich_party": 0.6, "guards_chase": 0.95, "mirrors": 0.45,
+    "edge_look": 0.35,
 }
 
 

@@ -24,6 +24,7 @@ def main(argv=None) -> int:
     parser.add_argument("--lang", default="en", choices=["en", "de"], help="narration language")
     parser.add_argument("--voice", help="edge-tts voice, e.g. en-US-AndrewNeural or de-DE-ConradNeural")
     parser.add_argument("--tts", default="auto", choices=["auto", "edge", "espeak", "silent"])
+    parser.add_argument("--pitch", help="voice pitch shift, e.g. +10Hz for a younger narrator")
     parser.add_argument("--story-file", help="storyboard JSON instead of generating one")
     parser.add_argument("--no-llm", action="store_true", help="use the built-in story template")
     parser.add_argument("--music", default="auto", help="'auto' (generated royalty-free score), 'songs' (resource/songs), 'none' or a path")
@@ -54,6 +55,7 @@ def main(argv=None) -> int:
         fps=args.fps,
         caption_case=args.caption_case or ("keep" if args.lang == "de" else "lower"),
         max_seconds=args.max_seconds,
+        pitch=args.pitch,
     )
     if args.preview:
         opts.width, opts.height, opts.samples, opts.preset, opts.crf = 540, 960, 2, "veryfast", 23

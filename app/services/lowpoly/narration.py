@@ -106,7 +106,7 @@ def estimate_words(text: str, start: float, end: float) -> list[Word]:
 # --------------------------------------------------------------------------- #
 
 
-def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str) -> Clip:
+def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str, pitch: str = "+0Hz") -> Clip:
     import edge_tts
 
     mp3 = out_wav[:-4] + ".mp3"
@@ -115,7 +115,7 @@ def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str) -> Clip:
     async def run():
         rate = f"{rate_pct:+d}%"
         proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy") or None
-        communicate = edge_tts.Communicate(text, voice, rate=rate, boundary="WordBoundary", proxy=proxy)
+        communicate = edge_tts.Communicate(text, voice, rate=rate, pitch=pitch, boundary="WordBoundary", proxy=proxy)
         with open(mp3, "wb") as fh:
             async for chunk in communicate.stream():
                 if chunk["type"] == "audio":
@@ -156,12 +156,13 @@ def _silent_clip(text: str, rate_pct: int, out_wav: str, language: str) -> Clip:
     return Clip(out_wav, duration, estimate_words(text, 0.1, duration - 0.25))
 
 
-def _synthesize_once(texts: list[str], out_dir: str, backend: str, voice: str, language: str, rate_pct: int) -> list[Clip]:
+def _synthesize_once(texts: list[str], out_dir: str, backend: str, voice: str, language: str, rate_pct: int,
+                     pitch: str = "+0Hz") -> list[Clip]:
     clips = []
     for i, text in enumerate(texts):
         path = os.path.join(out_dir, f"voice_{i:02d}.wav")
         if backend == "edge":
-            clip = _edge_clip(text, voice, rate_pct, path)
+            clip = _edge_clip(text, voice, rate_pct, path, pitch)
             if not clip.words:
                 lead, trail = _trim_silence(path)
                 clip.words = estimate_words(text, lead, clip.duration - trail)
@@ -191,6 +192,7 @@ def synthesize(
     rate_pct: int = 8,
     target_range: tuple[float, float] = (75.0, 95.0),
     gap: float = 0.18,
+    pitch: str = "+0Hz",
 ) -> tuple[list[Clip], str]:
     """Synthesize one clip per scene; re-time the speech so the total fits the target range."""
     os.makedirs(out_dir, exist_ok=True)
@@ -198,7 +200,7 @@ def synthesize(
     last_error: Exception | None = None
     for name in _resolve_backend(backend, voice):
         try:
-            clips = _synthesize_once(texts, out_dir, name, voice, language, rate_pct)
+            clips = _synthesize_once(texts, out_dir, name, voice, language, rate_pct, pitch)
         except Exception as exc:
             last_error = exc
             logger.warning(f"TTS backend '{name}' failed: {exc}")
@@ -211,7 +213,7 @@ def synthesize(
             new_rate = int(np.clip(rate_pct + (total / ideal - 1) * 100, -30, 40))
             if new_rate != rate_pct and name != "silent":
                 logger.info(f"narration {total:.1f}s -> re-synthesizing at rate {new_rate:+d}%")
-                clips = _synthesize_once(texts, out_dir, name, voice, language, new_rate)
+                clips = _synthesize_once(texts, out_dir, name, voice, language, new_rate, pitch)
                 total = sum(c.duration for c in clips) + gap * len(clips)
         if total > hi:
             tempo = min(total / (hi - 1.0), 1.35)

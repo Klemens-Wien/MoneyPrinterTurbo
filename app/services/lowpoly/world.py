@@ -71,6 +71,8 @@ class Setting:
     view_heading: float  # preferred camera yaw (radians) looking at stage
     description: str
     clear_radius: float = 24.0  # no buildings are placed this close to the stage
+    stage_y: float = 0.0  # height of the stage (e.g. the sky deck)
+    cam_y: tuple | None = None  # (min, max) camera height for this place
 
 
 SETTINGS: dict[str, Setting] = {
@@ -84,6 +86,23 @@ SETTINGS: dict[str, Setting] = {
     "construction": Setting("construction", (72.0, 34.0), "x", 0.0, 0.7, "an empty building lot with a crane"),
     "bedroom": Setting("bedroom", (2.45, 1497.65), "x", 0.0, -0.8,
                        "the narrator's dark bedroom at night (bed, door to the hallway, closet, window)", clear_radius=0.0),
+    "slums": Setting("slums", (-20.0, -1352.0), "x", 0.0, 0.15,
+                     "(skyline) the poor lower city in the shadow of the rich sky platform", clear_radius=0.0),
+    "under_deck": Setting("under_deck", (-40.0, -1460.0), "x", 0.0, 0.6,
+                          "(skyline) dark alleys right under the sky platform", clear_radius=0.0, cam_y=(0.6, 55.0)),
+    "lift_gate": Setting("lift_gate", (-121.0, -1500.0), "x", 0.0, -1.15,
+                         "(skyline) the guarded golden elevator, the only way up", clear_radius=0.0),
+    "ladder": Setting("ladder", (78.5, -1500.0), "x", 0.0, 1.35,
+                      "(skyline) the old maintenance ladder up pillar 7", clear_radius=0.0, cam_y=(0.6, 62.0)),
+    "sky_edge": Setting("sky_edge", (79.0, -1496.0), "x", 0.0, 1.9,
+                        "(skyline) the edge of the rich sky city where the ladder comes out", clear_radius=0.0,
+                        stage_y=70.0, cam_y=(72.0, 400.0)),
+    "sky_city": Setting("sky_city", (20.0, -1470.0), "x", 0.0, 0.7,
+                        "(skyline) golden villas, pools and gardens of the rich", clear_radius=0.0,
+                        stage_y=70.0, cam_y=(72.0, 400.0)),
+    "sky_mirrors": Setting("sky_mirrors", (-60.0, -1522.0), "x", 0.0, 2.6,
+                           "(skyline) a field of golden sun mirrors on the rich platform", clear_radius=0.0,
+                           stage_y=70.0, cam_y=(72.0, 400.0)),
     "main_street": Setting("main_street", (-62.0, 7.0), "x", 0.0, 0.45,
                            "the main street of the town, houses on both sides", clear_radius=6.0),
 }
@@ -138,9 +157,11 @@ class World:
     water: np.ndarray
     clouds: np.ndarray
     house_specs: list = field(default_factory=list)
-    obstacles: np.ndarray = field(default_factory=lambda: np.zeros((0, 4)))  # x, z, radius, height
+    obstacles: np.ndarray = field(default_factory=lambda: np.zeros((0, 5)))  # x, z, radius, top, bottom
 
     def ground(self, x: float, z: float) -> float:
+        if abs(z) > 1000:  # interior sets / skyline district: flat ground at 0
+            return 0.0
         return max(float(self.terrain.height(x, z)), 0.0) if x > -300 else float(self.terrain.height(x, z))
 
 
@@ -381,14 +402,16 @@ def build_world(seed: int = 7) -> World:
     obstacles: list = []
     specs = _town(static, rng, obstacles)
     _trees(static, terrain, rng, fields)
-    from . import interior
+    from . import interior, skyline
 
+    sky_static, sky_obstacles = skyline.build_static(seed)
+    obstacles = [(o[0], o[1], o[2], o[3], -1.0) for o in obstacles] + sky_obstacles
     return World(
         seed=seed,
         terrain=terrain,
-        static=np.concatenate([static.build(), interior.build_static()]),
+        static=np.concatenate([static.build(), interior.build_static(), sky_static]),
         water=_water().build(),
         clouds=_clouds(rng).build(),
         house_specs=specs,
-        obstacles=np.array(obstacles, dtype=np.float64).reshape(-1, 4),
+        obstacles=np.array(obstacles, dtype=np.float64).reshape(-1, 5),
     )

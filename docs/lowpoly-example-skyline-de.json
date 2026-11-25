@@ -1,0 +1,128 @@
+{
+  "title": "Die Reichen leben im Himmel. Wir leben in ihrem Schatten.",
+  "hook": "Die Reichen leben im Himmel",
+  "description": "Ich bin die verbotene Leiter zur reichen Stadt im Himmel hochgeklettert. Was ich da oben gefunden habe… was würdest du tun?",
+  "hashtags": [
+    "Shorts",
+    "armvsreich",
+    "geschichte",
+    "story",
+    "lowpoly",
+    "animation"
+  ],
+  "question": {
+    "text": "Was würdest du tun?",
+    "a": "Spiegel umdrehen",
+    "b": "Heimgehen und schweigen"
+  },
+  "voice": "de-DE-FlorianMultilingualNeural",
+  "pitch": "+10Hz",
+  "language": "de",
+  "scenes": [
+    {
+      "narration": "In meiner Stadt leben die Reichen im Himmel. Und wir leben in ihrem Schatten.",
+      "setting": "slums",
+      "action": "look_up",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "Hier unten habe ich die Sonne seit zwölf Jahren nicht gesehen. Da oben haben sie sie jeden einzelnen Tag.",
+      "setting": "under_deck",
+      "action": "slum_life",
+      "shot": "low_angle",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Es gibt nur einen Weg nach oben. Den goldenen Aufzug. Und der öffnet sich nur mit einer goldenen Karte.",
+      "setting": "lift_gate",
+      "action": "lift_ride",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "Ich hab's einmal versucht. Der Wächter hat mich nicht mal angeschaut. Er hat nur nach unten gezeigt.",
+      "setting": "lift_gate",
+      "action": "gate_guards",
+      "shot": "closeup",
+      "mood": "day"
+    },
+    {
+      "narration": "Aber bevor mein Opa gestorben ist, hat er mir ein Geheimnis verraten. Säule sieben. Da gibt es eine alte Leiter, die seit fünfzig Jahren keiner benutzt hat.",
+      "setting": "slums",
+      "action": "slum_life",
+      "shot": "crane_up",
+      "mood": "sunset"
+    },
+    {
+      "narration": "Also bin ich um Mitternacht losgeklettert.",
+      "setting": "ladder",
+      "action": "climb",
+      "shot": "side_track",
+      "mood": "night"
+    },
+    {
+      "narration": "Auf halber Höhe wollte mich der Wind runterreißen. Meine Hände haben gezittert. Ich hab nicht nach unten geschaut.",
+      "setting": "ladder",
+      "action": "climb_high",
+      "shot": "low_angle",
+      "mood": "storm"
+    },
+    {
+      "narration": "Dann hab ich die Luke aufgedrückt. Und zum ersten Mal in meinem Leben habe ich die Sonne gesehen.",
+      "setting": "sky_edge",
+      "action": "sky_view",
+      "shot": "crane_up",
+      "mood": "dawn"
+    },
+    {
+      "narration": "Pools. Gärten. Goldene Häuser. Die haben gefrühstückt, als wäre alles in Ordnung.",
+      "setting": "sky_city",
+      "action": "rich_party",
+      "shot": "dolly_in",
+      "mood": "dawn"
+    },
+    {
+      "narration": "Dann hab ich die Spiegel gesehen. Tausende. Alle fangen die Sonne ein.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "crane_up",
+      "mood": "day"
+    },
+    {
+      "narration": "Da hab ich's kapiert. Die haben ihre Stadt nicht hier oben gebaut, um näher an der Sonne zu sein. Sondern um sie uns wegzunehmen.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "closeup",
+      "mood": "day"
+    },
+    {
+      "narration": "Und da unten verkaufen sie sie uns zurück. Eine Stunde Licht kostet eine ganze Woche Arbeit.",
+      "setting": "under_deck",
+      "action": "slum_life",
+      "shot": "dolly_in",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Dann ging der Alarm los. Wächter. Überall.",
+      "setting": "sky_city",
+      "action": "guards_chase",
+      "shot": "drone_follow",
+      "mood": "day"
+    },
+    {
+      "narration": "Jetzt stehe ich am Rand. Hinter mir die Spiegel. Unter mir meine ganze Stadt im Dunkeln.",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "low_angle",
+      "mood": "sunset"
+    },
+    {
+      "narration": "Ich könnte jeden Spiegel umdrehen. Oder ich nehme den Aufzug nach Hause und tue so, als hätte ich nie etwas gesehen. Was würdest du tun?",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "pull_back",
+      "mood": "sunset"
+    }
+  ]
+}

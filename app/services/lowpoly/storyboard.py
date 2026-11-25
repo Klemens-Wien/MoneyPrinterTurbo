@@ -55,6 +55,17 @@ ACTIONS = {
     "doorway": "(bedroom) glowing eyes of a creature in the dark hallway behind the open door",
     "empty_doorway": "(bedroom) the door is wide open, the hallway is empty",
     "closet": "(bedroom) the closet door creaks open and glowing eyes appear inside",
+    "slum_life": "(skyline, lower city) poor people shuffle through the dark alleys, the narrator looks up",
+    "look_up": "(skyline) the narrator stares up at the giant rich platform in the sky",
+    "lift_ride": "(skyline) the golden elevator carries a rich person up while guards watch the gate",
+    "gate_guards": "(skyline) the narrator walks to the elevator gate, a guard points them away",
+    "climb": "(skyline) the narrator climbs the maintenance ladder up the pillar (low part)",
+    "climb_high": "(skyline) the narrator climbs the ladder high above the city",
+    "sky_view": "(skyline, top) the narrator sees the golden sky city for the first time",
+    "rich_party": "(skyline, top) rich people party while the narrator hides and watches",
+    "guards_chase": "(skyline, top) guards chase the narrator across the sky city",
+    "mirrors": "(skyline, top) the narrator discovers the field of golden sun mirrors",
+    "edge_look": "(skyline, top) the narrator stands at the railing looking down at the poor city",
     "doll_desk": "(bedroom) a creepy porcelain doll sits on the desk, the narrator stares at it from bed",
     "doll_floor": "(bedroom) the doll has moved: now it stands on the floor in the middle of the room",
     "doll_bed": "(bedroom) the doll has moved again: now it sits at the foot of the bed",
@@ -90,6 +101,8 @@ class Storyboard:
     question: dict | None = None  # {"text": ..., "a": ..., "b": ...} shown at the end (comment bait)
     wheel_options: list[str] = field(default_factory=list)  # custom wheel labels (default: monster names)
     wheel_pick: str = ""  # which label the wheel lands on
+    voice: str = ""  # optional edge-tts voice for this story
+    pitch: str = ""  # optional pitch shift, e.g. "+10Hz" for a younger narrator
 
     @property
     def word_count(self) -> int:
@@ -117,6 +130,8 @@ class Storyboard:
             question=_parse_question(data.get("question")),
             wheel_options=[str(o)[:24] for o in data.get("wheel_options", []) if str(o).strip()][:8],
             wheel_pick=str(data.get("wheel_pick") or "").strip(),
+            voice=str(data.get("voice") or "").strip(),
+            pitch=str(data.get("pitch") or "").strip() if re.match(r"^[+-]\d{1,3}Hz$", str(data.get("pitch") or "").strip()) else "",
         )
 
 

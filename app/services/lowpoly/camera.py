@@ -47,6 +47,7 @@ def shot_camera(
     obstacles: np.ndarray | None = None,
     look: Callable[[float], np.ndarray] | None = None,
     bounds: tuple[np.ndarray, np.ndarray] | None = None,
+    look_ratio: float | None = None,
 ) -> Camera:
     """u: normalised scene progress 0..1, t: scene time in seconds.
 
@@ -69,14 +70,15 @@ def shot_camera(
         ks = 1.0 if s >= 0.5 else max(s * 1.2, 0.12)  # indoor scenes are staged much tighter
         if shot == "closeup":  # over the shoulder, looking up at the subject
             eye = f - dh * (9.0 - 2.0 * e) * ks + side * max(2.5 * ks, 0.9) + np.array([0.0, 0.6 * max(ks, 0.5), 0.0])
-            cam = Camera(eye, f + (lt - f) * (0.42 + 0.2 * e), 62)
+            r = (0.42 + 0.2 * e) if look_ratio is None else look_ratio
+            cam = Camera(eye, f + (lt - f) * r, 62)
         elif shot == "low_angle":  # from the ground, the subject looms over everything
             eye = f - dh * 12.0 * ks + side * (4.0 + 2.0 * u) * ks
             eye[1] = f[1] - 1.2 * max(ks, 0.5)
-            cam = Camera(eye, f + (lt - f) * 0.7, 64)
+            cam = Camera(eye, f + (lt - f) * (0.7 if look_ratio is None else look_ratio), 64)
         elif shot == "dolly_in":
             eye = f - dh * (32 - 22 * e) * ks + side * 6 * ks + np.array([0.0, (3.0 + 2 * e) * ks, 0.0])
-            cam = Camera(eye, f + (lt - f) * 0.75, 55)
+            cam = Camera(eye, f + (lt - f) * (0.75 if look_ratio is None else look_ratio), 55)
         else:  # crane_up: rise from behind the focus to a high view of both
             eye = f - dh * (8 + 30 * e) * ks + side * (4 + 12 * e) * ks + np.array([0.0, (1.0 + 55 * e) * ks, 0.0])
             cam = Camera(eye, f + (lt - f) * (0.6 - 0.25 * e), 55)
@@ -156,7 +158,7 @@ def shot_camera(
 def avoid_obstacles(eye: np.ndarray, target: np.ndarray, obstacles: np.ndarray) -> np.ndarray:
     """Lift the camera out of / above buildings that would block the view.
 
-    obstacles: (n, 4) array of x, z, radius, height (cylindrical proxies).
+    obstacles: (n, 4|5) array of x, z, radius, top[, bottom] (cylindrical proxies).
     """
     eye = eye.copy()
     near = obstacles[np.hypot(obstacles[:, 0] - eye[0], obstacles[:, 1] - eye[2]) < 400]
@@ -167,7 +169,8 @@ def avoid_obstacles(eye: np.ndarray, target: np.ndarray, obstacles: np.ndarray) 
         pts = eye + (target - eye) * samples  # (s, 3)
         dx = pts[:, None, 0] - near[None, :, 0]
         dz = pts[:, None, 2] - near[None, :, 1]
-        inside = (np.hypot(dx, dz) < near[None, :, 2]) & (pts[:, None, 1] < near[None, :, 3])
+        bottom = near[None, :, 4] if near.shape[1] > 4 else -1.0
+        inside = (np.hypot(dx, dz) < near[None, :, 2]) & (pts[:, None, 1] < near[None, :, 3]) & (pts[:, None, 1] > bottom)
         if not inside.any():
             break
         # never lift for an obstacle the target itself stands in (e.g. a house on a truck)

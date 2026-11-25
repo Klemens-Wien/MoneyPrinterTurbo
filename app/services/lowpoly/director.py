@@ -26,7 +26,7 @@ from .camera import shot_camera
 from .mesh import translate
 from .renderer import Camera, Draw
 from .storyboard import Scene, Storyboard
-from . import interior
+from . import interior, skyline
 from .world import HOME_POS, SETTINGS, World
 
 INTERIOR_ACTIONS = {"bed", "sit_up", "noises", "doorway", "closet", "empty_doorway",
@@ -155,7 +155,7 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
                 lib: ActorLibrary, rng: np.random.Generator, ground=_flat) -> tuple[Actor, float]:
     """Returns the actor group for a scene and a camera distance scale."""
     s = SETTINGS[setting_name]
-    stage = np.array([s.stage[0], 0.0, s.stage[1]])
+    stage = np.array([s.stage[0], s.stage_y, s.stage[1]])
     hero = lib.figure("hero")
     facing_cam = yaw  # figure heading that looks at a camera placed at `yaw`
     road_point, road_dir = _road_frame(setting_name)
@@ -317,6 +317,9 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
     if setting_name == "bedroom" or action in INTERIOR_ACTIONS:
         return _bedroom_scene(action, duration, lib, rng, hero)
 
+    if action in SKYLINE_ACTIONS:
+        return _skyline_scene(action, setting_name, stage, duration, yaw, mood, lib, rng, hero)
+
     if action == "lockdown":
         return Group([Marker(np.array([0.0, 6.0, 10.0]))], 0), 1.5
 
@@ -397,6 +400,115 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
 
     # landscape
     return Group([Marker(stage + np.array([0.0, 2.0, 0.0]))], 0), 1.6
+
+
+SKYLINE_ACTIONS = {"slum_life", "look_up", "lift_ride", "gate_guards", "climb", "climb_high", "sky_view",
+                   "rich_party", "guards_chase", "mirrors", "edge_look"}
+
+
+def _skyline_scene(action, setting_name, stage, duration, yaw, mood, lib, rng, hero):
+    sw = skyline.world
+    toward_cam = np.array([math.sin(yaw), 0.0, math.cos(yaw)])
+
+    def deck_point(p, height=skyline.TOP + 4.0):
+        """A point on the sky deck to look up at: its edge, or (under the deck) its underside further away."""
+        local = p - skyline.CITY
+        x = float(np.clip(local[0], -skyline.DECK, skyline.DECK))
+        z = float(np.clip(local[2], -skyline.DECK, skyline.DECK))
+        target = sw((x, height, z))
+        if np.hypot(target[0] - p[0], target[2] - p[2]) < 8.0:  # we are under the deck
+            target = p - toward_cam * 30.0
+            target[1] = skyline.TOP - 7.0
+        return target
+
+    def crowd(kind, n, center, radius, anims, speed=(0.0, 0.0)):
+        out = []
+        for i in range(n):
+            ang = rng.uniform(0, 2 * math.pi)
+            p = center + np.array([math.sin(ang), 0.0, math.cos(ang)]) * rng.uniform(2.5, radius)
+            anim = str(rng.choice(anims))
+            path = None
+            if speed[1] > 0:
+                d_ang = rng.uniform(0, 2 * math.pi)
+                path = LinePath(p, np.array([math.sin(d_ang), 0.0, math.cos(d_ang)]), float(rng.uniform(*speed)))
+            out.append(Figure(lib.figure(f"{kind}{int(rng.integers(8))}"), p, anim=anim, phase=float(rng.uniform(0, 4)),
+                              path=path, face_target=None if path else center))
+        return out
+
+    if action == "slum_life":
+        members = [Figure(hero, stage.copy(), anim="look_up", heading=yaw)]
+        members += crowd("poor", 12, stage, 12.0, ["walk"], speed=(0.8, 1.4))
+        members += crowd("poor", 5, stage, 7.0, ["talk", "idle", "sad"])
+        return Group(members, 0, look=Marker(deck_point(stage)), look_ratio=0.12), 0.5
+
+    if action == "look_up":
+        target = deck_point(stage, skyline.TOP + 12.0)
+        d = target - stage
+        hero_fig = Figure(hero, stage.copy(), anim="look_up", heading=math.atan2(d[0], d[2]))
+        return Group([hero_fig, Marker(target)], 0, look=Marker(target), look_ratio=0.22), 0.6
+
+    if action in ("lift_ride", "gate_guards"):
+        base = sw(skyline.LIFT_POS)
+        guards = [Figure(lib.figure(f"guard{i}"), base + np.array([-9.0, 0.0, s_ * 4.0]), anim="idle",
+                         face_target=base + np.array([-30.0, 0.0, 0.0])) for i, s_ in enumerate((-1, 1))]
+        if action == "lift_ride":
+            cabin_key = lib.raw("lift_cabin", skyline.lift_cabin_mesh())
+            speed = (skyline.TOP - 0.2) / max(duration * 0.85, 1.0)
+            cabin = Vehicle(cabin_key, LinePath(base.copy(), np.array([0.0, 1.0, 0.0]), speed), bounce=0.0)
+            rich = Figure(lib.figure("rich1"), base + np.array([0.0, 0.4, 0.0]), anim="idle", heading=-math.pi / 2,
+                          path=LinePath(base + np.array([0.0, 0.4, 0.0]), np.array([0.0, 1.0, 0.0]), speed))
+            hero_fig = Figure(hero, stage.copy(), anim="look_up", face_target=base)
+            return Group([cabin, rich, hero_fig] + guards, 2, look=cabin), 0.8
+        hero_start = stage + np.array([-8.0, 0.0, 0.0])
+        hero_fig = Figure(hero, hero_start, anim="walk",
+                          path=LinePath(hero_start, np.array([1.0, 0.0, 0.0]), 1.4, stop_at=5.0))
+        guards[0].anim = "point"
+        guards[0].face_target = None
+        guards[0].heading = -math.pi / 2
+        return Group([hero_fig] + guards, 0, look=guards[0]), 0.5
+
+    if action in ("climb", "climb_high"):
+        x = skyline.LADDER_X + 0.45
+        y0 = 0.2 if action == "climb" else 34.0
+        speed = 0.9 if action == "climb" else 1.0
+        start = sw((x, y0, 0.0))
+        hero_fig = Figure(hero, start, anim="climb", heading=-math.pi / 2,
+                          path=LinePath(start, np.array([0.0, 1.0, 0.0]), speed))
+        return Group([hero_fig], 0), 0.45 if action == "climb" else 0.6
+
+    if action == "sky_view":
+        palace = sw((0.0, skyline.TOP + 28.0, 0.0))
+        hero_fig = Figure(hero, stage.copy(), anim="look_up", face_target=palace)
+        rich = crowd("rich", 6, stage + np.array([-18.0, 0.0, 6.0]), 8.0, ["walk"], speed=(0.6, 1.0))
+        return Group([hero_fig] + rich, 0, look=Marker(palace)), 0.8
+
+    if action == "rich_party":
+        members = [Figure(hero, stage + toward_cam * 7.0, anim="crouch", face_target=stage)]
+        members += crowd("rich", 12, stage, 7.0, ["cheer", "talk", "idle", "talk"])
+        return Group(members, 0, look=Marker(stage + np.array([0.0, 1.6, 0.0]))), 0.6
+
+    if action == "guards_chase":
+        d = np.array([math.sin(yaw + math.pi / 2), 0.0, math.cos(yaw + math.pi / 2)])
+        start = stage - d * 4.5 * duration / 2
+        members: list[Actor] = [Figure(hero, start, anim="run", path=LinePath(start, d, 4.8))]
+        for i in range(3):
+            p = start - d * (7 + 3 * i) + np.array([d[2], 0.0, -d[0]]) * rng.uniform(-2, 2)
+            members.append(Figure(lib.figure(f"guard{i}"), p, anim="run", phase=float(rng.uniform(0, 2)),
+                                  path=LinePath(p, d, 4.6)))
+        return Group(members, 0), 0.6
+
+    if action == "mirrors":
+        field_c = sw((-60.0, skyline.TOP + 1.5, -60.0))
+        hero_fig = Figure(hero, stage.copy(), anim="idle", face_target=field_c)
+        return Group([hero_fig, Marker(field_c)], 0, look=Marker(field_c)), 0.8
+
+    # edge_look: at the railing, looking down at the lower city
+    out_dir = np.array([1.0, 0.0, 0.0])
+    edge = sw((skyline.DECK - 1.2, skyline.TOP, 6.0))
+    down = edge + out_dir * 90.0
+    down[1] = 0.0
+    hero_fig = Figure(hero, edge, anim="sad" if mood in ("night", "storm") else "idle", face_target=edge + out_dir * 10)
+    return Group([hero_fig, Marker(down)], 0, look=Marker(down)), 0.8
 
 
 def _bedroom_scene(action: str, duration: float, lib: ActorLibrary, rng: np.random.Generator, hero):
@@ -582,15 +694,15 @@ class Director:
         for m in members:
             if isinstance(m, Vehicle) and ("house" in m.key or "shop" in m.key or "hall" in m.key):
                 p = m.focus(local)
-                dynamic.append((p[0], p[2], 8.0, 13.0))
+                dynamic.append((p[0], p[2], 8.0, 13.0, -1.0))
             elif isinstance(m, Vehicle) and m.key == "school_bus":
                 p = m.focus(local)
-                dynamic.append((p[0], p[2], 8.5, 13.5))
+                dynamic.append((p[0], p[2], 8.5, 13.5, -1.0))
             elif isinstance(m, Monster):
                 p = m.focus(local)
-                dynamic.append((p[0], p[2], 2.6 * m.size, 9.5 * m.size))
+                dynamic.append((p[0], p[2], 2.6 * m.size, 9.5 * m.size, -1.0))
             elif isinstance(m, Building):
-                dynamic.append((m.position[0], m.position[2], 7.5, 16.0))
+                dynamic.append((m.position[0], m.position[2], 7.5, 16.0, -1.0))
         if not dynamic:
             return self.world.obstacles
         return np.concatenate([self.world.obstacles, np.array(dynamic, dtype=np.float64)])
@@ -605,8 +717,9 @@ class Director:
         cam: Camera = shot_camera(
             shot, u, local, ps.actor.focus, ps.actor.forward, yaw, ps.scale, ground=self.world.ground,
             look=ps.actor.look.focus if isinstance(ps.actor, Group) and ps.actor.look is not None else None,
+            look_ratio=ps.actor.look_ratio if isinstance(ps.actor, Group) else None,
             obstacles=None if indoor else self._obstacles(ps, local),
-            bounds=(interior.BOUNDS_MIN, interior.BOUNDS_MAX) if indoor else None,
+            bounds=(interior.BOUNDS_MIN, interior.BOUNDS_MAX) if indoor else self._cam_bounds(ps),
         )
         shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
         if shake > 0.01:
@@ -627,6 +740,13 @@ class Director:
             extras["point_light"] = (interior.world(interior.LAMP_LOCAL + np.array([0.0, 0.15, 0.0])),
                                      (1.0 * flicker, 0.72 * flicker, 0.4 * flicker), 4.5)
         return cam, mood, draws, flash, extent, extras
+
+    @staticmethod
+    def _cam_bounds(ps: PlannedScene):
+        cy = SETTINGS[ps.scene.setting].cam_y
+        if not cy:
+            return None
+        return (np.array([-1e9, cy[0], -1e9]), np.array([1e9, cy[1], 1e9]))
 
     def _lights_out(self, ps: PlannedScene, local: float) -> float:
         """Radius around the town centre in which all windows are dark (-1: none)."""

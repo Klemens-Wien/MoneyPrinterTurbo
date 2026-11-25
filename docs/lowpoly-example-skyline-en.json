@@ -1,0 +1,128 @@
+{
+  "title": "The Rich Live in the Sky. We Live in Their Shadow.",
+  "hook": "The rich live in the sky",
+  "description": "I climbed the forbidden ladder to the rich city in the sky. What I found up there… what would you do?",
+  "hashtags": [
+    "Shorts",
+    "richvspoor",
+    "story",
+    "storytime",
+    "lowpoly",
+    "animation"
+  ],
+  "question": {
+    "text": "What would you do?",
+    "a": "Turn the mirrors",
+    "b": "Go home and stay quiet"
+  },
+  "voice": "en-US-BrianNeural",
+  "pitch": "+12Hz",
+  "language": "en",
+  "scenes": [
+    {
+      "narration": "In my city, the rich live in the sky. And we live in their shadow.",
+      "setting": "slums",
+      "action": "look_up",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "Down here, I haven't seen the sun in twelve years. Up there, they get it every single day.",
+      "setting": "under_deck",
+      "action": "slum_life",
+      "shot": "low_angle",
+      "mood": "overcast"
+    },
+    {
+      "narration": "There's only one way up. The golden elevator. And it only opens for a gold card.",
+      "setting": "lift_gate",
+      "action": "lift_ride",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "I tried once. The guard didn't even look at me. He just pointed back down.",
+      "setting": "lift_gate",
+      "action": "gate_guards",
+      "shot": "closeup",
+      "mood": "day"
+    },
+    {
+      "narration": "But before my grandpa died, he told me a secret. Pillar seven. There's an old ladder nobody has used in fifty years.",
+      "setting": "slums",
+      "action": "slum_life",
+      "shot": "crane_up",
+      "mood": "sunset"
+    },
+    {
+      "narration": "So at midnight, I started climbing.",
+      "setting": "ladder",
+      "action": "climb",
+      "shot": "side_track",
+      "mood": "night"
+    },
+    {
+      "narration": "Halfway up, the wind tried to rip me off. My hands were shaking. I didn't look down.",
+      "setting": "ladder",
+      "action": "climb_high",
+      "shot": "low_angle",
+      "mood": "storm"
+    },
+    {
+      "narration": "Then I pushed open the hatch. And for the first time in my life, I saw the sun.",
+      "setting": "sky_edge",
+      "action": "sky_view",
+      "shot": "crane_up",
+      "mood": "dawn"
+    },
+    {
+      "narration": "Pools. Gardens. Golden houses. They were having breakfast like nothing was wrong.",
+      "setting": "sky_city",
+      "action": "rich_party",
+      "shot": "dolly_in",
+      "mood": "dawn"
+    },
+    {
+      "narration": "Then I saw the mirrors. Thousands of them. All catching the sun.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "crane_up",
+      "mood": "day"
+    },
+    {
+      "narration": "That's when I got it. They didn't build their city up here to be closer to the sun. They built it to take it from us.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "closeup",
+      "mood": "day"
+    },
+    {
+      "narration": "And down there, they sell it back to us. One hour of light costs a whole week of work.",
+      "setting": "under_deck",
+      "action": "slum_life",
+      "shot": "dolly_in",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Then the alarm went off. Guards. Everywhere.",
+      "setting": "sky_city",
+      "action": "guards_chase",
+      "shot": "drone_follow",
+      "mood": "day"
+    },
+    {
+      "narration": "Now I'm standing at the edge. Behind me, the mirrors. Below me, my whole city in the dark.",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "low_angle",
+      "mood": "sunset"
+    },
+    {
+      "narration": "I could turn every mirror around. Or I could take the elevator home and pretend I never saw anything. What would you do?",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "pull_back",
+      "mood": "sunset"
+    }
+  ]
+}

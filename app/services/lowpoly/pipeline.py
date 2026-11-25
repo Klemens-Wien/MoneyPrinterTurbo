@@ -43,6 +43,7 @@ class Options:
     preset: str = "medium"
     caption_case: str = "lower"
     max_seconds: float | None = None  # render only the first N seconds (quick look)
+    pitch: str | None = None  # e.g. "+10Hz" (younger) / "-8Hz" (deeper)
 
 
 def _slug(text: str) -> str:
@@ -99,8 +100,9 @@ def generate(opts: Options) -> dict:
     # 2. narration
     gap = 0.18
     clips, backend = narration.synthesize(
-        [s.narration for s in board.scenes], os.path.join(work, "voice"), board.language, opts.voice, opts.tts,
-        target_range=DURATION_RANGE, gap=gap,
+        [s.narration for s in board.scenes], os.path.join(work, "voice"), board.language,
+        opts.voice or board.voice or None, opts.tts,
+        target_range=DURATION_RANGE, gap=gap, pitch=opts.pitch or board.pitch or "+0Hz",
     )
     durations = _scene_durations(clips, gap)
     logger.info(f"narration via {backend}: {sum(durations):.1f}s")

@@ -44,6 +44,10 @@ class ActorLibrary:
             colors = props.SISTER_COLORS
         elif variant == "doll":
             colors = props.DOLL_COLORS
+        elif variant.startswith(("rich", "poor", "guard")):
+            kind = "rich" if variant.startswith("rich") else "poor" if variant.startswith("poor") else "guard"
+            digits = variant[len(kind):]
+            colors = props.class_colors(kind, int(digits) if digits.isdigit() else 0)
         else:
             idx = int(variant[3:]) if variant.startswith("npc") else 0
             colors = props.figure_colors(np.random.default_rng(self.seed * 1000 + idx))
@@ -199,6 +203,8 @@ class Figure(Actor):
         if self.path is not None:
             pos, direction = self.path.at(t)
             moving = self.path.stop_at is None or t < 2 * self.path.stop_at / max(self.path.speed, 1e-6)
+            if abs(direction[0]) + abs(direction[2]) < 1e-6:  # vertical motion (climbing, elevator)
+                return pos, self.heading, moving
             return pos, heading_for_figure(direction), moving
         heading = self.heading
         if self.face_target is not None:
@@ -246,6 +252,15 @@ class Figure(Actor):
             s = math.sin(tt * 14)
             rot["leg_l"], rot["leg_r"] = rotate_x(s * 0.6), rotate_x(-s * 0.6)
             lift = abs(math.cos(tt * 14)) * 0.12
+        elif anim == "climb":
+            c = math.sin(tt * 5.0)
+            rot["arm_l"], rot["arm_r"] = rotate_x(-2.7 + c * 0.35), rotate_x(-2.7 - c * 0.35)
+            rot["leg_l"], rot["leg_r"] = rotate_x(-0.5 + c * 0.45), rotate_x(-0.5 - c * 0.45)
+            rot["head"] = rotate_x(-0.35)
+        elif anim == "look_up":
+            b = math.sin(tt * 1.6)
+            rot["head"] = rotate_x(-0.75 + 0.05 * b)
+            rot["arm_l"], rot["arm_r"] = rotate_z(-0.08), rotate_z(0.08)
         elif anim == "doll":  # unnaturally still, head tilted, arms reaching a little
             twitch = 0.25 if (tt % 4.3) < 0.12 else 0.0
             rot["head"] = rotate_z(0.38 + twitch) @ rotate_x(0.1)
@@ -501,6 +516,7 @@ class Group(Actor):
     members: list[Actor] = field(default_factory=list)
     focus_index: int = 0
     look: Actor | None = None  # optional second subject the camera looks toward (e.g. the monster)
+    look_ratio: float | None = None  # how far towards `look` staged shots aim (0 = focus, 1 = look target)
 
     def draws(self, t: float) -> list[Draw]:
         out: list[Draw] = []

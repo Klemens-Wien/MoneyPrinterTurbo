@@ -281,6 +281,25 @@ HORROR_ARCHETYPES = {
     "silent_man": {"en": "The Silent Man", "de": "Der Stumme Mann"},
 }
 
+def class_colors(kind: str, idx: int) -> dict:
+    """Outfits for the two classes of the skyline city and its guards."""
+    rng = np.random.default_rng(1000 + idx * 7 + (0 if kind == "rich" else 500))
+    if kind == "guard":
+        return {"skin": PALETTE["skin"][idx % len(PALETTE["skin"])], "shirt": hex_color("#1d1e26"),
+                "pants": hex_color("#15151c"), "hair": hex_color("#1d1d24"), "cap": True, "cap_color": hex_color("#f2c232")}
+    if kind == "rich":
+        shirts = [hex_color(c) for c in ("#fbfaf4", "#f2c232", "#ffd1e8", "#cfe8ff", "#fff1c4")]
+        pants = [hex_color(c) for c in ("#f4e7c0", "#fbfaf4", "#c99a1e", "#e8e2d0")]
+        return {"skin": PALETTE["skin"][rng.integers(len(PALETTE["skin"]))], "shirt": shirts[rng.integers(len(shirts))],
+                "pants": pants[rng.integers(len(pants))], "hair": PALETTE["hair"][rng.integers(len(PALETTE["hair"]))],
+                "cap": False}
+    shirts = [hex_color(c) for c in ("#7a6a58", "#6a7066", "#8a5a4a", "#5d6670", "#7f7a52", "#6e5a6a")]
+    pants = [hex_color(c) for c in ("#3b3b40", "#4a4036", "#3a4450")]
+    return {"skin": PALETTE["skin"][rng.integers(len(PALETTE["skin"]))], "shirt": shirts[rng.integers(len(shirts))],
+            "pants": pants[rng.integers(len(pants))], "hair": PALETTE["hair"][rng.integers(len(PALETTE["hair"]))],
+            "cap": bool(rng.random() < 0.4), "cap_color": hex_color("#5a5a60")}
+
+
 SISTER_COLORS = {
     "skin": hex_color("#ffd6a8"),
     "shirt": hex_color("#ff6fb5"),
