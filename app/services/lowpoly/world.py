@@ -103,6 +103,14 @@ SETTINGS: dict[str, Setting] = {
     "sky_mirrors": Setting("sky_mirrors", (-60.0, -1522.0), "x", 0.0, 2.6,
                            "(skyline) a field of golden sun mirrors on the rich platform", clear_radius=0.0,
                            stage_y=70.0, cam_y=(72.0, 400.0)),
+    "village_square": Setting("village_square", (1506.0, 7.0), "x", 0.0, 0.45,
+                              "(alpine village) the snowy square with church, fountain and maypole", clear_radius=0.0),
+    "village_lane": Setting("village_lane", (1460.0, 1.5), "x", 0.0, 1.3,
+                            "(alpine village) the narrow lane between wooden chalets and lanterns", clear_radius=0.0),
+    "chalet_home": Setting("chalet_home", (1532.0, -5.5), "x", 0.0, 0.25,
+                           "(alpine village) in front of the narrator's chalet", clear_radius=0.0),
+    "village_edge": Setting("village_edge", (1600.0, 30.0), "x", 0.0, -2.2,
+                            "(alpine village) where the village ends and the dark snowy forest begins", clear_radius=0.0),
     "main_street": Setting("main_street", (-62.0, 7.0), "x", 0.0, 0.45,
                            "the main street of the town, houses on both sides", clear_radius=6.0),
 }
@@ -160,7 +168,7 @@ class World:
     obstacles: np.ndarray = field(default_factory=lambda: np.zeros((0, 5)))  # x, z, radius, top, bottom
 
     def ground(self, x: float, z: float) -> float:
-        if abs(z) > 1000:  # interior sets / skyline district: flat ground at 0
+        if abs(z) > 1000 or abs(x) > 1000:  # interior sets / skyline / village districts: flat ground at 0
             return 0.0
         return max(float(self.terrain.height(x, z)), 0.0) if x > -300 else float(self.terrain.height(x, z))
 
@@ -402,14 +410,15 @@ def build_world(seed: int = 7) -> World:
     obstacles: list = []
     specs = _town(static, rng, obstacles)
     _trees(static, terrain, rng, fields)
-    from . import interior, skyline
+    from . import interior, skyline, village
 
     sky_static, sky_obstacles = skyline.build_static(seed)
-    obstacles = [(o[0], o[1], o[2], o[3], -1.0) for o in obstacles] + sky_obstacles
+    vil_static, vil_obstacles = village.build_static(seed)
+    obstacles = [(o[0], o[1], o[2], o[3], -1.0) for o in obstacles] + sky_obstacles + vil_obstacles
     return World(
         seed=seed,
         terrain=terrain,
-        static=np.concatenate([static.build(), interior.build_static(), sky_static]),
+        static=np.concatenate([static.build(), interior.build_static(), sky_static, vil_static]),
         water=_water().build(),
         clouds=_clouds(rng).build(),
         house_specs=specs,

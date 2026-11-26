@@ -77,20 +77,22 @@ def _text_img(text: str, size: int, fill=(255, 255, 255), stroke_ratio: float = 
 
 class MonsterWheel:
     def __init__(self, width: int, height: int, options: list[str], target: int, start: float = 0.3,
-                 spin: float = 3.6, hold: float = 1.3, title: str = "TONIGHT'S MONSTER", turns: int = 5):
+                 spin: float = 3.6, hold: float = 1.3, title: str = "TONIGHT'S MONSTER", turns: int = 5,
+                 compact: bool = False):
         self.width, self.height = width, height
+        self.compact = compact
         self.options, self.target = options, target
         self.start, self.spin, self.hold = start, spin, hold
         self.end = start + spin + hold
         n = len(options)
         self.seg = 360.0 / n
         self.final = turns * 360.0 + (target + 0.5) * self.seg
-        self.size = int(width * 0.84)
+        self.size = int(width * (0.48 if compact else 0.84))
         self.wheel = self._draw_wheel()
         self.highlight = self._draw_highlight()
-        self.title = np.asarray(_text_img(title, int(width * 0.075)))
-        self.result = np.asarray(_text_img(options[target] + "!", int(width * 0.11), fill=(255, 225, 60),
-                                           max_width=int(width * 0.9)))
+        self.title = np.asarray(_text_img(title, int(width * (0.06 if compact else 0.075))))
+        self.result = np.asarray(_text_img(options[target] + "!", int(width * (0.095 if compact else 0.11)),
+                                           fill=(255, 225, 60), max_width=int(width * 0.9)))
         self.pointer = self._draw_pointer()
 
     def _draw_wheel(self) -> Image.Image:
@@ -167,8 +169,8 @@ class MonsterWheel:
         fade_out = min(1.0, (self.end - t) / 0.35)
         fade_in = min(1.0, t / 0.2)
         k = min(fade_in, fade_out)
-        frame = (frame.astype(np.float32) * (1 - 0.5 * k)).astype(np.uint8)
-        cy = int(self.height * 0.43)
+        frame = (frame.astype(np.float32) * (1 - (0.2 if self.compact else 0.5) * k)).astype(np.uint8)
+        cy = int(self.height * (0.205 if self.compact else 0.43))
         cx = self.width // 2
         pop = 0.85 + 0.15 * min(1.0, t / 0.25)
         a = self.angle(t)
@@ -184,14 +186,16 @@ class MonsterWheel:
         p = self.pointer
         frame = blend(frame, p, cx - p.shape[1] // 2, cy - size // 2 - int(p.shape[0] * 0.35), k)
         title = self.title
-        frame = blend(frame, title, cx - title.shape[1] // 2, cy - size // 2 - title.shape[0] - int(self.height * 0.03), k)
+        if not (self.compact and landed):
+            frame = blend(frame, title, cx - title.shape[1] // 2, cy - size // 2 - title.shape[0] - int(self.height * 0.03), k)
         if landed:
             age = t - self.land_time
             s = 0.6 + 0.5 * min(1.0, age / 0.12) - 0.1 * min(1.0, max(0.0, age - 0.12) / 0.12)
             res = Image.fromarray(self.result)
             res = res.resize((max(1, int(res.width * s)), max(1, int(res.height * s))), Image.BILINEAR)
             r = np.asarray(res)
-            frame = blend(frame, r, cx - r.shape[1] // 2, cy + size // 2 + int(self.height * 0.01), k)
+            ry = (cy - size // 2 - r.shape[0] - int(self.height * 0.01)) if self.compact else (cy + size // 2 + int(self.height * 0.01))
+            frame = blend(frame, r, cx - r.shape[1] // 2, max(0, ry), k)
         return frame
 
 

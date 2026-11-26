@@ -1,0 +1,133 @@
+{
+  "title": "Überlebe die Nacht in meinem Bergdorf: Krampus",
+  "language": "de",
+  "voice": "de-DE-FlorianMultilingualNeural",
+  "pitch": "+10Hz",
+  "description": "Jede Winternacht entscheidet ein Glücksrad, welches Monster durch unser Dorf geht. Heute: der Krampus. Und ich war nicht brav…",
+  "hashtags": [
+    "Shorts",
+    "krampus",
+    "krampusnacht",
+    "gruselgeschichte",
+    "tirol",
+    "animation"
+  ],
+  "question": {
+    "text": "Die Wahrheit sagen?",
+    "a": "Wahrheit sagen",
+    "b": "Schweigen"
+  },
+  "wheel": true,
+  "wheel_compact": true,
+  "wheel_options": [
+    "KRAMPUS",
+    "PERCHTA",
+    "TATZELWURM",
+    "BLUATSCHINK",
+    "NACHTKRAPP",
+    "HABERGOASS"
+  ],
+  "wheel_pick": "KRAMPUS",
+  "night_clock": true,
+  "duration": [
+    55,
+    65
+  ],
+  "scenes": [
+    {
+      "setting": "village_square",
+      "action": "alone",
+      "shot": "medium_low",
+      "mood": "snow_dusk",
+      "narration": "In meinem Bergdorf entscheidet jede Winternacht ein Glücksrad, welches Monster durch unsere Gassen geht."
+    },
+    {
+      "setting": "village_lane",
+      "action": "krampus_lane",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "clock": "20:00",
+      "narration": "Heute Nacht ist es der *Krampus*."
+    },
+    {
+      "setting": "village_lane",
+      "action": "bells",
+      "shot": "drone_follow",
+      "mood": "snow_night",
+      "clock": "20:05",
+      "narration": "Du hörst ihn, bevor du ihn siehst. Glocken. Ketten. Hufe im Schnee."
+    },
+    {
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "medium",
+      "mood": "indoor",
+      "clock": "20:10",
+      "narration": "Regel eins: Wenn die Glocken läuten, geh rein. Regel zwei: Schau niemals aus dem Fenster."
+    },
+    {
+      "setting": "village_square",
+      "action": "krampus_pack",
+      "shot": "player_cam",
+      "mood": "snow_night",
+      "clock": "21:00",
+      "narration": "Er holt nur die schlimmen Kinder. In dem Korb auf seinem Rücken."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "snow_dusk",
+      "card": "Letzte Woche",
+      "narration": "Und letzte Woche hab ich mit einem Schneeball das Kirchenfenster kaputt gemacht. Und meinem kleinen Bruder die Schuld gegeben."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "krampus_window",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "clock": "00:00",
+      "narration": "Um Mitternacht haben die Glocken aufgehört. Direkt vor unserem Haus."
+    },
+    {
+      "setting": "bedroom",
+      "action": "noises",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "00:02",
+      "narration": "Dann hat er geklopft. Dreimal. Langsam."
+    },
+    {
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "00:03",
+      "narration": "Und eine tiefe Stimme hat einen Namen geflüstert. Nicht den von meinem Bruder. *Meinen*."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "krampus_door",
+      "shot": "closeup",
+      "mood": "snow_night",
+      "clock": "03:00",
+      "narration": "Ich hab Regel zwei gebrochen. Ich hab rausgeschaut. Er stand direkt an unserer Tür und hat genau auf mich gezeigt."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "krampus_window",
+      "shot": "crane_up",
+      "mood": "snow_night",
+      "clock": "05:59",
+      "narration": "Fünf Uhr neunundfünfzig. Noch eine Minute bis Sonnenaufgang. Er wartet immer noch."
+    },
+    {
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "medium",
+      "mood": "indoor",
+      "clock": "05:59",
+      "narration": "Und mein Bruder ist gerade aufgewacht und fragt, warum ich so viel Angst habe. Sag ich ihm die Wahrheit, oder bleib ich still bis Sonnenaufgang?"
+    }
+  ]
+}

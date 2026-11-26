@@ -1,0 +1,133 @@
+{
+  "title": "Survive the Night in My Mountain Village: Krampus",
+  "language": "en",
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "description": "Every winter night a wheel picks which monster walks our village. Tonight: Krampus. And I wasn't good this year…",
+  "hashtags": [
+    "Shorts",
+    "krampus",
+    "survivethenight",
+    "horrorstory",
+    "alps",
+    "animation"
+  ],
+  "question": {
+    "text": "Tell the truth?",
+    "a": "Tell the truth",
+    "b": "Stay quiet"
+  },
+  "wheel": true,
+  "wheel_compact": true,
+  "wheel_options": [
+    "KRAMPUS",
+    "PERCHTA",
+    "TATZELWURM",
+    "BLUATSCHINK",
+    "NACHTKRAPP",
+    "HABERGOASS"
+  ],
+  "wheel_pick": "KRAMPUS",
+  "night_clock": true,
+  "duration": [
+    55,
+    65
+  ],
+  "scenes": [
+    {
+      "setting": "village_square",
+      "action": "alone",
+      "shot": "medium_low",
+      "mood": "snow_dusk",
+      "narration": "In my mountain village, a wheel picks which monster walks our streets every winter night."
+    },
+    {
+      "setting": "village_lane",
+      "action": "krampus_lane",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "clock": "20:00",
+      "narration": "Tonight, it landed on *Krampus*."
+    },
+    {
+      "setting": "village_lane",
+      "action": "bells",
+      "shot": "drone_follow",
+      "mood": "snow_night",
+      "clock": "20:05",
+      "narration": "You hear him before you see him. Bells. Chains. Hooves in the snow."
+    },
+    {
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "medium",
+      "mood": "indoor",
+      "clock": "20:10",
+      "narration": "Rule one: when the bells ring, get inside. Rule two: never look out of the window."
+    },
+    {
+      "setting": "village_square",
+      "action": "krampus_pack",
+      "shot": "player_cam",
+      "mood": "snow_night",
+      "clock": "21:00",
+      "narration": "He only takes the naughty kids. In the basket on his back."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "snow_dusk",
+      "card": "Last week",
+      "narration": "And last week, I broke the church window with a snowball. And I blamed my little brother."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "krampus_window",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "clock": "00:00",
+      "narration": "At midnight, the bells stopped. Right outside our house."
+    },
+    {
+      "setting": "bedroom",
+      "action": "noises",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "00:02",
+      "narration": "Then he knocked. Three times. Slow."
+    },
+    {
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "00:03",
+      "narration": "And a deep voice whispered a name. Not my brother's. *Mine*."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "krampus_door",
+      "shot": "closeup",
+      "mood": "snow_night",
+      "clock": "03:00",
+      "narration": "I broke rule two. I looked. He was standing right at our door, pointing straight at me."
+    },
+    {
+      "setting": "chalet_home",
+      "action": "krampus_window",
+      "shot": "crane_up",
+      "mood": "snow_night",
+      "clock": "05:59",
+      "narration": "Five fifty nine. One minute until sunrise. He's still waiting."
+    },
+    {
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "medium",
+      "mood": "indoor",
+      "clock": "05:59",
+      "narration": "And my brother just woke up, asking why I look so scared. Do I tell him the truth, or do I stay quiet until sunrise?"
+    }
+  ]
+}

@@ -21,6 +21,7 @@ SHOTS = {
     "crane_up": "camera rises from ground level to a high view",
     "closeup": "close view on the narrator's face and upper body",
     "medium": "medium shot of the narrator, centred, camera slightly above head height (best opening shot)",
+    "medium_low": "medium shot with the narrator in the lower half of the frame (room for a graphic above)",
     "player_cam": "game-style camera above and behind the characters looking down at them",
     "chase_cam": "camera races ahead of the convoy looking back at it - shows what is chasing it",
 }
@@ -131,6 +132,9 @@ def shot_camera(
     elif shot == "medium":
         eye = f + _offset(yaw + 0.1 * u, 7.6 - 1.4 * e, 1.8)
         cam = Camera(eye, f + np.array([0.0, -0.45, 0.0]), 45)
+    elif shot == "medium_low":
+        eye = f + _offset(yaw + 0.08 * u, 8.2 - 1.0 * e, 0.9)
+        cam = Camera(eye, f + np.array([0.0, 2.3, 0.0]), 50)
     elif shot == "player_cam":
         eye = f + _offset(yaw + 0.3 * u, 9.0, 5.5)
         cam = Camera(eye, f + np.array([0.0, -0.6, 0.0]), 70)
@@ -148,7 +152,7 @@ def shot_camera(
         if cam.eye[1] < g + 0.6:
             cam.eye = (cam.eye[0], g + 0.6, cam.eye[2])
     gap = np.asarray(cam.eye, dtype=np.float64) - f
-    if not staged and shot in ("medium", "closeup", "low_angle", "player_cam", "dolly_in") and np.linalg.norm(gap) < 2.6:
+    if not staged and shot in ("medium", "medium_low", "closeup", "low_angle", "player_cam", "dolly_in") and np.linalg.norm(gap) < 2.6:
         gap = gap / (np.linalg.norm(gap) + 1e-9)
         cam.eye = f + gap * 2.6
     if obstacles is not None and len(obstacles):

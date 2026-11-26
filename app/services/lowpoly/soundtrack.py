@@ -112,6 +112,25 @@ def foley(kind: str, rng: np.random.Generator) -> np.ndarray:
         syll = np.clip(np.sin(2 * np.pi * 3.2 * t), 0, 1) ** 2 * np.sin(np.pi * t / 1.8)
         x = band(rng.standard_normal((n, 2)).astype(np.float32), 1500, 7000) * syll[:, None]
         return (_norm(x) * 0.12).astype(np.float32)
+    if kind == "bells":  # Krampus cow bells: a few inharmonic metallic clangs
+        n = int(1.2 * SR)
+        t = np.arange(n) / SR
+        x = np.zeros(n)
+        for hit in range(int(rng.integers(2, 4))):
+            t0 = rng.uniform(0.0, 0.35)
+            tt = np.clip(t - t0, 0, None)
+            f0 = rng.uniform(520, 760)
+            env = np.exp(-tt * 6.0) * (t >= t0)
+            for ratio, amp in ((1.0, 1.0), (2.32, 0.6), (3.87, 0.35), (5.1, 0.2)):
+                x += np.sin(2 * np.pi * f0 * ratio * tt) * env * amp
+        pan = rng.uniform(-0.6, 0.6)
+        return (_norm(x)[:, None] * np.array([1 - max(pan, 0), 1 + min(pan, 0)]) * 0.14).astype(np.float32)
+    if kind == "chains":
+        n = int(1.4 * SR)
+        t = np.arange(n) / SR
+        clicks = (rng.random(n) < 0.012).astype(float) * rng.standard_normal(n)
+        x = band(clicks.astype(np.float32), 1500, 9000) * np.sin(np.pi * t / 1.4)
+        return (_norm(x)[:, None] * 0.12).astype(np.float32)
     if kind == "zap":  # being "switched off": electric buzz + power-down
         n = int(0.9 * SR)
         t = np.arange(n) / SR

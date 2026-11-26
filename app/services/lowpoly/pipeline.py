@@ -45,6 +45,7 @@ class Options:
     max_seconds: float | None = None  # render only the first N seconds (quick look)
     pitch: str | None = None  # e.g. "+10Hz" (younger) / "-8Hz" (deeper)
     base_rate: int = 22  # speaking rate in percent; viral narrators talk ~3.5-4.7 words per second
+    duration_range: tuple | None = None  # (min, max) seconds; default: story setting or 75-95
 
 
 def _slug(text: str) -> str:
@@ -52,10 +53,10 @@ def _slug(text: str) -> str:
     return slug[:48] or "story"
 
 
-def _scene_durations(clips: list[narration.Clip], gap: float) -> list[float]:
+def _scene_durations(clips: list[narration.Clip], gap: float, duration_range=DURATION_RANGE) -> list[float]:
     durations = [c.duration + gap for c in clips]
     total = sum(durations)
-    lo, hi = DURATION_RANGE
+    lo, hi = duration_range
     if total < lo + 1:
         extra = lo + 1 - total
         per = min(extra / len(durations), 1.0)
@@ -100,6 +101,7 @@ def generate(opts: Options) -> dict:
 
     # 2. narration
     gap = 0.18
+    duration_range = tuple(opts.duration_range or board.duration or DURATION_RANGE)
     # *word* marks a stressed word: spoken normally, shown in yellow
     spoken = [s.narration.replace("*", "") for s in board.scenes]
     stressed = [{re.sub(r"\W", "", w).lower() for w in re.findall(r"\*([^*]+)\*", s.narration) for w in w.split()}
@@ -107,9 +109,9 @@ def generate(opts: Options) -> dict:
     clips, backend = narration.synthesize(
         spoken, os.path.join(work, "voice"), board.language,
         opts.voice or board.voice or None, opts.tts,
-        target_range=DURATION_RANGE, gap=gap, pitch=opts.pitch or board.pitch or "+0Hz", rate_pct=opts.base_rate,
+        target_range=duration_range, gap=gap, pitch=opts.pitch or board.pitch or "+0Hz", rate_pct=opts.base_rate,
     )
-    durations = _scene_durations(clips, gap)
+    durations = _scene_durations(clips, gap, duration_range)
     logger.info(f"narration via {backend}: {sum(durations):.1f}s")
 
     # 3. direction
@@ -129,7 +131,7 @@ def generate(opts: Options) -> dict:
             pick = MONSTER_VARIANTS[board.monster]["name"]
         wheel = overlays.MonsterWheel(opts.width, opts.height, options, options.index(pick), start=0.25,
                                       spin=max(2.6, min(3.6, durations[0] - 1.6)), hold=1.2,
-                                      title=text["wheel_title"])
+                                      title=text["wheel_title"], compact=board.wheel_compact)
     if board.night_clock and director.scenes:
         clock_start = director.scenes[1].start if wheel and len(director.scenes) > 1 else 0.0
         clock_end = director.scenes[-1].start if board.question else director.duration

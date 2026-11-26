@@ -462,3 +462,63 @@ def school_bus(mb: MeshBuilder) -> dict:
     mb.box((5.0, 8.6, 0), (0.15, 3.2, 0.15), PALETTE["chrome"])
     mb.box((5.7, 9.7, 0), (1.3, 0.8, 0.08), hex_color("#3d9bff"))
     return {"length": 15.0}
+
+
+# --------------------------------------------------------------------------- #
+# Krampus (Alpine folklore): fur, horns, long tongue, chains, cow bells, birch rod, basket.
+# Same part layout as the toy figure so the Figure animator can drive it.
+# --------------------------------------------------------------------------- #
+
+
+def krampus_parts() -> dict[str, MeshBuilder]:
+    fur = hex_color("#6a4a34")
+    fur_light = hex_color("#8a6a4c")
+    mask = hex_color("#a02a22")
+    horn = hex_color("#e4d6b8")
+    hoof = hex_color("#141216")
+    parts = {name: MeshBuilder() for name in FIGURE_PARTS}
+    parts["head_glow"] = MeshBuilder()
+    parts["arm_l_glow"] = MeshBuilder()
+    t = parts["torso"]
+    t.box((0, 0.5, 0), (1.25, 1.05, 0.7), fur)
+    t.box((0, 0.55, 0.36), (0.8, 0.8, 0.05), fur_light)
+    t.box((0, 1.0, 0), (1.45, 0.3, 0.85), fur_light)  # shaggy collar
+    for x in (-0.45, -0.15, 0.15, 0.45):  # cow bells on the belt
+        t.cylinder((x, 0.08, 0.38), 0.13, 0.26, hex_color("#c9a227"), segments=7)
+    for k in range(7):  # chain across the chest
+        t.box((-0.5 + k * 0.17, 0.75 - k * 0.07, 0.4), (0.12, 0.06, 0.04), hex_color("#8a8a92"))
+    t.box((0, 0.6, -0.55), (0.9, 0.9, 0.45), hex_color("#8a6a3a"))  # wicker basket on the back
+    for y in (0.3, 0.55, 0.8):
+        t.box((0, y, -0.78), (0.92, 0.05, 0.02), hex_color("#6a4a24"))
+    h = parts["head"]
+    h.box((0, 0.42, 0), (0.85, 0.82, 0.8), mask)
+    h.box((0, 0.3, 0.45), (0.45, 0.35, 0.25), hex_color("#4a1410"))  # snout
+    for x in (-0.22, -0.07, 0.07, 0.22):
+        h.box((x, 0.14, 0.58), (0.06, 0.12, 0.05), horn)  # fangs
+    h.box((0.05, -0.15, 0.55), (0.16, 0.5, 0.06), hex_color("#c2263a"))  # long tongue
+    h.box((0, 0.42, -0.2), (1.05, 1.0, 0.5), fur)  # shaggy hair
+    for side in (-1, 1):  # big curved horns (two cone segments)
+        h.cone((side * 0.35, 0.8, 0.0), 0.16, 0.6, horn, segments=5)
+        h.cone((side * 0.5, 1.3, -0.05), 0.1, 0.55, horn, segments=5)
+        h.box((side * 0.44, 1.12, -0.02), (0.18, 0.14, 0.18), horn)
+    g = parts["head_glow"]
+    for side in (-1, 1):
+        g.box((side * 0.2, 0.55, 0.42), (0.22, 0.12, 0.04), hex_color("#ffb020"))
+    for side, name in ((-1, "arm_l"), (1, "arm_r")):
+        a = parts[name]
+        a.box((0, -0.36, 0), (0.45, 0.8, 0.48), fur)
+        a.box((0, -0.85, 0.02), (0.4, 0.3, 0.42), hex_color("#2a1e18"))
+        for k in (-0.12, 0.0, 0.12):
+            a.box((k, -1.04, 0.16), (0.06, 0.16, 0.06), horn)  # claws
+    parts["arm_l"].box((0.0, -1.0, 0.3), (0.08, 0.9, 0.08), hex_color("#5a3a20"))  # torch stick
+    flame = parts["arm_l_glow"]
+    flame.cone((0.0, -0.62, 0.3), 0.2, 0.55, hex_color("#ff8a1a"), segments=6)
+    flame.cone((0.0, -0.55, 0.3), 0.11, 0.42, hex_color("#ffe06a"), segments=5)
+    for k in range(6):  # birch rod bundle in the right hand
+        parts["arm_r"].box((-0.05 + (k % 3) * 0.05, -1.35, 0.15 + (k // 3) * 0.05), (0.04, 0.9, 0.04), hex_color("#8a6a4a"))
+    for name in ("leg_l", "leg_r"):
+        leg = parts[name]
+        leg.box((0, -0.38, 0), (0.55, 0.78, 0.55), fur)
+        leg.box((0, -0.86, 0.08), (0.45, 0.18, 0.55), hoof)
+        leg.box((0, -0.86, 0.36), (0.05, 0.18, 0.05), hex_color("#222222"))
+    return parts

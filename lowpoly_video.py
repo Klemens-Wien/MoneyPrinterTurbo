@@ -35,6 +35,8 @@ def main(argv=None) -> int:
     parser.add_argument("--caption-case", default=None, choices=["lower", "upper", "keep"],
                         help="default: lower for English, keep for German (nouns stay capitalised)")
     parser.add_argument("--fps", type=int, default=30)
+    parser.add_argument("--min-seconds", type=float, help="shortest allowed video length (default 75)")
+    parser.add_argument("--max-seconds-total", type=float, help="longest allowed video length (default 95)")
     args = parser.parse_args(argv)
 
     if not args.theme and not args.story_file:
@@ -56,6 +58,8 @@ def main(argv=None) -> int:
         caption_case=args.caption_case or ("keep" if args.lang == "de" else "lower"),
         max_seconds=args.max_seconds,
         pitch=args.pitch,
+        duration_range=(args.min_seconds or 75.0, args.max_seconds_total or 95.0)
+        if (args.min_seconds or args.max_seconds_total) else None,
     )
     if args.preview:
         opts.width, opts.height, opts.samples, opts.preset, opts.crf = 540, 960, 2, "veryfast", 23

@@ -94,6 +94,7 @@ ALT_SHOTS = {
     "staged": ("low_angle", "closeup", "crane_up", "dolly_in"),
     "vehicle": ("drone_follow", "side_track", "chase_cam", "aerial_orbit"),
     "figure": ("medium", "player_cam", "closeup", "low_angle", "dolly_in"),
+    "hold": (),
     "other": ("flyover", "aerial_orbit", "crane_up", "top_down"),
 }
 SUBSHOT_MIN = 1.8  # viral hits cut every ~1.4-2.6 s
@@ -119,6 +120,8 @@ def plan_subshots(primary: str, yaw: float, duration: float, actor: Actor, rng: 
     count = max(1, min(4, round(duration / 2.3)))
     while count > 1 and duration / count < SUBSHOT_MIN:
         count -= 1
+    if primary == "medium_low":  # graphic overlay above the hero: keep the framing for the whole scene
+        return shots
     options = [s for s in ALT_SHOTS[_subject_kind(actor)] if s != primary]
     rng.shuffle(options)
     for i in range(1, count):
@@ -252,6 +255,9 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
                                        np.array([math.cos(a), 0, -math.sin(a)]), 1.3), phase=float(i))
                   for i, a in enumerate(rng.uniform(0, 2 * math.pi, 3))]
         return Group([hero_fig, friend] + extras, 0), 0.5
+
+    if action in KRAMPUS_ACTIONS:
+        return _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene)
 
     if action in ("freeze_one", "new_kid", "unfreeze", "statues"):
         say = (scene.say if scene is not None else "") or "HELLO"
@@ -575,6 +581,68 @@ def _skyline_scene(action, setting_name, stage, duration, yaw, mood, lib, rng, h
     return Group([hero_fig, Marker(down)], 0, look=Marker(down)), 0.8
 
 
+KRAMPUS_ACTIONS = {"bells", "krampus_lane", "krampus_pack", "krampus_window", "krampus_chase", "krampus_door",
+                   "krampus_leave"}
+
+
+def _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene):
+    kp = lib.figure("krampus")
+    toward = np.array([math.sin(yaw), 0.0, math.cos(yaw)])
+    away = -toward
+    side = np.array([toward[2], 0.0, -toward[0]])
+
+    def krampus(pos, **kw):
+        kw.setdefault("phase", float(rng.uniform(0, 3)))
+        return Figure(kp, np.asarray(pos, dtype=np.float64), size=1.25, **kw)
+
+    if action == "bells":  # bells in the distance: everyone hurries home
+        members: list[Actor] = [Figure(hero, stage.copy(), anim="run", path=LinePath(stage.copy(), toward, 3.8))]
+        for i in range(7):
+            p = stage + side * rng.uniform(-6, 6) + away * rng.uniform(0, 8)
+            d = toward + side * rng.uniform(-0.6, 0.6)
+            members.append(Figure(_npc(lib, rng), p, anim="run", phase=float(rng.uniform(0, 3)),
+                                   path=LinePath(p, d / np.linalg.norm(d), float(rng.uniform(3.0, 4.2)))))
+        for i in range(2):
+            p = stage + away * (55 + 8 * i) + side * (i * 4 - 2)
+            members.append(krampus(p, anim="stomp", path=LinePath(p, toward, 1.4)))
+        return Group(members, 0), 0.6
+    if action == "krampus_lane":  # Krampus stomps down the lane, the narrator hides behind a woodpile
+        start = stage + away * 13.0
+        k = krampus(start, anim="stomp", path=LinePath(start, toward, 1.0))
+        hide = Figure(hero, stage + side * 3.0 + toward * 2.0, anim="crouch", face_target=start)
+        return Group([hide, k], 0, look=k, look_ratio=0.75), 0.45
+    if action == "krampus_pack":  # a whole pack of Krampusse circling the square
+        members = [Figure(hero, stage + toward * 9.0, anim="crouch", face_target=stage)]
+        for i in range(6):
+            ang = i / 6 * 2 * math.pi
+            p = stage + np.array([math.sin(ang), 0, math.cos(ang)]) * 7.0
+            d = np.array([math.cos(ang), 0, -math.sin(ang)])
+            members.append(krampus(p, anim="stomp", path=LinePath(p, d, 1.1)))
+        members.append(Marker(stage + np.array([0.0, 2.0, 0.0])))
+        return Group(members, len(members) - 1), 0.7
+    if action == "krampus_window":  # outside the narrator's chalet, staring at the window
+        from . import village as vil
+        home = vil.world(vil.HOME_LOCAL)
+        window = home + np.array([0.0, 4.8, 4.8])
+        k = krampus(home + np.array([1.5, 0.0, 9.5]), anim="lurk", face_target=window)
+        return Group([k, Marker(window)], 0, look=Marker(window), look_ratio=0.4), 0.5
+    if action == "krampus_chase":
+        d = side
+        start = stage - d * 6.0
+        runner = Figure(hero, start, anim="run", path=LinePath(start, d, 4.6))
+        k = krampus(start - d * 7.0, anim="stomp", path=LinePath(start - d * 7.0, d, 4.4))
+        return Group([runner, k], 0), 0.55
+    if action == "krampus_door":  # face to face at the front door
+        hero_fig = Figure(hero, stage.copy(), anim="idle", face_target=stage + toward * 4.0)
+        k = krampus(stage + toward * 4.2, anim="point", face_target=stage)
+        # shot over Krampus' shoulder towards the narrator in the doorway (the house is behind the narrator)
+        return Group([k, hero_fig], 0, look=hero_fig, look_ratio=0.7), 0.5
+    # krampus_leave: walking away into the forest at dawn
+    k = krampus(stage.copy(), anim="stomp", path=LinePath(stage.copy(), away, 1.3))
+    watcher = Figure(hero, stage + toward * 10.0, anim="idle", face_target=stage)
+    return Group([watcher, k], 0, look=k, look_ratio=0.5), 0.6
+
+
 def _bedroom_scene(action: str, duration: float, lib: ActorLibrary, rng: np.random.Generator, hero):
     w = interior.world
     door_key = lib.raw("door", interior.door_mesh())
@@ -708,6 +776,12 @@ class Director:
                 out.append((t0 + d * 0.12, "creak"))
                 out.append((t0 + d * 0.4, "whisper"))
             members = s.actor.members if isinstance(s.actor, Group) else [s.actor]
+            if a in KRAMPUS_ACTIONS:
+                for k in range(int(d / 1.1)):
+                    out.append((t0 + 0.2 + k * 1.1 + float(rng.uniform(-0.1, 0.1)), "bells"))
+                out.append((t0 + d * 0.3, "chains"))
+            if a in ("noises",) and "KRAMPUS" in getattr(self.storyboard, "wheel_pick", "").upper():
+                out.append((t0 + d * 0.5, "bells"))
             for m in members:
                 if isinstance(m, Figure) and m.freeze_at is not None and m.freeze_at >= 0:
                     out.append((t0 + m.freeze_at, "zap"))
@@ -734,7 +808,7 @@ class Director:
         hits, prev = [], None
         for s in self.scenes:
             if s.scene.action in ("monster", "standoff", "panic", "faceoff", "rampage", "street_panic",
-                                  "doorway", "closet", "watch", "doll_behind") and \
+                                  "doorway", "closet", "watch", "doll_behind", "krampus_lane", "krampus_door") and \
                     prev not in ("monster", "standoff", "faceoff", "rampage", "street_panic", "doorway", "closet"):
                 hits.append(s.start)
             prev = s.scene.action

@@ -46,6 +46,14 @@ class ActorLibrary:
             colors = props.DOLL_COLORS
         elif variant == "finn":
             colors = props.FINN_COLORS
+        elif variant == "krampus":
+            parts = props.krampus_parts()
+            keys = {}
+            for p_name, builder in parts.items():
+                keys[p_name] = self._store(f"fig_krampus_{p_name}", builder)
+                if p_name.endswith("_glow"):
+                    self.materials[keys[p_name]] = 3
+            return keys
         elif variant.startswith(("rich", "poor", "guard")):
             kind = "rich" if variant.startswith("rich") else "poor" if variant.startswith("poor") else "guard"
             digits = variant[len(kind):]
@@ -282,6 +290,21 @@ class Figure(Actor):
             b = math.sin(tt * 1.6)
             rot["head"] = rotate_x(-0.75 + 0.05 * b)
             rot["arm_l"], rot["arm_r"] = rotate_z(-0.08), rotate_z(0.08)
+        elif anim == "lurk":  # hunched, head tilted, birch rod tapping
+            b = math.sin(tt * 1.3)
+            rot["head"] = rotate_z(0.25 + 0.05 * b) @ rotate_x(0.15)
+            rot["arm_r"] = rotate_x(-0.5 + math.sin(tt * 4.0) * 0.25)
+            rot["arm_l"] = rotate_x(-0.2) @ rotate_z(-0.15)
+            body_tilt = 0.32
+            lift = 0.02 * (b + 1)
+        elif anim == "stomp":  # heavy walk, swinging the rod
+            st = math.sin(tt * 4.5)
+            rot["leg_l"], rot["leg_r"] = rotate_x(st * 0.55), rotate_x(-st * 0.55)
+            rot["arm_r"] = rotate_x(-0.9 + st * 0.6)
+            rot["arm_l"] = rotate_x(st * 0.45)
+            rot["head"] = rotate_y(math.sin(tt * 1.1) * 0.35)
+            body_tilt = 0.25
+            lift = abs(math.cos(tt * 4.5)) * 0.1
         elif anim == "doll":  # unnaturally still, head tilted, arms reaching a little
             twitch = 0.25 if (tt % 4.3) < 0.12 else 0.0
             rot["head"] = rotate_z(0.38 + twitch) @ rotate_x(0.1)
@@ -333,8 +356,9 @@ class Figure(Actor):
             grey = 1.0 - (t - self.unfreeze_at) / 0.5  # colour flows back
         out = []
         for part, key in self.parts.items():
-            px, py, pz = props.FIGURE_PIVOTS[part]
-            out.append(Draw(key, base @ translate(px, py, pz) @ rot[part], tint, grey))
+            base_part = part[:-5] if part.endswith("_glow") else part
+            px, py, pz = props.FIGURE_PIVOTS[base_part]
+            out.append(Draw(key, base @ translate(px, py, pz) @ rot[base_part], tint, grey))
         return out
 
 

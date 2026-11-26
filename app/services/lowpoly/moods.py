@@ -32,6 +32,7 @@ class Mood:
     stars: float = 0.0
     water_color: tuple = hex_color("#4cc3e6")
     window_glow: float = 0.0
+    snow: float = 0.0
 
     def sun_direction(self) -> np.ndarray:
         el, az = math.radians(self.sun_elevation), math.radians(self.sun_azimuth)
@@ -77,6 +78,20 @@ MOODS: dict[str, Mood] = {
         sky_zenith=hex_color("#0b1030"), sky_horizon=hex_color("#2a3a78"), fog_color=hex_color("#1e2a5a"),
         fog_density=0.0018, cloud_tint=hex_color("#3a4470"), exposure=1.1, saturation=1.0,
         stars=1.0, water_color=hex_color("#1a2a5a"), window_glow=1.0,
+    ),
+    "snow_dusk": Mood(
+        sun_elevation=6, sun_azimuth=-100, sun_color=hex_color("#ffb08a"), sun_strength=0.75,
+        sky_ambient=hex_color("#9aa8e0"), ground_ambient=hex_color("#6a6f9a"), shadow_tint=hex_color("#6a6cc0"),
+        sky_zenith=hex_color("#3a4a9a"), sky_horizon=hex_color("#f2a6a0"), fog_color=hex_color("#b4a8d0"),
+        fog_density=0.0016, cloud_tint=hex_color("#e8b8c8"), exposure=1.05, saturation=1.1,
+        window_glow=0.8, snow=0.55,
+    ),
+    "snow_night": Mood(
+        sun_elevation=40, sun_azimuth=-40, sun_color=hex_color("#a8bcff"), sun_strength=0.5,
+        sky_ambient=hex_color("#4a5a9c"), ground_ambient=hex_color("#2a3058"), shadow_tint=hex_color("#2a3270"),
+        sky_zenith=hex_color("#0b1030"), sky_horizon=hex_color("#2e3e80"), fog_color=hex_color("#2a3466"),
+        fog_density=0.0022, cloud_tint=hex_color("#3a4470"), exposure=1.2, saturation=1.0,
+        stars=0.7, window_glow=1.0, snow=0.85,
     ),
     "indoor": Mood(
         sun_elevation=26, sun_azimuth=90, sun_color=hex_color("#9fb8ff"), sun_strength=1.1,

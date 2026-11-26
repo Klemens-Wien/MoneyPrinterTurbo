@@ -215,6 +215,7 @@ uniform sampler2D u_tex;
 uniform float u_exposure;
 uniform float u_saturation;
 uniform float u_rain;
+uniform float u_snow;
 uniform float u_time;
 uniform float u_flash;
 uniform float u_aspect;
@@ -241,6 +242,25 @@ float rain(vec2 uv, float t) {
     return acc;
 }
 
+float snow(vec2 uv, float t) {
+    float acc = 0.0;
+    for (int l = 0; l < 3; l++) {
+        float fl = float(l);
+        float scale = 9.0 + fl * 7.0;
+        vec2 p = vec2(uv.x * scale + sin(t * 0.7 + fl) * 0.6, uv.y * scale * u_aspect * 0.55 + t * (0.9 + fl * 0.35));
+        vec2 cell = floor(p);
+        vec2 f = fract(p);
+        float h = hash(cell + fl * 31.7);
+        if (h > 0.35) {
+            vec2 c = vec2(0.2 + 0.6 * hash(cell * 1.3 + 2.1), 0.2 + 0.6 * hash(cell * 2.7 + 5.3));
+            c.x += sin(t * 1.5 + h * 6.28) * 0.12;
+            float r = (0.05 + 0.05 * hash(cell + 7.7)) * (1.0 - fl * 0.22);
+            acc += smoothstep(r, r * 0.3, length((f - c) * vec2(1.0, 1.0))) * (0.9 - fl * 0.2);
+        }
+    }
+    return acc;
+}
+
 void main() {
     vec2 uv = vec2(v_uv.x, 1.0 - v_uv.y);
     vec3 col = texture(u_tex, uv).rgb * u_exposure;
@@ -252,6 +272,9 @@ void main() {
         float r = rain(uv, u_time);
         col = mix(col, vec3(0.86, 0.9, 1.0), clamp(r * u_rain, 0.0, 0.55));
         col = mix(col, col * vec3(0.92, 0.95, 1.05), u_rain * 0.5);
+    }
+    if (u_snow > 0.0) {
+        col = mix(col, vec3(0.97, 0.98, 1.0), clamp(snow(uv, u_time) * u_snow, 0.0, 0.9));
     }
     vec2 q = v_uv - 0.5;
     col *= 1.0 - dot(q * vec2(1.0, 0.8), q * vec2(1.0, 0.8)) * 0.55;
@@ -496,6 +519,7 @@ class Renderer:
         self._set(pp, "u_exposure", mood.exposure)
         self._set(pp, "u_saturation", mood.saturation)
         self._set(pp, "u_rain", mood.rain)
+        self._set(pp, "u_snow", float(getattr(mood, "snow", 0.0)))
         self._set(pp, "u_time", time)
         self._set(pp, "u_flash", flash)
         self._set(pp, "u_aspect", self.height / self.width)

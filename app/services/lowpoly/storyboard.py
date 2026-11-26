@@ -38,6 +38,13 @@ ACTIONS = {
     "freeze_one": "in a crowd, one person says a forbidden word and gets switched off (turns grey and freezes)",
     "new_kid": "a new kid walks into the crowd talking normally; everyone stares",
     "unfreeze": "a switched-off grey person is talked to and switches back on",
+    "bells": "(village) Krampus bells ring in the distance, everyone runs home through the snow",
+    "krampus_lane": "(village) Krampus stomps down the lane, the narrator hides and watches",
+    "krampus_pack": "(village) a pack of Krampusse circles the snowy square",
+    "krampus_window": "(village) Krampus stands outside the narrator's chalet, staring at the window",
+    "krampus_chase": "(village) Krampus chases the narrator through the snow",
+    "krampus_door": "(village) face to face with Krampus at the front door",
+    "krampus_leave": "(village) Krampus walks away into the forest",
     "statues": "a square full of switched-off grey people, others walk past in silence",
     "landscape": "no people, just the scenery",
     "chase": "the truck convoy flees while the giant grey monster stomps after it",
@@ -117,6 +124,8 @@ class Storyboard:
     hero_label: str = ""  # the rule made visible: text floating above the narrator (e.g. "3 DAYS")
     npc_labels: dict = field(default_factory=dict)  # {"default"|"rich"|"poor"|"guard": [texts above people]}
     label_style: str = ""  # "speech" renders labels as speech bubbles
+    wheel_compact: bool = False  # small wheel at the top so the hero stays visible underneath
+    duration: list = field(default_factory=list)  # optional [min, max] seconds for this story
 
     @property
     def word_count(self) -> int:
@@ -148,6 +157,8 @@ class Storyboard:
             hero_label=str(data.get("hero_label") or "").strip()[:24],
             npc_labels=_parse_npc_labels(data.get("npc_labels")),
             label_style=str(data.get("label_style") or "").strip(),
+            wheel_compact=bool(data.get("wheel_compact", False)),
+            duration=[float(x) for x in data.get("duration", [])][:2] if isinstance(data.get("duration"), list) else [],
             pitch=str(data.get("pitch") or "").strip() if re.match(r"^[+-]\d{1,3}Hz$", str(data.get("pitch") or "").strip()) else "",
         )
 
