@@ -14,8 +14,8 @@ from .narration import Word
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 DEFAULT_FONT = os.path.join(ROOT, "resource", "fonts", "LilitaOne-Regular.ttf")
 
-FILL = (236, 255, 58)
-EMPHASIS_FILL = (255, 255, 255)
+FILL = (255, 255, 255)
+EMPHASIS_FILL = (255, 221, 30)
 STROKE = (12, 12, 16)
 
 
@@ -44,7 +44,7 @@ def build_timeline(words: list[Word], min_dur: float = 0.18) -> list[TimedWord]:
         text = clean_word(w.text)
         if not text:
             continue
-        out.append(TimedWord(text, w.start, max(w.end, w.start + min_dur), is_emphasis(w.text)))
+        out.append(TimedWord(text, w.start, max(w.end, w.start + min_dur), bool(getattr(w, "emph", False)) or is_emphasis(w.text)))
     # each word stays until the next one starts (no flicker), capped for pauses
     for a, b in zip(out, out[1:]):
         if b.start - a.start < 1.6:

@@ -44,6 +44,7 @@ class Options:
     caption_case: str = "lower"
     max_seconds: float | None = None  # render only the first N seconds (quick look)
     pitch: str | None = None  # e.g. "+10Hz" (younger) / "-8Hz" (deeper)
+    base_rate: int = 22  # speaking rate in percent; viral narrators talk ~3.5-4.7 words per second
 
 
 def _slug(text: str) -> str:
@@ -99,10 +100,14 @@ def generate(opts: Options) -> dict:
 
     # 2. narration
     gap = 0.18
+    # *word* marks a stressed word: spoken normally, shown in yellow
+    spoken = [s.narration.replace("*", "") for s in board.scenes]
+    stressed = [{re.sub(r"\W", "", w).lower() for w in re.findall(r"\*([^*]+)\*", s.narration) for w in w.split()}
+                for s in board.scenes]
     clips, backend = narration.synthesize(
-        [s.narration for s in board.scenes], os.path.join(work, "voice"), board.language,
+        spoken, os.path.join(work, "voice"), board.language,
         opts.voice or board.voice or None, opts.tts,
-        target_range=DURATION_RANGE, gap=gap, pitch=opts.pitch or board.pitch or "+0Hz",
+        target_range=DURATION_RANGE, gap=gap, pitch=opts.pitch or board.pitch or "+0Hz", rate_pct=opts.base_rate,
     )
     durations = _scene_durations(clips, gap)
     logger.info(f"narration via {backend}: {sum(durations):.1f}s")
@@ -144,8 +149,9 @@ def generate(opts: Options) -> dict:
     starts = [s.start for s in director.scenes]
 
     words: list[Word] = []
-    for clip, start in zip(clips, starts):
-        words += [Word(w.text, w.start + start, w.end + start) for w in clip.words]
+    for clip, start, marks in zip(clips, starts, stressed):
+        words += [Word(w.text, w.start + start, w.end + start, re.sub(r"\W", "", w.text).lower() in marks)
+                  for w in clip.words]
     timed = cap.build_timeline(words)
     cap.to_srt(timed, os.path.join(work, "captions.srt"))
 
@@ -182,6 +188,9 @@ def generate(opts: Options) -> dict:
     captioner = cap.CaptionRenderer(opts.width, opts.height, case=opts.caption_case)
     hook_end = min(director.scenes[0].end, 4.0) if director.scenes else 3.5
     banner = cap.HookBanner(opts.width, opts.height, "" if wheel else board.hook, 0.0, hook_end)
+    labels = overlays.LabelLayer(opts.width, opts.height)
+    stickers = [overlays.StickerCard(opts.width, opts.height, ps.scene.card, ps.start + 0.05)
+                for ps in director.scenes if ps.scene.card]
     video_path = os.path.join(work, f"{_slug(board.title)}.mp4")
     writer = _ffmpeg_writer(video_path, opts, audio_path)
     frames = int(total * opts.fps)
@@ -193,6 +202,9 @@ def generate(opts: Options) -> dict:
             cam, mood, draws, flash, extent, extras = director.frame(t)
             frame = renderer.render(cam, mood, draws, t, flash=flash, shadow_extent=extent, extras=extras)
             word, cursor = cap.active_word(timed, t, cursor)
+            frame = labels.composite(frame, extras.get("labels", []), getattr(renderer, "last_vp", None), cam.eye)
+            for sticker in stickers:
+                frame = sticker.composite(frame, t)
             if wheel is not None:
                 frame = wheel.composite(frame, t)
             if clock is not None:

@@ -93,10 +93,10 @@ class PlannedScene:
 ALT_SHOTS = {
     "staged": ("low_angle", "closeup", "crane_up", "dolly_in"),
     "vehicle": ("drone_follow", "side_track", "chase_cam", "aerial_orbit"),
-    "figure": ("closeup", "low_angle", "dolly_in", "pull_back", "aerial_orbit"),
+    "figure": ("medium", "player_cam", "closeup", "low_angle", "dolly_in"),
     "other": ("flyover", "aerial_orbit", "crane_up", "top_down"),
 }
-SUBSHOT_MIN = 2.2
+SUBSHOT_MIN = 1.8  # viral hits cut every ~1.4-2.6 s
 
 
 def _subject_kind(actor: Actor) -> str:
@@ -116,7 +116,7 @@ def plan_subshots(primary: str, yaw: float, duration: float, actor: Actor, rng: 
     shots = [(0.0, primary, yaw)]
     if not fast_cuts:
         return shots
-    count = max(1, min(3, round(duration / 2.8)))
+    count = max(1, min(4, round(duration / 2.3)))
     while count > 1 and duration / count < SUBSHOT_MIN:
         count -= 1
     options = [s for s in ALT_SHOTS[_subject_kind(actor)] if s != primary]
@@ -238,6 +238,16 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
                 anim = "cheer" if action == "celebrate" else str(rng.choice(["idle", "talk", "point", "idle"]))
                 members.append(Figure(_npc(lib, rng), pos, anim=anim, phase=float(rng.uniform(0, 5)), face_target=stage))
         return Group(members, 0), 0.5
+
+    if action == "duo":
+        friend_pos = stage + np.array([math.sin(facing_cam + 1.4), 0.0, math.cos(facing_cam + 1.4)]) * 1.9
+        hero_fig = Figure(hero, stage.copy(), anim="talk", face_target=friend_pos)
+        friend = Figure(_npc(lib, rng), friend_pos, anim="talk", phase=1.1, face_target=stage)
+        extras = [Figure(_npc(lib, rng), stage + np.array([math.sin(a), 0, math.cos(a)]) * 9, anim="walk",
+                         path=LinePath(stage + np.array([math.sin(a), 0, math.cos(a)]) * 9,
+                                       np.array([math.cos(a), 0, -math.sin(a)]), 1.3), phase=float(i))
+                  for i, a in enumerate(rng.uniform(0, 2 * math.pi, 3))]
+        return Group([hero_fig, friend] + extras, 0), 0.5
 
     if action in ("alone", "wave"):
         sad = mood in ("storm", "night", "overcast")
@@ -602,6 +612,7 @@ class Director:
                 while ft < t + dur - 0.3:
                     flashes.append(ft)
                     ft += float(rng.uniform(2.2, 4.5))
+            self._assign_labels(actor, scene, storyboard)
             planned = PlannedScene(scene, t, t + dur, actor, yaw, cam_scale, prev_mood, target, flashes)
             planned.shots = plan_subshots(scene.shot, yaw, dur, actor, rng, fast_cuts)
             self.scenes.append(planned)
@@ -731,7 +742,7 @@ class Director:
         flash = flash_value(ps.flashes, t)
         dist = float(np.linalg.norm(np.asarray(cam.eye) - np.asarray(cam.target)))
         extent = float(np.clip(dist * 0.9 + 14, 22, 320))
-        extras: dict = {"lights_out": self._lights_out(ps, local)}
+        extras: dict = {"lights_out": self._lights_out(ps, local), "labels": self._figure_labels(ps, local)}
         if indoor:
             extent = 14.0
             flicker = 1.0
@@ -740,6 +751,34 @@ class Director:
             extras["point_light"] = (interior.world(interior.LAMP_LOCAL + np.array([0.0, 0.15, 0.0])),
                                      (1.0 * flicker, 0.72 * flicker, 0.4 * flicker), 4.5)
         return cam, mood, draws, flash, extent, extras
+
+    def _assign_labels(self, actor: Actor, scene: Scene, board: Storyboard) -> None:
+        hero_label = scene.hero_label or getattr(board, "hero_label", "")
+        npc_labels = getattr(board, "npc_labels", {}) or {}
+        hero_parts = self.library.figure("hero")
+        members = actor.members if isinstance(actor, Group) else [actor]
+        for i, m in enumerate(members):
+            if not isinstance(m, Figure):
+                continue
+            if m.parts == hero_parts:
+                m.label = hero_label
+                m.label_style = "danger" if hero_label.startswith("!") else "hero"
+                m.label = m.label.lstrip("!")
+            elif npc_labels and m.size >= 0.7:
+                key = next(iter(m.parts.values()))  # e.g. "fig_rich3_torso"
+                kind = next((k for k in ("rich", "poor", "guard") if f"fig_{k}" in key), "default")
+                pool = npc_labels.get(kind) or npc_labels.get("default") or []
+                if pool:
+                    m.label = pool[(i * 7 + len(scene.narration)) % len(pool)]
+
+    @staticmethod
+    def _figure_labels(ps: PlannedScene, local: float) -> list:
+        out = []
+        members = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+        for m in members:
+            if isinstance(m, Figure) and m.label:
+                out.append((m.focus(local) + np.array([0.0, 1.55 * m.size, 0.0]), m.label, m.label_style))
+        return out
 
     @staticmethod
     def _cam_bounds(ps: PlannedScene):

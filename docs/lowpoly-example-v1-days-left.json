@@ -1,0 +1,150 @@
+{
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "title": "In This Town, You Can See How Many Days You Have Left",
+  "hook": "",
+  "hero_label": "3 DAYS",
+  "npc_labels": {
+    "default": [
+      "21,402 DAYS",
+      "9,118 DAYS",
+      "30,250 DAYS",
+      "4,870 DAYS",
+      "18,331 DAYS",
+      "12,004 DAYS",
+      "26,777 DAYS"
+    ]
+  },
+  "description": "Everyone has thousands of days left. I have three. Then I found out what my number really means…",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "story",
+    "storytime",
+    "animation",
+    "lowpoly"
+  ],
+  "scenes": [
+    {
+      "narration": "In this town, everyone can see how many days they have left. It floats right above your head.",
+      "setting": "town",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "day"
+    },
+    {
+      "narration": "Most people have *thousands*. My neighbor, Mister Kim, has *thirty thousand*. He brags about it every single morning.",
+      "setting": "town",
+      "action": "crowd",
+      "shot": "player_cam",
+      "mood": "day"
+    },
+    {
+      "narration": "Me? I have *three*. Three days. My best friend Max stared at my number and didn't say a word for an hour.",
+      "setting": "town",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "day"
+    },
+    {
+      "narration": "After that, the whole town treated me like a ghost. People crossed the street when I walked by.",
+      "setting": "main_street",
+      "action": "street_panic",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "hero_label": "3 DAYS"
+    },
+    {
+      "narration": "So I tried everything to change it. First, I ate nothing but vegetables. The number didn't move.",
+      "setting": "home",
+      "action": "walk",
+      "shot": "closeup",
+      "mood": "day",
+      "card": "Attempt 1"
+    },
+    {
+      "narration": "Then I stayed in bed, wrapped in every blanket we had. Still nothing. And then it dropped to *two*.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "medium",
+      "mood": "indoor",
+      "card": "Attempt 2",
+      "hero_label": "2 DAYS"
+    },
+    {
+      "narration": "Then I asked the oldest woman in town. She looked at my number and whispered: it's not counting down your *life*.",
+      "setting": "home",
+      "action": "duo",
+      "shot": "closeup",
+      "mood": "sunset",
+      "card": "Attempt 3",
+      "hero_label": "1 DAY"
+    },
+    {
+      "narration": "On my last day, the ground started shaking.",
+      "setting": "main_street",
+      "action": "street_panic",
+      "shot": "aerial_orbit",
+      "mood": "overcast",
+      "card": "Last day",
+      "hero_label": "1 DAY"
+    },
+    {
+      "narration": "A *giant* walked out of the mountains. Fifty meters tall. Heading straight for the school.",
+      "setting": "town",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "storm",
+      "hero_label": "1 DAY"
+    },
+    {
+      "narration": "Everyone ran. Everyone except me. When you only have one day left, you're not scared of much.",
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "low_angle",
+      "mood": "storm",
+      "hero_label": "10 MIN"
+    },
+    {
+      "narration": "I stood in the middle of the street. And for some reason, it *stopped*. Right in front of me.",
+      "setting": "main_street",
+      "action": "faceoff",
+      "shot": "closeup",
+      "mood": "storm",
+      "hero_label": "1 MIN"
+    },
+    {
+      "narration": "It looked at the number above my head. Then it bent down, and it *bowed*.",
+      "setting": "main_street",
+      "action": "faceoff",
+      "shot": "crane_up",
+      "mood": "overcast",
+      "hero_label": "0"
+    },
+    {
+      "narration": "And my number changed. Not to a day. To a word.",
+      "setting": "town",
+      "action": "friends",
+      "shot": "low_angle",
+      "mood": "sunset",
+      "hero_label": "KEEPER"
+    },
+    {
+      "narration": "It was never counting down my life. It was counting down until the town *needed* me.",
+      "setting": "town",
+      "action": "friends",
+      "shot": "pull_back",
+      "mood": "sunset",
+      "hero_label": "KEEPER"
+    },
+    {
+      "narration": "Now Mister Kim stares at his thirty thousand days, wondering what *he* is waiting for. So tell me: what would your number say?",
+      "setting": "town",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "sunset",
+      "hero_label": "KEEPER"
+    }
+  ]
+}

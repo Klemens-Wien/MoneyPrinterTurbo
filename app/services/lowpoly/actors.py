@@ -198,6 +198,8 @@ class Figure(Actor):
     size: float = 1.0
     face_target: np.ndarray | None = None
     look_turn: float = 0.0  # head yaw offset for the "sit" pose
+    label: str = ""  # text floating above the head
+    label_style: str = "npc"
 
     def _state(self, t: float):
         if self.path is not None:

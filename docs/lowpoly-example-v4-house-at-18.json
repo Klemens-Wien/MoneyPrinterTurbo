@@ -1,0 +1,150 @@
+{
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "title": "In This Town, at 18 Your House Drives You Where You Belong",
+  "hook": "",
+  "hero_label": "17",
+  "npc_labels": {
+    "default": [
+      "18",
+      "18",
+      "19",
+      "18"
+    ]
+  },
+  "description": "On your 18th birthday your house drives you to where you belong. Mine didn't move. Then I found out why…",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "story",
+    "storytime",
+    "emotional",
+    "animation"
+  ],
+  "question": {
+    "text": "What should I do?",
+    "a": "Go with Dad",
+    "b": "Stay with Mom"
+  },
+  "scenes": [
+    {
+      "narration": "In this town, on your eighteenth birthday, your house wakes up. And it drives you to where you *belong*.",
+      "setting": "home",
+      "action": "wave",
+      "shot": "medium",
+      "mood": "day"
+    },
+    {
+      "narration": "My best friend Max turned eighteen last spring. His house drove him straight to the beach. He's a surfer now.",
+      "setting": "coast",
+      "action": "arrive",
+      "shot": "aerial_orbit",
+      "mood": "day"
+    },
+    {
+      "narration": "My cousin Lily got driven to the mountains. She runs a ski school now. Nobody ever argues with their house.",
+      "setting": "mountains",
+      "action": "drive",
+      "shot": "drone_follow",
+      "mood": "day"
+    },
+    {
+      "narration": "Every birthday, the whole town comes out to watch the houses roll away. It's the best party of the year.",
+      "setting": "road",
+      "action": "convoy",
+      "shot": "drone_follow",
+      "mood": "day"
+    },
+    {
+      "narration": "Yesterday was my eighteenth birthday. Everyone came to watch.",
+      "setting": "home",
+      "action": "crowd",
+      "shot": "player_cam",
+      "mood": "day",
+      "hero_label": "18"
+    },
+    {
+      "narration": "And my house... didn't move. Not one *centimeter*.",
+      "setting": "home",
+      "action": "alone",
+      "shot": "closeup",
+      "mood": "day",
+      "hero_label": "18"
+    },
+    {
+      "narration": "I tried talking to it. Nothing. I tried pushing it. Nothing. My mom even honked the doorbell like a horn.",
+      "setting": "home",
+      "action": "duo",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "card": "3 attempts",
+      "hero_label": "18"
+    },
+    {
+      "narration": "By evening, everyone had gone home. Everyone thought my house was broken. And maybe, so was I.",
+      "setting": "home",
+      "action": "alone",
+      "shot": "crane_up",
+      "mood": "sunset",
+      "hero_label": "18"
+    },
+    {
+      "narration": "That night, a storm rolled in. And through the rain, I saw headlights. Coming down our road.",
+      "setting": "road",
+      "action": "drive",
+      "shot": "side_track",
+      "mood": "storm",
+      "card": "That night",
+      "hero_label": "18"
+    },
+    {
+      "narration": "I sat on the porch all night, talking to my front door like an idiot. Please. Just move.",
+      "setting": "home",
+      "action": "alone",
+      "shot": "low_angle",
+      "mood": "night",
+      "hero_label": "18"
+    },
+    {
+      "narration": "A house. On wheels. Driving toward us. A house I hadn't seen since I was *eight*.",
+      "setting": "home",
+      "action": "arrive",
+      "shot": "low_angle",
+      "mood": "storm",
+      "hero_label": "18"
+    },
+    {
+      "narration": "My dad's house. It drove away ten years ago, and he never came back.",
+      "setting": "home",
+      "action": "duo",
+      "shot": "closeup",
+      "mood": "storm",
+      "hero_label": "18"
+    },
+    {
+      "narration": "My house wasn't broken. It was *waiting*. It knew where I belonged before I did.",
+      "setting": "home",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "dawn",
+      "hero_label": "18"
+    },
+    {
+      "narration": "Now both houses are parked next to each other. And both engines are running.",
+      "setting": "home",
+      "action": "celebrate",
+      "shot": "pull_back",
+      "mood": "sunset",
+      "hero_label": "18"
+    },
+    {
+      "narration": "Dad wants me to come with him. Mom wants me to stay. And my house is waiting for my answer. What should I do?",
+      "setting": "home",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "sunset",
+      "hero_label": "18"
+    }
+  ]
+}

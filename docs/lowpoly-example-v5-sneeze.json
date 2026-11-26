@@ -1,0 +1,140 @@
+{
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "title": "In This Town, Every Time You Sneeze, a House Moves",
+  "hook": "",
+  "hero_label": "SNEEZES: 0",
+  "description": "Every sneeze moves a house in my town. I'm allergic to EVERYTHING. Say bless you in the comments…",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "funny",
+    "story",
+    "storytime",
+    "animation"
+  ],
+  "scenes": [
+    {
+      "narration": "In this town, every time someone sneezes, a random house drives to a new spot.",
+      "setting": "town",
+      "action": "wave",
+      "shot": "medium",
+      "mood": "day"
+    },
+    {
+      "narration": "Most people sneeze maybe twice a month. That's two houses. No big deal.",
+      "setting": "town",
+      "action": "crowd",
+      "shot": "player_cam",
+      "mood": "day"
+    },
+    {
+      "narration": "I'm allergic to *everything*. Pollen. Cats. Dust. My own pillow.",
+      "setting": "home",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "day",
+      "hero_label": "SNEEZES: 9"
+    },
+    {
+      "narration": "My mom keeps tissues in every room. My dad sleeps with the car keys under his pillow, just in case our house leaves without him.",
+      "setting": "home",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "day",
+      "hero_label": "SNEEZES: 11"
+    },
+    {
+      "narration": "On my first day of school, I sneezed four times. The school ended up next to the bakery. Nobody complained.",
+      "setting": "fields",
+      "action": "convoy",
+      "shot": "drone_follow",
+      "mood": "day",
+      "card": "Day 1",
+      "hero_label": "SNEEZES: 13"
+    },
+    {
+      "narration": "By spring, my best friend Max lived on the beach. He didn't even move. His house just showed up there.",
+      "setting": "coast",
+      "action": "arrive",
+      "shot": "aerial_orbit",
+      "mood": "day",
+      "hero_label": "SNEEZES: 58"
+    },
+    {
+      "narration": "The mayor called an emergency meeting. Everyone was looking at *me*.",
+      "setting": "town",
+      "action": "argue",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "card": "Town meeting",
+      "hero_label": "SNEEZES: 77"
+    },
+    {
+      "narration": "So I tried everything. A mask. Nothing. Pills. Nothing. I even held my breath for a whole minute.",
+      "setting": "home",
+      "action": "duo",
+      "shot": "closeup",
+      "mood": "overcast",
+      "card": "3 attempts",
+      "hero_label": "SNEEZES: 102"
+    },
+    {
+      "narration": "Then came pollen season. The fields turned yellow. And my nose started to *tingle*.",
+      "setting": "fields",
+      "action": "walk",
+      "shot": "low_angle",
+      "mood": "day",
+      "hero_label": "SNEEZES: 102"
+    },
+    {
+      "narration": "I sneezed *forty-two* times in a row.",
+      "setting": "road",
+      "action": "convoy",
+      "shot": "chase_cam",
+      "mood": "day",
+      "hero_label": "SNEEZES: 144"
+    },
+    {
+      "narration": "Houses everywhere. The town hall rolled into the sea. The mayor was still inside, holding his coffee.",
+      "setting": "coast",
+      "action": "arrive",
+      "shot": "crane_up",
+      "mood": "day",
+      "hero_label": "SNEEZES: 144"
+    },
+    {
+      "narration": "I was sure they would kick me out of town forever.",
+      "setting": "town",
+      "action": "alone",
+      "shot": "closeup",
+      "mood": "sunset",
+      "hero_label": "SNEEZES: 144"
+    },
+    {
+      "narration": "Instead, tourists started coming from all over the world. Just to watch the houses drive around.",
+      "setting": "town",
+      "action": "celebrate",
+      "shot": "player_cam",
+      "mood": "sunset",
+      "hero_label": "SNEEZES: 144"
+    },
+    {
+      "narration": "Now I'm the town's main attraction. And the mayor? He loves his new ocean view.",
+      "setting": "coast",
+      "action": "celebrate",
+      "shot": "pull_back",
+      "mood": "sunset",
+      "hero_label": "SNEEZES: 145"
+    },
+    {
+      "narration": "Say *bless you* in the comments. Or your house might be next.",
+      "setting": "home",
+      "action": "wave",
+      "shot": "medium",
+      "mood": "sunset",
+      "hero_label": "SNEEZES: 146"
+    }
+  ]
+}

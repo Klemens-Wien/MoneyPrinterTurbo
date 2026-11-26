@@ -33,6 +33,7 @@ class Word:
     text: str
     start: float
     end: float
+    emph: bool = False
 
 
 @dataclass

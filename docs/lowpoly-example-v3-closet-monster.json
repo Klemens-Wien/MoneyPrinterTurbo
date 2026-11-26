@@ -1,0 +1,156 @@
+{
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "title": "In This Town, Every Kid Has a Monster in Their Closet",
+  "hook": "",
+  "hero_label": "",
+  "description": "Every kid in my town has a monster in the closet. You have to feed it. Last night mine stopped eating…",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "creepy",
+    "story",
+    "storytime",
+    "animation"
+  ],
+  "monster": "shadow",
+  "night_clock": true,
+  "question": {
+    "text": "Should I open the door?",
+    "a": "Open it",
+    "b": "Trust my monster"
+  },
+  "scenes": [
+    {
+      "narration": "In this town, every kid has a monster living in their closet. And it's *your* job to feed it.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "medium",
+      "mood": "indoor",
+      "clock": "20:00"
+    },
+    {
+      "narration": "Three cookies every night. Never more, never less. Mom says the monsters keep the *other* things away.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "player_cam",
+      "mood": "indoor",
+      "clock": "20:30"
+    },
+    {
+      "narration": "My best friend Leo forgot once. His closet was empty the next morning. And Leo didn't talk for a week.",
+      "setting": "home",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "day",
+      "card": "One week earlier"
+    },
+    {
+      "narration": "So I never forgot. Three cookies. Every night. For nine years.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "21:00"
+    },
+    {
+      "narration": "Until last night. I put the cookies in front of the closet... and they were still there in the morning.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "card": "Last night",
+      "clock": "21:30"
+    },
+    {
+      "narration": "My monster had stopped eating.",
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "22:10"
+    },
+    {
+      "narration": "I tried chocolate cookies. Nothing. I tried pizza. Nothing. I even tried my brother's birthday cake.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "player_cam",
+      "mood": "indoor",
+      "card": "3 attempts",
+      "clock": "23:00"
+    },
+    {
+      "narration": "I sat in front of that closet for hours, begging it to eat something. Anything at all.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "23:30"
+    },
+    {
+      "narration": "At midnight, I heard footsteps. Not from the closet. From the *hallway*.",
+      "setting": "bedroom",
+      "action": "noises",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "clock": "00:00"
+    },
+    {
+      "narration": "My door creaked open. And in the hallway stood something tall, with glowing *purple* eyes.",
+      "setting": "bedroom",
+      "action": "doorway",
+      "shot": "closeup",
+      "mood": "indoor",
+      "clock": "00:20"
+    },
+    {
+      "narration": "Then my closet door slammed open. Two yellow eyes. My monster. Wide awake.",
+      "setting": "bedroom",
+      "action": "closet",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "00:21"
+    },
+    {
+      "narration": "It hadn't stopped eating because it was sick. It stopped because it was *saving its strength*.",
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "crane_up",
+      "mood": "indoor",
+      "clock": "00:22"
+    },
+    {
+      "narration": "All night, I heard them fighting in the dark. I didn't move. I didn't breathe.",
+      "setting": "bedroom",
+      "action": "bed",
+      "shot": "medium",
+      "mood": "indoor",
+      "clock": "03:00"
+    },
+    {
+      "narration": "At five fifty nine, everything went quiet. Then something knocked on my bedroom door. Three times.",
+      "setting": "bedroom",
+      "action": "empty_doorway",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "clock": "05:59"
+    },
+    {
+      "narration": "Something crashed into the wall. Then a growl. Then a scream that didn't sound human.",
+      "setting": "bedroom",
+      "action": "noises",
+      "shot": "dolly_in",
+      "mood": "indoor",
+      "clock": "03:40"
+    },
+    {
+      "narration": "I don't know which one is standing out there. Should I open the door, or trust my monster and stay in bed?",
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "pull_back",
+      "mood": "indoor",
+      "clock": "05:59"
+    }
+  ]
+}

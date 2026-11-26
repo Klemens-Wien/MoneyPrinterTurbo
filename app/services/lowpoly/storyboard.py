@@ -34,6 +34,7 @@ ACTIONS = {
     "build": "a new house rises out of the ground while the narrator watches",
     "collapse": "a house shakes, tilts and sinks into the ground, the narrator panics",
     "wave": "the narrator waves at the camera",
+    "duo": "the narrator and a friend talk face to face, people walk past",
     "landscape": "no people, just the scenery",
     "chase": "the truck convoy flees while the giant grey monster stomps after it",
     "monster": "the giant grey monster with glowing eyes appears and roars",
@@ -85,6 +86,8 @@ class Scene:
     action: str = "landscape"
     shot: str = "aerial_orbit"
     clock: str = ""  # optional time of night shown when this scene starts, e.g. "02:00"
+    card: str = ""  # comic sticker shown when the scene starts, e.g. "3 DAYS LATER"
+    hero_label: str = ""  # text floating above the narrator in this scene (overrides the story default)
 
 
 @dataclass
@@ -103,6 +106,8 @@ class Storyboard:
     wheel_pick: str = ""  # which label the wheel lands on
     voice: str = ""  # optional edge-tts voice for this story
     pitch: str = ""  # optional pitch shift, e.g. "+10Hz" for a younger narrator
+    hero_label: str = ""  # the rule made visible: text floating above the narrator (e.g. "3 DAYS")
+    npc_labels: dict = field(default_factory=dict)  # {"default"|"rich"|"poor"|"guard": [texts above people]}
 
     @property
     def word_count(self) -> int:
@@ -131,8 +136,18 @@ class Storyboard:
             wheel_options=[str(o)[:24] for o in data.get("wheel_options", []) if str(o).strip()][:8],
             wheel_pick=str(data.get("wheel_pick") or "").strip(),
             voice=str(data.get("voice") or "").strip(),
+            hero_label=str(data.get("hero_label") or "").strip()[:24],
+            npc_labels=_parse_npc_labels(data.get("npc_labels")),
             pitch=str(data.get("pitch") or "").strip() if re.match(r"^[+-]\d{1,3}Hz$", str(data.get("pitch") or "").strip()) else "",
         )
+
+
+def _parse_npc_labels(raw) -> dict:
+    if isinstance(raw, list):
+        raw = {"default": raw}
+    if not isinstance(raw, dict):
+        return {}
+    return {str(k): [str(x)[:24] for x in v if str(x).strip()][:40] for k, v in raw.items() if isinstance(v, list)}
 
 
 def _parse_question(raw) -> dict | None:
@@ -162,6 +177,8 @@ def normalize_scene(raw: dict) -> Scene:
         action=_pick(raw.get("action"), ACTION_NAMES, "landscape"),
         shot=_pick(raw.get("shot"), tuple(SHOTS), "aerial_orbit"),
         clock=_parse_clock(raw.get("clock")),
+        card=str(raw.get("card") or "").strip()[:40],
+        hero_label=str(raw.get("hero_label") or "").strip()[:24],
     )
 
 

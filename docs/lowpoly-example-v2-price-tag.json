@@ -1,0 +1,157 @@
+{
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "title": "In This City, Your Price Is Written Above Your Head. Mine Says Zero.",
+  "hook": "",
+  "hero_label": "$0",
+  "npc_labels": {
+    "rich": [
+      "$4,000,000",
+      "$900,000",
+      "$12,500,000",
+      "$2,300,000"
+    ],
+    "poor": [
+      "$12",
+      "$40",
+      "$7",
+      "$25",
+      "$3"
+    ],
+    "guard": [
+      "$80,000",
+      "$65,000"
+    ],
+    "default": [
+      "$30",
+      "$55"
+    ]
+  },
+  "description": "Rich people live in the sky. Poor people live in their shadow. My price tag says zero… and that changed everything.",
+  "hashtags": [
+    "Shorts",
+    "richvspoor",
+    "story",
+    "storytime",
+    "animation",
+    "lowpoly"
+  ],
+  "scenes": [
+    {
+      "narration": "In this city, everyone's price is written above their head. Mine says *zero*.",
+      "setting": "under_deck",
+      "action": "slum_life",
+      "shot": "medium",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Up there, on the sky deck, they're worth *millions*. Down here, in their shadow, we're worth about twelve dollars.",
+      "setting": "slums",
+      "action": "look_up",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "The golden elevator reads your price. If it's high enough, the doors open. If not, the guards walk you home.",
+      "setting": "lift_gate",
+      "action": "lift_ride",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "My best friend Mia is worth forty. She's been saving her whole life to reach a hundred.",
+      "setting": "under_deck",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Every morning she watches the elevator doors close in front of her, like a gate to a different planet.",
+      "setting": "lift_gate",
+      "action": "lift_ride",
+      "shot": "aerial_orbit",
+      "mood": "day"
+    },
+    {
+      "narration": "I tried the elevator anyway. The scanner beeped, blinked, and showed an error. The guard laughed so hard he dropped his hat.",
+      "setting": "lift_gate",
+      "action": "gate_guards",
+      "shot": "closeup",
+      "mood": "day",
+      "card": "Attempt 1"
+    },
+    {
+      "narration": "So I found the old ladder on pillar seven. Two hundred and thirty rungs. I counted every one.",
+      "setting": "ladder",
+      "action": "climb",
+      "shot": "side_track",
+      "mood": "night",
+      "card": "Attempt 2"
+    },
+    {
+      "narration": "Halfway up, a storm hit. My hands were shaking. I didn't look down.",
+      "setting": "ladder",
+      "action": "climb_high",
+      "shot": "low_angle",
+      "mood": "storm"
+    },
+    {
+      "narration": "At sunrise, I pushed open the hatch. Gardens. Pools. Golden houses. And *real* sunlight.",
+      "setting": "sky_edge",
+      "action": "sky_view",
+      "shot": "crane_up",
+      "mood": "dawn"
+    },
+    {
+      "narration": "Then the guards saw me. Six of them. Running.",
+      "setting": "sky_city",
+      "action": "guards_chase",
+      "shot": "drone_follow",
+      "mood": "day"
+    },
+    {
+      "narration": "They grabbed my arm, read my price, and *froze*.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "closeup",
+      "mood": "day"
+    },
+    {
+      "narration": "Because up here, there's one law above all others: anything with a price can be *bought*. Including guards.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "crane_up",
+      "mood": "day"
+    },
+    {
+      "narration": "And something with a price of zero... can't be bought. Can't be sold. Can't be *stopped*.",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "So I walked straight to the golden elevator. And this time, I pressed *down*.",
+      "setting": "lift_gate",
+      "action": "lift_ride",
+      "shot": "crane_up",
+      "mood": "sunset",
+      "card": "Attempt 3"
+    },
+    {
+      "narration": "Mia's price still says forty. But tonight, she's riding up with me. And nobody can stop us.",
+      "setting": "under_deck",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "sunset"
+    },
+    {
+      "narration": "So what's the price above *your* head? Be honest in the comments.",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "pull_back",
+      "mood": "sunset"
+    }
+  ]
+}

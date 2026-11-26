@@ -326,3 +326,91 @@ class QuestionCard:
         x = (self.width - img.shape[1]) // 2
         y = int(self.height * 0.17) - int((1 - k) * 60)
         return blend(frame, img, x, y, k)
+
+
+# --------------------------------------------------------------------------- #
+# In-world labels (text floating above characters) and comic sticker cards
+# --------------------------------------------------------------------------- #
+
+LABEL_STYLES = {
+    "hero": ((255, 221, 30), (20, 16, 10, 220)),
+    "npc": ((255, 255, 255), (16, 18, 30, 190)),
+    "danger": ((255, 255, 255), (200, 30, 40, 230)),
+}
+
+
+class LabelLayer:
+    def __init__(self, width: int, height: int):
+        self.width, self.height = width, height
+        self._cache: dict[tuple, Image.Image] = {}
+
+    def _pill(self, text: str, style: str) -> Image.Image:
+        key = (text, style)
+        if key not in self._cache:
+            fg, bg = LABEL_STYLES.get(style, LABEL_STYLES["npc"])
+            size = int(self.width * 0.05)
+            font = _font(size)
+            tw = font.getbbox(text)[2]
+            pad = int(size * 0.35)
+            w, h = tw + pad * 2, int(size * 1.3)
+            img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+            d = ImageDraw.Draw(img)
+            d.rounded_rectangle((0, 0, w - 1, h - 1), radius=h // 2, fill=bg, outline=(255, 255, 255, 140), width=3)
+            d.text((pad, (h - size) // 2 - size * 0.06), text, font=font, fill=fg + (255,))
+            self._cache[key] = img
+        return self._cache[key]
+
+    def composite(self, frame: np.ndarray, labels: list, vp: np.ndarray | None, cam_eye) -> np.ndarray:
+        if not labels or vp is None:
+            return frame
+        eye = np.asarray(cam_eye, dtype=np.float64)
+        items = []
+        for pos, text, style in labels:
+            p = np.asarray(pos, dtype=np.float64)
+            clip = vp @ np.array([p[0], p[1], p[2], 1.0])
+            if clip[3] <= 0.1:
+                continue
+            ndc = clip[:3] / clip[3]
+            if abs(ndc[0]) > 1.1 or abs(ndc[1]) > 1.1:
+                continue
+            dist = float(np.linalg.norm(p - eye))
+            if dist > 45:
+                continue
+            x = (ndc[0] * 0.5 + 0.5) * self.width
+            y = (1 - (ndc[1] * 0.5 + 0.5)) * self.height
+            items.append((dist, x, y, text, style))
+        for dist, x, y, text, style in sorted(items, reverse=True):  # far first, near on top
+            img = self._pill(text, style)
+            s = float(np.clip(7.0 / max(dist, 0.5), 0.45, 1.5))
+            if abs(s - 1.0) > 0.02:
+                img = img.resize((max(1, int(img.width * s)), max(1, int(img.height * s))), Image.BILINEAR)
+            arr = np.asarray(img)
+            frame = blend(frame, arr, int(x - arr.shape[1] / 2), int(y - arr.shape[0]), 1.0)
+        return frame
+
+
+class StickerCard:
+    """Comic sticker like "3 DAYS LATER" shown when a scene starts."""
+
+    def __init__(self, width: int, height: int, text: str, start: float, duration: float = 1.4):
+        self.width, self.height = width, height
+        self.start, self.end = start, start + duration
+        size = int(width * 0.085)
+        label = _text_img(text.upper(), size, fill=(20, 16, 10), stroke_ratio=0.0, max_width=int(width * 0.8))
+        pad = int(size * 0.4)
+        card = Image.new("RGBA", (label.width + pad * 2, label.height + pad), (0, 0, 0, 0))
+        d = ImageDraw.Draw(card)
+        d.rounded_rectangle((0, 0, card.width - 1, card.height - 1), radius=pad, fill=(255, 221, 30, 255),
+                            outline=(20, 16, 10, 255), width=8)
+        card.alpha_composite(label, (pad, pad // 2))
+        self.image = card.rotate(-4, expand=True, resample=Image.BICUBIC)
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end):
+            return frame
+        age, left = t - self.start, self.end - t
+        s = 0.7 + 0.4 * min(1.0, age / 0.1) - 0.1 * min(1.0, max(0.0, age - 0.1) / 0.1)
+        img = self.image.resize((max(1, int(self.image.width * s)), max(1, int(self.image.height * s))), Image.BILINEAR)
+        arr = np.asarray(img)
+        k = min(1.0, left / 0.2)
+        return blend(frame, arr, (self.width - arr.shape[1]) // 2, int(self.height * 0.30) - arr.shape[0] // 2, k)

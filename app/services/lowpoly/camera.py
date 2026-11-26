@@ -20,6 +20,8 @@ SHOTS = {
     "top_down": "bird's-eye view straight down, slowly rotating",
     "crane_up": "camera rises from ground level to a high view",
     "closeup": "close view on the narrator's face and upper body",
+    "medium": "medium shot of the narrator, centred, camera slightly above head height (best opening shot)",
+    "player_cam": "game-style camera above and behind the characters looking down at them",
     "chase_cam": "camera races ahead of the convoy looking back at it - shows what is chasing it",
 }
 
@@ -126,6 +128,12 @@ def shot_camera(
         k = max(s, 1.0)
         eye = f + _offset(yaw + 0.12 * u, (4.6 - 0.8 * e) * k, 0.6 * k)
         cam = Camera(eye, f + np.array([0.0, 0.4 * k, 0.0]), 40)
+    elif shot == "medium":
+        eye = f + _offset(yaw + 0.1 * u, 7.6 - 1.4 * e, 1.8)
+        cam = Camera(eye, f + np.array([0.0, -0.45, 0.0]), 45)
+    elif shot == "player_cam":
+        eye = f + _offset(yaw + 0.3 * u, 9.0, 5.5)
+        cam = Camera(eye, f + np.array([0.0, -0.6, 0.0]), 70)
     elif shot == "chase_cam":
         fw = np.asarray(forward(t), dtype=np.float64)
         fw = fw / (np.linalg.norm(fw) + 1e-9)
@@ -139,6 +147,10 @@ def shot_camera(
         g = ground(float(cam.eye[0]), float(cam.eye[2]))
         if cam.eye[1] < g + 0.6:
             cam.eye = (cam.eye[0], g + 0.6, cam.eye[2])
+    gap = np.asarray(cam.eye, dtype=np.float64) - f
+    if not staged and shot in ("medium", "closeup", "low_angle", "player_cam", "dolly_in") and np.linalg.norm(gap) < 2.6:
+        gap = gap / (np.linalg.norm(gap) + 1e-9)
+        cam.eye = f + gap * 2.6
     if obstacles is not None and len(obstacles):
         cam.eye = avoid_obstacles(np.asarray(cam.eye, dtype=np.float64), np.asarray(cam.target, dtype=np.float64), obstacles)
     if bounds is not None:  # indoor: keep the camera inside the room

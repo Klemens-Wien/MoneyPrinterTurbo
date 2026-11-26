@@ -395,6 +395,7 @@ class Renderer:
         up = (math.sin(camera.roll), math.cos(camera.roll), 0.0)
         view = look_at(eye, target, up)
         vp = proj @ view
+        self.last_vp = vp
 
         sun = mood.sun_direction()
         focus = np.asarray(shadow_focus if shadow_focus is not None else target, dtype=np.float64)
