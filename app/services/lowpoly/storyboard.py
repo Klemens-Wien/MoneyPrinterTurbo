@@ -35,6 +35,7 @@ ACTIONS = {
     "collapse": "a house shakes, tilts and sinks into the ground, the narrator panics",
     "wave": "the narrator waves at the camera",
     "duo": "the narrator and a friend talk face to face, people walk past",
+    "speak_freeze": "the narrator says a word and the person in front of them turns to stone",
     "freeze_one": "in a crowd, one person says a forbidden word and gets switched off (turns grey and freezes)",
     "new_kid": "a new kid walks into the crowd talking normally; everyone stares",
     "unfreeze": "a switched-off grey person is talked to and switches back on",
@@ -103,6 +104,9 @@ class Scene:
     say: str = ""  # what the special character of the scene says (rule breaker / partner)
     reply: str = ""  # answer of a second character (e.g. after being switched back on)
     partner: str = ""  # figure variant of the narrator's partner in this scene, e.g. "finn"
+    counter: str = ""  # persistent badge at the top during the scene, e.g. "NIGHT 41"
+    variant: str = ""  # monster variant for this scene (grey, lava, ice, shadow, swamp)
+    rank: dict | None = None  # ranking card: {"n": 3, "name": "...", "stats": {"SPEED": 7, ...}}
 
 
 @dataclass
@@ -204,6 +208,9 @@ def normalize_scene(raw: dict) -> Scene:
         say=str(raw.get("say") or "").strip()[:32],
         reply=str(raw.get("reply") or "").strip()[:32],
         partner=str(raw.get("partner") or "").strip()[:16],
+        counter=str(raw.get("counter") or "").strip()[:24],
+        variant=str(raw.get("variant") or "").strip()[:12],
+        rank=raw.get("rank") if isinstance(raw.get("rank"), dict) else None,
     )
 
 

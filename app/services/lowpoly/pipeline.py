@@ -193,6 +193,10 @@ def generate(opts: Options) -> dict:
     labels = overlays.LabelLayer(opts.width, opts.height)
     stickers = [overlays.StickerCard(opts.width, opts.height, ps.scene.card, ps.start + 0.05)
                 for ps in director.scenes if ps.scene.card]
+    counter = overlays.CounterBadge(opts.width, opts.height,
+                                    [(ps.start, ps.end, ps.scene.counter) for ps in director.scenes if ps.scene.counter])
+    ranks = [overlays.RankCard(opts.width, opts.height, ps.scene.rank, ps.start, ps.end, board.language)
+             for ps in director.scenes if ps.scene.rank]
     video_path = os.path.join(work, f"{_slug(board.title)}.mp4")
     writer = _ffmpeg_writer(video_path, opts, audio_path)
     frames = int(total * opts.fps)
@@ -205,6 +209,10 @@ def generate(opts: Options) -> dict:
             frame = renderer.render(cam, mood, draws, t, flash=flash, shadow_extent=extent, extras=extras)
             word, cursor = cap.active_word(timed, t, cursor)
             frame = labels.composite(frame, extras.get("labels", []), getattr(renderer, "last_vp", None), cam.eye)
+            frame = overlays.pov_say(labels, frame, extras.get("pov_say"))
+            frame = counter.composite(frame, t)
+            for card in ranks:
+                frame = card.composite(frame, t)
             for sticker in stickers:
                 frame = sticker.composite(frame, t)
             if wheel is not None:

@@ -1,0 +1,120 @@
+{
+  "title": "POV: Jedes Wort von dir verwandelt jemand anderen in Stein",
+  "label_style": "speech",
+  "npc_labels": {
+    "default": [
+      "HUSS"
+    ]
+  },
+  "description": "Du bist in die Stadt gezogen, in der alle nur 'huss' sagen. Dann hast du hallo gesagt… 👇",
+  "hashtags": [
+    "Shorts",
+    "pov",
+    "geschichte",
+    "story",
+    "animation",
+    "lowpoly"
+  ],
+  "question": {
+    "text": "Antwortest du ihr?",
+    "a": "Antworten",
+    "b": "Still bleiben"
+  },
+  "voice": "de-DE-FlorianMultilingualNeural",
+  "pitch": "+10Hz",
+  "language": "de",
+  "duration": [
+    48,
+    58
+  ],
+  "scenes": [
+    {
+      "setting": "main_street",
+      "action": "speak_freeze",
+      "shot": "pov",
+      "mood": "day",
+      "say": "HALLO",
+      "narration": "POV: Du hast gerade hallo gesagt. Und der Mann vor dir wurde zu *Stein*."
+    },
+    {
+      "setting": "town",
+      "action": "crowd",
+      "shot": "pov",
+      "mood": "day",
+      "card": "1 Stunde vorher",
+      "narration": "Eine Stunde vorher bist du in eine Stadt gezogen, in der alle nur ein Wort sagen: huss."
+    },
+    {
+      "setting": "main_street",
+      "action": "duo",
+      "shot": "pov",
+      "mood": "day",
+      "say": "HUSS",
+      "narration": "Der Bäcker? Huss. Der Bürgermeister? Huss. Und sie haben dich gewarnt: Sag ein anderes Wort, und du wirst abgeschaltet."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "player_cam",
+      "mood": "overcast",
+      "narration": "Es gibt einen ganzen Platz voller Leute, die es versucht haben."
+    },
+    {
+      "setting": "main_street",
+      "action": "speak_freeze",
+      "shot": "pov",
+      "mood": "day",
+      "say": "HALLO",
+      "narration": "Als der alte Mann dich angelächelt hat, hast du's vergessen. Du hast hallo gesagt."
+    },
+    {
+      "setting": "main_street",
+      "action": "speak_freeze",
+      "shot": "closeup",
+      "mood": "day",
+      "say": "HALLO",
+      "narration": "Aber du bist nicht erstarrt. *Er* schon."
+    },
+    {
+      "setting": "town",
+      "action": "speak_freeze",
+      "shot": "pov",
+      "mood": "overcast",
+      "say": "ENTSCHULDIGUNG",
+      "narration": "Vor Panik hast du Entschuldigung gesagt. Und die Frau neben ihm wurde auch zu Stein."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "narration": "Jedes Wort, das du sagst, schaltet jemand anderen ab. Nicht dich. Niemals dich."
+    },
+    {
+      "setting": "home",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "sunset",
+      "card": "3 Tage später",
+      "narration": "Also hast du aufgehört zu reden. Drei ganze Tage lang."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "pov",
+      "mood": "sunset",
+      "partner": "sister",
+      "say": "WIE HEISST DU?",
+      "narration": "Dann kam ein kleines Mädchen zu dir. Sie ist auch neu hier. Und sie hat nach deinem Namen gefragt."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "pov",
+      "mood": "sunset",
+      "partner": "sister",
+      "say": "BITTE?",
+      "narration": "Wenn du antwortest, wird jemand zu Stein. Vielleicht sie. Antwortest du ihr, oder bleibst du für immer still?"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "title": "Every Monster Ranked by Your Chance of Surviving the Night",
+  "hook": "Ranked: would you survive?",
+  "description": "From 'you'll probably make it' to 'nobody survives'. Which one would YOU survive? 👇",
+  "hashtags": [
+    "Shorts",
+    "ranking",
+    "tierlist",
+    "monster",
+    "horror",
+    "animation"
+  ],
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "duration": [
+    42,
+    52
+  ],
+  "scenes": [
+    {
+      "setting": "town",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "sunset",
+      "narration": "Every monster from our wheel, ranked by your chance of surviving the night. Number one has *no* survivors."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doll_floor",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "rank": {
+        "n": 6,
+        "name": "The Doll",
+        "stats": {
+          "SPEED": 2,
+          "STRENGTH": 1,
+          "SURVIVAL %": 90
+        }
+      },
+      "narration": "Number six: the Doll. It can only move when nobody is looking. So just... don't blink."
+    },
+    {
+      "setting": "road",
+      "action": "chase",
+      "shot": "chase_cam",
+      "mood": "day",
+      "rank": {
+        "n": 5,
+        "name": "Grey Giant",
+        "stats": {
+          "SPEED": 3,
+          "STRENGTH": 10,
+          "SURVIVAL %": 75
+        }
+      },
+      "variant": "grey",
+      "narration": "Number five: the Grey Giant. Fifty meters tall, but slow. Hide, and it walks right past you."
+    },
+    {
+      "setting": "fields",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "rank": {
+        "n": 4,
+        "name": "Ice Titan",
+        "stats": {
+          "SPEED": 5,
+          "STRENGTH": 8,
+          "SURVIVAL %": 60
+        }
+      },
+      "variant": "ice",
+      "narration": "Number four: the Ice Titan. It freezes everything it touches. Stay inside and stay warm."
+    },
+    {
+      "setting": "village_lane",
+      "action": "krampus_lane",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "rank": {
+        "n": 3,
+        "name": "Krampus",
+        "stats": {
+          "SPEED": 6,
+          "STRENGTH": 6,
+          "SURVIVAL %": 50
+        }
+      },
+      "narration": "Number three: Krampus. He only takes the naughty ones. So for most of you... fifty fifty."
+    },
+    {
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "low_angle",
+      "mood": "night",
+      "rank": {
+        "n": 2,
+        "name": "Lava Golem",
+        "stats": {
+          "SPEED": 7,
+          "STRENGTH": 9,
+          "SURVIVAL %": 20
+        }
+      },
+      "variant": "lava",
+      "narration": "Number two: the Lava Golem. Doors don't stop it. Walls don't stop it. *Nothing* does."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doorway",
+      "shot": "closeup",
+      "mood": "indoor",
+      "rank": {
+        "n": 1,
+        "name": "Shadow Beast",
+        "stats": {
+          "SPEED": 10,
+          "STRENGTH": 7,
+          "SURVIVAL %": 0
+        }
+      },
+      "narration": "Number one: the Shadow Beast. By the time you hear it, it's already *inside* your house."
+    },
+    {
+      "setting": "town",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "night",
+      "narration": "So which one would you survive? Comment it. The most voted monster goes on tonight's wheel."
+    }
+  ]
+}

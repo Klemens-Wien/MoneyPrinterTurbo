@@ -1,0 +1,142 @@
+{
+  "title": "Ich habe 100 Nächte vom Monster-Glücksrad überlebt",
+  "wheel": true,
+  "wheel_compact": true,
+  "wheel_options": [
+    "GRAUER RIESE",
+    "LAVA-GOLEM",
+    "KRAMPUS",
+    "DIE PUPPE",
+    "SCHATTENBESTIE",
+    "???"
+  ],
+  "wheel_pick": "???",
+  "description": "Jede Nacht wählt ein Glücksrad, welches Monster meine Stadt jagt. Ich hab 100 überlebt. Dann landete es auf ???",
+  "hashtags": [
+    "Shorts",
+    "100tage",
+    "überleben",
+    "story",
+    "monster",
+    "animation"
+  ],
+  "question": {
+    "text": "Was sag ich ihnen?",
+    "a": "Rad zerstören",
+    "b": "Noch mal drehen"
+  },
+  "voice": "de-DE-FlorianMultilingualNeural",
+  "pitch": "+10Hz",
+  "language": "de",
+  "duration": [
+    55,
+    66
+  ],
+  "scenes": [
+    {
+      "setting": "main_street",
+      "action": "alone",
+      "shot": "medium_low",
+      "mood": "sunset",
+      "counter": "NACHT 100",
+      "narration": "Nacht hundert. Zum ersten Mal überhaupt ist das Rad auf Fragezeichen gelandet."
+    },
+    {
+      "setting": "town",
+      "action": "crowd",
+      "shot": "medium",
+      "mood": "sunset",
+      "card": "99 Nächte vorher",
+      "narration": "Von vorne. Jede Nacht wählt ein Rad, welches Monster unsere Stadt jagt. Ich hab geschworen, hundert davon zu überleben."
+    },
+    {
+      "setting": "road",
+      "action": "chase",
+      "shot": "chase_cam",
+      "mood": "sunset",
+      "counter": "NACHT 1",
+      "variant": "grey",
+      "narration": "Nacht eins: der Graue Riese. Ich hab mich im Schulbus versteckt und geheult."
+    },
+    {
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "low_angle",
+      "mood": "night",
+      "counter": "NACHT 7",
+      "variant": "lava",
+      "narration": "Nacht sieben: Der Lava-Golem hat meine Schule geschmolzen. Ehrlich? Beste Nacht überhaupt."
+    },
+    {
+      "setting": "village_lane",
+      "action": "krampus_lane",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "counter": "NACHT 13",
+      "narration": "Nacht dreizehn: der Krampus. Ich war noch nie in meinem Leben so höflich."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doll_bed",
+      "shot": "closeup",
+      "mood": "indoor",
+      "counter": "NACHT 28",
+      "narration": "Nacht achtundzwanzig: die Puppe. Ich hab neun Stunden am Stück nicht geblinzelt."
+    },
+    {
+      "setting": "fields",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "counter": "NACHT 41",
+      "variant": "ice",
+      "narration": "Nacht einundvierzig: Der Eis-Titan hat den ganzen See eingefroren. Am Morgen sind wir Schlittschuh gelaufen."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doorway",
+      "shot": "closeup",
+      "mood": "indoor",
+      "counter": "NACHT 66",
+      "narration": "Nacht sechsundsechzig: Die Schattenbestie stand die ganze Nacht in meinem Flur. Einfach. Nur. Da."
+    },
+    {
+      "setting": "main_street",
+      "action": "street_panic",
+      "shot": "aerial_orbit",
+      "mood": "storm",
+      "counter": "NACHT 99",
+      "variant": "swamp",
+      "narration": "In Nacht neunundneunzig war die ganze Stadt am Ende. Nur noch eine Nacht."
+    },
+    {
+      "setting": "main_street",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "night",
+      "counter": "NACHT 100",
+      "hero_label": "!DU",
+      "narration": "Dann blieb das Rad auf den Fragezeichen stehen. Und über meinem Kopf erschien ein Wort."
+    },
+    {
+      "setting": "town",
+      "action": "friends",
+      "shot": "low_angle",
+      "mood": "dawn",
+      "counter": "NACHT 100",
+      "hero_label": "!DU",
+      "variant": "lava",
+      "narration": "Und jedes Monster, das ich überlebt hab, kam in die Stadt. Nicht um mich zu jagen. Sondern um mir zu *folgen*."
+    },
+    {
+      "setting": "town",
+      "action": "friends",
+      "shot": "pull_back",
+      "mood": "sunset",
+      "counter": "NACHT 100",
+      "hero_label": "!DU",
+      "variant": "grey",
+      "narration": "Jetzt warten sie alle auf meinen ersten Befehl. Was sag ich ihnen?"
+    }
+  ]
+}

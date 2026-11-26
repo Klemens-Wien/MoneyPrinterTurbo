@@ -1,0 +1,142 @@
+{
+  "title": "I Survived 100 Nights of the Monster Wheel",
+  "wheel": true,
+  "wheel_compact": true,
+  "wheel_options": [
+    "GREY GIANT",
+    "LAVA GOLEM",
+    "KRAMPUS",
+    "THE DOLL",
+    "SHADOW BEAST",
+    "???"
+  ],
+  "wheel_pick": "???",
+  "description": "Every night a wheel picks which monster hunts my town. I survived 100 of them. Then it landed on ???",
+  "hashtags": [
+    "Shorts",
+    "100days",
+    "survival",
+    "story",
+    "monster",
+    "animation"
+  ],
+  "question": {
+    "text": "What do I tell them?",
+    "a": "Destroy the wheel",
+    "b": "Spin it again"
+  },
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "duration": [
+    55,
+    66
+  ],
+  "scenes": [
+    {
+      "setting": "main_street",
+      "action": "alone",
+      "shot": "medium_low",
+      "mood": "sunset",
+      "counter": "NIGHT 100",
+      "narration": "Night one hundred. For the first time ever, the wheel landed on question marks."
+    },
+    {
+      "setting": "town",
+      "action": "crowd",
+      "shot": "medium",
+      "mood": "sunset",
+      "card": "99 nights earlier",
+      "narration": "Let me back up. Every night, a wheel picks which monster hunts our town. I swore I'd survive one hundred of them."
+    },
+    {
+      "setting": "road",
+      "action": "chase",
+      "shot": "chase_cam",
+      "mood": "sunset",
+      "counter": "NIGHT 1",
+      "variant": "grey",
+      "narration": "Night one: the Grey Giant. I hid in a school bus and cried."
+    },
+    {
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "low_angle",
+      "mood": "night",
+      "counter": "NIGHT 7",
+      "variant": "lava",
+      "narration": "Night seven: the Lava Golem melted my school. Honestly? Best night ever."
+    },
+    {
+      "setting": "village_lane",
+      "action": "krampus_lane",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "counter": "NIGHT 13",
+      "narration": "Night thirteen: Krampus. I have never been so polite in my entire life."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doll_bed",
+      "shot": "closeup",
+      "mood": "indoor",
+      "counter": "NIGHT 28",
+      "narration": "Night twenty eight: the Doll. I didn't blink for nine hours straight."
+    },
+    {
+      "setting": "fields",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "counter": "NIGHT 41",
+      "variant": "ice",
+      "narration": "Night forty one: the Ice Titan froze the whole lake. We went skating the next morning."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doorway",
+      "shot": "closeup",
+      "mood": "indoor",
+      "counter": "NIGHT 66",
+      "narration": "Night sixty six: the Shadow Beast stood in my hallway all night. Just. Watching."
+    },
+    {
+      "setting": "main_street",
+      "action": "street_panic",
+      "shot": "aerial_orbit",
+      "mood": "storm",
+      "counter": "NIGHT 99",
+      "variant": "swamp",
+      "narration": "By night ninety nine, the whole town was falling apart. Just one more night."
+    },
+    {
+      "setting": "main_street",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "night",
+      "counter": "NIGHT 100",
+      "hero_label": "!YOU",
+      "narration": "Then the wheel stopped on question marks. And a word appeared above my head."
+    },
+    {
+      "setting": "town",
+      "action": "friends",
+      "shot": "low_angle",
+      "mood": "dawn",
+      "counter": "NIGHT 100",
+      "hero_label": "!YOU",
+      "variant": "lava",
+      "narration": "And every monster I survived came walking into town. Not to hunt me. To *follow* me."
+    },
+    {
+      "setting": "town",
+      "action": "friends",
+      "shot": "pull_back",
+      "mood": "sunset",
+      "counter": "NIGHT 100",
+      "hero_label": "!YOU",
+      "variant": "grey",
+      "narration": "Now they're all waiting for my first order. What do I tell them?"
+    }
+  ]
+}

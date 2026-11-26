@@ -1,0 +1,135 @@
+{
+  "title": "Jedes Monster nach deiner Überlebenschance sortiert",
+  "hook": "Ranking: würdest du überleben?",
+  "description": "Von 'schaffst du locker' bis 'keiner überlebt'. Welches würdest DU überleben? 👇",
+  "hashtags": [
+    "Shorts",
+    "ranking",
+    "tierlist",
+    "monster",
+    "horror",
+    "animation"
+  ],
+  "voice": "de-DE-FlorianMultilingualNeural",
+  "pitch": "+10Hz",
+  "language": "de",
+  "duration": [
+    42,
+    52
+  ],
+  "scenes": [
+    {
+      "setting": "town",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "sunset",
+      "narration": "Jedes Monster von unserem Glücksrad, sortiert nach deiner Chance, die Nacht zu überleben. Bei Platz eins überlebt *keiner*."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doll_floor",
+      "shot": "low_angle",
+      "mood": "indoor",
+      "rank": {
+        "n": 6,
+        "name": "Die Puppe",
+        "stats": {
+          "TEMPO": 2,
+          "STÄRKE": 1,
+          "ÜBERLEBEN %": 90
+        }
+      },
+      "narration": "Platz sechs: die Puppe. Sie bewegt sich nur, wenn keiner hinschaut. Also einfach... nicht blinzeln."
+    },
+    {
+      "setting": "road",
+      "action": "chase",
+      "shot": "chase_cam",
+      "mood": "day",
+      "rank": {
+        "n": 5,
+        "name": "Grauer Riese",
+        "stats": {
+          "TEMPO": 3,
+          "STÄRKE": 10,
+          "ÜBERLEBEN %": 75
+        }
+      },
+      "variant": "grey",
+      "narration": "Platz fünf: der Graue Riese. Fünfzig Meter groß, aber langsam. Versteck dich, und er läuft einfach vorbei."
+    },
+    {
+      "setting": "fields",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "rank": {
+        "n": 4,
+        "name": "Eis-Titan",
+        "stats": {
+          "TEMPO": 5,
+          "STÄRKE": 8,
+          "ÜBERLEBEN %": 60
+        }
+      },
+      "variant": "ice",
+      "narration": "Platz vier: der Eis-Titan. Er friert alles ein, was er berührt. Bleib drinnen und bleib warm."
+    },
+    {
+      "setting": "village_lane",
+      "action": "krampus_lane",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "rank": {
+        "n": 3,
+        "name": "Krampus",
+        "stats": {
+          "TEMPO": 6,
+          "STÄRKE": 6,
+          "ÜBERLEBEN %": 50
+        }
+      },
+      "narration": "Platz drei: der Krampus. Er holt nur die Schlimmen. Für die meisten von euch also... fünfzig fünfzig."
+    },
+    {
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "low_angle",
+      "mood": "night",
+      "rank": {
+        "n": 2,
+        "name": "Lava-Golem",
+        "stats": {
+          "TEMPO": 7,
+          "STÄRKE": 9,
+          "ÜBERLEBEN %": 20
+        }
+      },
+      "variant": "lava",
+      "narration": "Platz zwei: der Lava-Golem. Türen halten ihn nicht auf. Mauern auch nicht. *Gar nichts*."
+    },
+    {
+      "setting": "bedroom",
+      "action": "doorway",
+      "shot": "closeup",
+      "mood": "indoor",
+      "rank": {
+        "n": 1,
+        "name": "Schattenbestie",
+        "stats": {
+          "TEMPO": 10,
+          "STÄRKE": 7,
+          "ÜBERLEBEN %": 0
+        }
+      },
+      "narration": "Platz eins: die Schattenbestie. Wenn du sie hörst, ist sie schon *in* deinem Haus."
+    },
+    {
+      "setting": "town",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "night",
+      "narration": "Also, welches würdest du überleben? Schreib's in die Kommentare. Das Monster mit den meisten Stimmen kommt heute Nacht aufs Rad."
+    }
+  ]
+}

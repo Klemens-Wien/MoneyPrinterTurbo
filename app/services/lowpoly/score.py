@@ -226,7 +226,7 @@ ACTION_ENERGY = {
     "edge_look": 0.35, "duo": 0.4,
     "bells": 0.7, "krampus_lane": 0.6, "krampus_pack": 0.85, "krampus_window": 0.45, "krampus_chase": 0.95,
     "krampus_door": 0.4, "krampus_leave": 0.3,
-    "freeze_one": 0.6, "new_kid": 0.5, "unfreeze": 0.55, "statues": 0.3,
+    "freeze_one": 0.6, "speak_freeze": 0.7, "new_kid": 0.5, "unfreeze": 0.55, "statues": 0.3,
 }
 
 

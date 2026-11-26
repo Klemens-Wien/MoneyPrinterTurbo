@@ -21,6 +21,7 @@ SHOTS = {
     "crane_up": "camera rises from ground level to a high view",
     "closeup": "close view on the narrator's face and upper body",
     "medium": "medium shot of the narrator, centred, camera slightly above head height (best opening shot)",
+    "pov": "first-person view through the narrator's eyes (POV videos)",
     "medium_low": "medium shot with the narrator in the lower half of the frame (room for a graphic above)",
     "player_cam": "game-style camera above and behind the characters looking down at them",
     "chase_cam": "camera races ahead of the convoy looking back at it - shows what is chasing it",

@@ -401,6 +401,18 @@ class LabelLayer:
         return frame
 
 
+def pov_say(layer: LabelLayer, frame: np.ndarray, say) -> np.ndarray:
+    """Speech bubble of the POV narrator, fixed in the lower middle of the frame."""
+    if not say:
+        return frame
+    text, style = say
+    img = layer._pill(text, style)
+    s = 1.6
+    img = img.resize((int(img.width * s), int(img.height * s)), Image.BILINEAR)
+    arr = np.asarray(img)
+    return blend(frame, arr, (layer.width - arr.shape[1]) // 2, int(layer.height * 0.52), 1.0)
+
+
 class StickerCard:
     """Comic sticker like "3 DAYS LATER" shown when a scene starts."""
 
@@ -426,3 +438,85 @@ class StickerCard:
         arr = np.asarray(img)
         k = min(1.0, left / 0.2)
         return blend(frame, arr, (self.width - arr.shape[1]) // 2, int(self.height * 0.30) - arr.shape[0] // 2, k)
+
+
+class CounterBadge:
+    """Persistent badge at the top ("NIGHT 41") that pops when it changes."""
+
+    def __init__(self, width: int, height: int, spans: list[tuple[float, float, str]]):
+        self.width, self.height = width, height
+        self.spans = spans
+        self._cache: dict[str, np.ndarray] = {}
+
+    def _img(self, text: str) -> np.ndarray:
+        if text not in self._cache:
+            size = int(self.width * 0.095)
+            label = _text_img(text.upper(), size, fill=(255, 255, 255), stroke_ratio=0.0)
+            pad = int(size * 0.35)
+            card = Image.new("RGBA", (label.width + pad * 2, label.height + pad // 2), (0, 0, 0, 0))
+            d = ImageDraw.Draw(card)
+            d.rounded_rectangle((0, 0, card.width - 1, card.height - 1), radius=card.height // 2,
+                                fill=(200, 24, 36, 235), outline=(255, 255, 255, 255), width=6)
+            card.alpha_composite(label, (pad, pad // 4))
+            self._cache[text] = np.asarray(card)
+        return self._cache[text]
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        for start, end, text in self.spans:
+            if start <= t < end and text:
+                img = self._img(text)
+                age = t - start
+                s = 1.0 + 0.35 * max(0.0, 1 - age / 0.18)
+                if abs(s - 1) > 0.01:
+                    im = Image.fromarray(img)
+                    img = np.asarray(im.resize((int(im.width * s), int(im.height * s)), Image.BILINEAR))
+                return blend(frame, img, (self.width - img.shape[1]) // 2, int(self.height * 0.075), 1.0)
+        return frame
+
+
+class RankCard:
+    """Game-style ranking card: big #N, name and animated stat bars."""
+
+    def __init__(self, width: int, height: int, rank: dict, start: float, end: float, language: str = "en"):
+        self.width, self.height = width, height
+        self.start, self.end = start, end
+        self.n = int(rank.get("n", 1))
+        self.name = str(rank.get("name", "")).upper()
+        self.stats = [(str(k).upper(), float(v)) for k, v in dict(rank.get("stats", {})).items()][:4]
+        W = width
+        self.num = np.asarray(_text_img(f"#{self.n}", int(W * 0.2), fill=(255, 221, 30)))
+        self.title = np.asarray(_text_img(self.name, int(W * 0.075), max_width=int(W * 0.62)))
+        self.labels = [np.asarray(_text_img(k, int(W * 0.04))) for k, _ in self.stats]
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end):
+            return frame
+        age = t - self.start
+        k = min(1.0, age / 0.25)
+        W, H = self.width, self.height
+        x0 = int(W * 0.05) - int((1 - k) * W * 0.4)
+        y0 = int(H * 0.06)
+        pop = 1.0 + 0.4 * max(0.0, 1 - age / 0.2)
+        num = self.num
+        if pop > 1.01:
+            im = Image.fromarray(num)
+            num = np.asarray(im.resize((int(im.width * pop), int(im.height * pop)), Image.BILINEAR))
+        frame = blend(frame, num, x0, y0, k)
+        tx = x0 + int(W * 0.27)
+        frame = blend(frame, self.title, tx, y0 + int(W * 0.03), k)
+        by = y0 + int(W * 0.03) + self.title.shape[0] + 6
+        bar_w, bar_h = int(W * 0.42), int(W * 0.03)
+        for i, ((label, value), limg) in enumerate(zip(self.stats, self.labels)):
+            yy = by + i * (bar_h + int(W * 0.035))
+            frame = blend(frame, limg, tx, yy - 4, k)
+            bx = tx + int(W * 0.2)
+            fill = min(1.0, max(0.0, value / (100.0 if value > 10 else 10.0))) * min(1.0, max(0.0, (age - 0.2 - i * 0.12) / 0.6))
+            bar = Image.new("RGBA", (bar_w, bar_h), (0, 0, 0, 0))
+            d = ImageDraw.Draw(bar)
+            d.rounded_rectangle((0, 0, bar_w - 1, bar_h - 1), radius=bar_h // 2, fill=(20, 20, 26, 200),
+                                outline=(255, 255, 255, 220), width=3)
+            if fill > 0.02:
+                color = (61, 220, 151, 255) if "SURVIV" in label or "ÜBERLEB" in label else (255, 77, 77, 255)
+                d.rounded_rectangle((3, 3, max(6, int((bar_w - 4) * fill)), bar_h - 4), radius=bar_h // 2, fill=color)
+            frame = blend(frame, np.asarray(bar), bx, yy, k)
+        return frame

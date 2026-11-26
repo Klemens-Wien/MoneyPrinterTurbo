@@ -1,0 +1,120 @@
+{
+  "title": "POV: Every Word You Say Turns Someone Else to Stone",
+  "label_style": "speech",
+  "npc_labels": {
+    "default": [
+      "HUSS"
+    ]
+  },
+  "description": "You moved to the city where everyone only says 'huss'. Then you said hello… 👇",
+  "hashtags": [
+    "Shorts",
+    "pov",
+    "story",
+    "storytime",
+    "animation",
+    "lowpoly"
+  ],
+  "question": {
+    "text": "Do you answer her?",
+    "a": "Answer",
+    "b": "Stay silent"
+  },
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "language": "en",
+  "duration": [
+    48,
+    58
+  ],
+  "scenes": [
+    {
+      "setting": "main_street",
+      "action": "speak_freeze",
+      "shot": "pov",
+      "mood": "day",
+      "say": "HELLO",
+      "narration": "POV: you just said hello. And the man in front of you turned to *stone*."
+    },
+    {
+      "setting": "town",
+      "action": "crowd",
+      "shot": "pov",
+      "mood": "day",
+      "card": "1 hour earlier",
+      "narration": "One hour earlier, you moved to a city where everyone says just one word: huss."
+    },
+    {
+      "setting": "main_street",
+      "action": "duo",
+      "shot": "pov",
+      "mood": "day",
+      "say": "HUSS",
+      "narration": "The baker? Huss. The mayor? Huss. And they warned you: say anything else, and you get switched off."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "player_cam",
+      "mood": "overcast",
+      "narration": "There's a whole square full of people who tried."
+    },
+    {
+      "setting": "main_street",
+      "action": "speak_freeze",
+      "shot": "pov",
+      "mood": "day",
+      "say": "HELLO",
+      "narration": "So when the old man smiled at you, you forgot. You said hello."
+    },
+    {
+      "setting": "main_street",
+      "action": "speak_freeze",
+      "shot": "closeup",
+      "mood": "day",
+      "say": "HELLO",
+      "narration": "But you didn't freeze. *He* did."
+    },
+    {
+      "setting": "town",
+      "action": "speak_freeze",
+      "shot": "pov",
+      "mood": "overcast",
+      "say": "SORRY",
+      "narration": "You panicked and said sorry. And the woman next to him turned to stone too."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "narration": "Every word you say switches off someone else. Not you. Never you."
+    },
+    {
+      "setting": "home",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "sunset",
+      "card": "3 days later",
+      "narration": "So you stopped talking. For three whole days."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "pov",
+      "mood": "sunset",
+      "partner": "sister",
+      "say": "WHAT'S YOUR NAME?",
+      "narration": "Then a little girl walked up to you. She's new here too. And she asked you your name."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "pov",
+      "mood": "sunset",
+      "partner": "sister",
+      "say": "PLEASE?",
+      "narration": "If you answer, someone turns to stone. Maybe her. Do you answer her, or stay silent forever?"
+    }
+  ]
+}

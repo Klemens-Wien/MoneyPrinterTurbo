@@ -120,7 +120,7 @@ def plan_subshots(primary: str, yaw: float, duration: float, actor: Actor, rng: 
     count = max(1, min(4, round(duration / 2.3)))
     while count > 1 and duration / count < SUBSHOT_MIN:
         count -= 1
-    if primary == "medium_low":  # graphic overlay above the hero: keep the framing for the whole scene
+    if primary in ("medium_low", "pov"):  # keep this framing for the whole scene
         return shots
     options = [s for s in ALT_SHOTS[_subject_kind(actor)] if s != primary]
     rng.shuffle(options)
@@ -243,11 +243,11 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         return Group(members, 0), 0.5
 
     if action == "duo":
-        friend_pos = stage + np.array([math.sin(facing_cam + 1.4), 0.0, math.cos(facing_cam + 1.4)]) * 1.9
+        friend_pos = stage + np.array([math.sin(facing_cam + 1.4), 0.0, math.cos(facing_cam + 1.4)]) * 2.4
         hero_fig = Figure(hero, stage.copy(), anim="talk", face_target=friend_pos)
         partner = scene.partner if scene is not None else ""
         friend = Figure(lib.figure(partner) if partner else _npc(lib, rng), friend_pos, anim="talk", phase=1.1,
-                        face_target=stage)
+                        face_target=stage, size=0.74 if partner in ("sister", "doll") else 1.0)
         if scene is not None and scene.say:
             friend.label, friend.label_locked, friend.label_style = scene.say, True, "speech_hero"
         extras = [Figure(_npc(lib, rng), stage + np.array([math.sin(a), 0, math.cos(a)]) * 9, anim="walk",
@@ -258,6 +258,21 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
 
     if action in KRAMPUS_ACTIONS:
         return _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene)
+
+    if action == "speak_freeze":  # the narrator speaks a word and the person in front of them turns to stone
+        say = (scene.say if scene is not None else "") or "HELLO"
+        hero_fig = Figure(hero, stage.copy(), anim="talk", label=say, label_style="speech_hero", label_locked=True,
+                          heading=facing_cam + math.pi)
+        fw = np.array([math.sin(facing_cam + math.pi), 0.0, math.cos(facing_cam + math.pi)])
+        victim = Figure(_npc(lib, rng), stage + fw * 3.2, anim="talk", face_target=stage, label="HUSS",
+                        label_style="speech", label_locked=True, freeze_at=duration * 0.5)
+        crowd = []
+        for i in range(10):
+            ang = facing_cam + math.pi + rng.uniform(-1.6, 1.6)
+            p = stage + np.array([math.sin(ang), 0, math.cos(ang)]) * rng.uniform(4.0, 10.0)
+            crowd.append(Figure(_npc(lib, rng), p, anim=str(rng.choice(["idle", "talk"])), phase=float(rng.uniform(0, 3)),
+                                face_target=stage))
+        return Group([hero_fig, victim] + crowd, 0, look=victim, look_ratio=0.6), 0.45
 
     if action in ("freeze_one", "new_kid", "unfreeze", "statues"):
         say = (scene.say if scene is not None else "") or "HELLO"
@@ -329,7 +344,8 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
 
     def giant(pos, heading=0.0, anim="walk", path=None, size=5.0):
         pos = np.zeros(3) if pos is None else pos
-        return Monster(lib.monster(), np.asarray(pos, dtype=np.float64), heading=heading, size=size,
+        variant = (scene.variant if scene is not None and scene.variant else None)
+        return Monster(lib.monster(variant), np.asarray(pos, dtype=np.float64), heading=heading, size=size,
                        anim=anim, path=path, phase=float(rng.uniform(0, 3)), ground=ground)
 
     def face(src, dst) -> float:
@@ -866,6 +882,8 @@ class Director:
             obstacles=None if indoor else self._obstacles(ps, local),
             bounds=(interior.BOUNDS_MIN, interior.BOUNDS_MAX) if indoor else self._cam_bounds(ps),
         )
+        if shot == "pov":
+            cam = self._pov_camera(ps, local, u) or cam
         shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
         if shake > 0.01:
             amp = shake * 0.35 * max(1.0, ps.scale)
@@ -873,6 +891,8 @@ class Director:
             cam.eye = tuple(np.asarray(cam.eye) + jitter)
             cam.target = tuple(np.asarray(cam.target) + jitter * 0.6)
         draws = self.static_draws(t) + ps.actor.draws(local)
+        if shot == "pov":  # we are looking through the narrator's eyes: hide their body
+            draws = [d for d in draws if not d.key.startswith("fig_hero_")]
         flash = flash_value(ps.flashes, t)
         members = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
         for m in members:
@@ -881,6 +901,14 @@ class Director:
         dist = float(np.linalg.norm(np.asarray(cam.eye) - np.asarray(cam.target)))
         extent = float(np.clip(dist * 0.9 + 14, 22, 320))
         extras: dict = {"lights_out": self._lights_out(ps, local), "labels": self._figure_labels(ps, local)}
+        if shot == "pov":  # what "you" say can't float above your own head: show it at the bottom
+            hero_parts = self.library.figure("hero")
+            mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+            me = next((m for m in mem if isinstance(m, Figure) and m.parts == hero_parts), None)
+            if me is not None:
+                extras["labels"] = [l for l in extras["labels"] if l[1] != me.current_label(local) or l[2] != me.label_style]
+                if me.current_label(local):
+                    extras["pov_say"] = (me.current_label(local), me.label_style)
         if indoor:
             extent = 14.0
             flicker = 1.0
@@ -926,6 +954,30 @@ class Director:
                 if text:
                     out.append((m.focus(local) + np.array([0.0, 1.55 * m.size, 0.0]), text, m.label_style))
         return out
+
+    def _pov_camera(self, ps: PlannedScene, local: float, u: float):
+        hero_parts = self.library.figure("hero")
+        members = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+        hero = next((m for m in members if isinstance(m, Figure) and m.parts == hero_parts), None)
+        if hero is None:
+            return None
+        head = hero.focus(local) + np.array([0.0, 0.45 * hero.size, 0.0])
+        fw = hero.forward(local)
+        look = None
+        if isinstance(ps.actor, Group) and ps.actor.look is not None:
+            look = ps.actor.look.focus(local)
+        elif isinstance(ps.actor, Group):
+            others = [m for m in members if m is not hero and isinstance(m, Figure)]
+            if others:
+                look = others[0].focus(local)
+        eye = head - fw * 0.6
+        if look is not None and np.linalg.norm(look - eye) > 1.0:
+            target = look
+        else:
+            target = eye + fw * 10.0 + np.array([0.0, -1.2, 0.0])
+        # a little handheld head bob
+        eye = eye + np.array([math.sin(local * 2.1) * 0.03, math.sin(local * 4.2) * 0.04, 0.0])
+        return Camera(tuple(eye), tuple(target), 68)
 
     @staticmethod
     def _cam_bounds(ps: PlannedScene):
