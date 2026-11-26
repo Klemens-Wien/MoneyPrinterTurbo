@@ -520,3 +520,36 @@ class RankCard:
                 d.rounded_rectangle((3, 3, max(6, int((bar_w - 4) * fill)), bar_h - 4), radius=bar_h // 2, fill=color)
             frame = blend(frame, np.asarray(bar), bx, yy, k)
         return frame
+
+
+class PhoneCard:
+    """A phone held up in the frame showing an incoming text message."""
+
+    def __init__(self, width: int, height: int, sender: str, message: str, start: float, end: float):
+        self.width, self.height = width, height
+        self.start, self.end = start, end
+        W = width
+        pw, ph = int(W * 0.62), int(W * 0.95)
+        phone = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
+        d = ImageDraw.Draw(phone)
+        d.rounded_rectangle((0, 0, pw - 1, ph - 1), radius=int(pw * 0.12), fill=(18, 18, 24, 255))
+        d.rounded_rectangle((int(pw * 0.05), int(pw * 0.08), pw - int(pw * 0.05), ph - int(pw * 0.08)),
+                            radius=int(pw * 0.08), fill=(240, 242, 248, 255))
+        head = _text_img(sender.upper(), int(W * 0.05), fill=(30, 30, 40), stroke_ratio=0.0)
+        phone.alpha_composite(head, ((pw - head.width) // 2, int(pw * 0.13)))
+        msg = _text_img(message, int(W * 0.045), fill=(255, 255, 255), stroke_ratio=0.0, max_width=int(pw * 0.7))
+        bubble = Image.new("RGBA", (msg.width + 30, msg.height + 24), (0, 0, 0, 0))
+        ImageDraw.Draw(bubble).rounded_rectangle((0, 0, bubble.width - 1, bubble.height - 1), radius=22,
+                                                 fill=(52, 120, 246, 255))
+        bubble.alpha_composite(msg, (15, 12))
+        phone.alpha_composite(bubble, (int(pw * 0.1), int(pw * 0.32)))
+        self.image = phone.rotate(4, expand=True, resample=Image.BICUBIC)
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end):
+            return frame
+        age = t - self.start
+        k = min(1.0, age / 0.25)
+        img = np.asarray(self.image)
+        y = int(self.height * 0.34 + (1 - k) * self.height * 0.4 + math.sin(t * 9) * 3 * (age < 0.6))
+        return blend(frame, img, (self.width - img.shape[1]) // 2, y, 1.0)

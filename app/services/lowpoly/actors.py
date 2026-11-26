@@ -46,6 +46,17 @@ class ActorLibrary:
             colors = props.DOLL_COLORS
         elif variant == "finn":
             colors = props.FINN_COLORS
+        elif variant in ("mom", "mom_fake"):
+            parts = props.figure_parts(props.MOM_COLORS if variant == "mom" else props.MOM_FAKE_COLORS)
+            parts["head"].box((0, 0.2, -0.36), (0.86, 0.95, 0.16), (props.MOM_COLORS if variant == "mom" else props.MOM_FAKE_COLORS)["hair"])
+            keys = {p_name: self._store(f"fig_{variant}_{p_name}", b) for p_name, b in parts.items()}
+            if variant == "mom_fake":
+                glow = MeshBuilder()
+                for side in (-1, 1):
+                    glow.box((side * 0.17, 0.5, 0.43), (0.17, 0.09, 0.03), hex_color("#ff3040"))
+                keys["head_glow"] = self._store("fig_mom_fake_head_glow", glow)
+                self.materials[keys["head_glow"]] = 3
+            return keys
         elif variant == "krampus":
             parts = props.krampus_parts()
             keys = {}
@@ -215,6 +226,7 @@ class Figure(Actor):
     unfreeze_at: float | None = None
     label_frozen: str = ""
     label_unfrozen: str = ""
+    tint: tuple = (1.0, 1.0, 1.0)  # colour multiplier (e.g. a pale glow for ghosts)
 
     def frozen(self, t: float) -> bool:
         return self.freeze_at is not None and t >= self.freeze_at and (self.unfreeze_at is None or t < self.unfreeze_at)
@@ -345,7 +357,7 @@ class Figure(Actor):
         base = base @ scale(self.size)
         if body_tilt:
             base = base @ translate(0, 0.95, 0) @ rotate_x(body_tilt) @ translate(0, -0.95, 0)
-        tint, grey = (1.0, 1.0, 1.0), 0.0
+        tint, grey = self.tint, 0.0
         if frozen:
             tint, grey = (0.92, 0.94, 1.0), 1.0
             since = t - max(self.freeze_at, 0.0)

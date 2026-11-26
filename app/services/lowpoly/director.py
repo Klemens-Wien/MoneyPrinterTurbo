@@ -26,7 +26,7 @@ from .camera import shot_camera
 from .mesh import translate
 from .renderer import Camera, Draw
 from .storyboard import Scene, Storyboard
-from . import interior, skyline
+from . import interior, livingroom, skyline
 from .world import HOME_POS, SETTINGS, World
 
 INTERIOR_ACTIONS = {"bed", "sit_up", "noises", "doorway", "closet", "empty_doorway",
@@ -400,6 +400,9 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
         monster = giant(m_pos, heading=face(m_pos, hero_pos), anim="lean")
         return Group([bus, hero_fig, monster], 1, look=monster), 1.2
 
+    if setting_name == "livingroom" or action in LR_ACTIONS:
+        return _livingroom_scene(action, duration, lib, rng, hero, scene)
+
     if setting_name == "bedroom" or action in INTERIOR_ACTIONS:
         return _bedroom_scene(action, duration, lib, rng, hero)
 
@@ -659,6 +662,99 @@ def _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene):
     return Group([watcher, k], 0, look=k, look_ratio=0.5), 0.6
 
 
+LR_ACTIONS = {"lr_goodbye", "lr_couch", "lr_upstairs", "lr_hold", "lr_phone", "lr_door", "lr_two"}
+
+
+def _livingroom_scene(action, duration, lib, rng, hero, scene):
+    w = livingroom.world
+    say = (scene.say if scene is not None else "") or ""
+    reply = (scene.reply if scene is not None else "") or ""
+    door_key = lib.raw("lr_door", livingroom.door_mesh())
+    tv_key = lib.raw("lr_tv", livingroom.tv_mesh(), material=3)
+    lamp_key = lib.raw("lr_lamp", livingroom.lamp_mesh(), material=3)
+    sister_parts = lib.figure("sister")
+    landing = w(livingroom.LANDING_LOCAL)
+
+    def ramp(a0, a1, t0=0.1, t1=0.6):
+        def f(t):
+            u = min(max((t / max(duration, 1e-6) - t0) / (t1 - t0), 0.0), 1.0)
+            return a0 + (a1 - a0) * u * u * (3 - 2 * u)
+        return f
+
+    door_angle = ramp(0.0, 1.35) if action in ("lr_door", "lr_two") else (lambda t: 0.0)
+    if action == "lr_two":
+        door_angle = lambda t: 1.35  # noqa: E731
+    members: list[Actor] = [
+        Prop(door_key, w(livingroom.DOOR_HINGE_LOCAL), angle=door_angle),
+        Prop(tv_key, w(livingroom.TV_LOCAL), visible=lambda t: (t * 11.0) % 1.0 > 0.12),
+        Prop(lamp_key, w(livingroom.LAMP_LOCAL)),
+    ]
+    couch = livingroom.COUCH_LOCAL
+    middle = w((-0.6, 0.0, 0.6))
+    look: Actor | None = None
+    focus = 0
+
+    def fake_mom(label=""):
+        f = Figure(lib.figure("mom_fake"), landing.copy(), heading=0.35, anim="doll", phase=1.0, tint=(2.3, 2.3, 2.6))
+        if label:
+            f.label, f.label_style, f.label_locked = label, "danger", True
+        return f
+
+    if action in ("lr_couch", "lr_phone"):
+        hero_fig = Figure(hero, w(couch + np.array([0.0, livingroom.SEAT - 0.95 + 0.05, 0.5])), anim="sit",
+                          heading=-math.pi / 2, look_turn=0.0 if action == "lr_couch" else 0.5)
+        sis = Figure(sister_parts, w(couch + np.array([0.0, livingroom.SEAT - 0.95 * 0.72 + 0.05, -0.45])),
+                     anim="sit", heading=-math.pi / 2, size=0.72, look_turn=-0.35)
+        members = [hero_fig, sis] + members
+        if action == "lr_couch" and say:
+            members.append(fake_mom(say))
+    elif action == "lr_goodbye":
+        mom = Figure(lib.figure("mom"), w((-2.7, 0.0, 2.9)), anim="talk", face_target=middle,
+                     label=say, label_style="speech_hero", label_locked=True)
+        hero_fig = Figure(hero, middle + np.array([0.3, 0.0, -0.3]), anim="idle", face_target=w((-2.7, 0, 2.9)))
+        sis = Figure(sister_parts, middle + np.array([-0.5, 0.0, 0.4]), anim="idle", size=0.72,
+                     face_target=w((-2.7, 0, 2.9)))
+        members = [hero_fig, sis, mom] + members
+        look, focus = mom, 0
+    elif action in ("lr_upstairs", "lr_hold"):
+        stair = w(livingroom.STAIR_FOOT_LOCAL)
+        hero_fig = Figure(hero, middle.copy(), anim="look_up", face_target=landing)
+        if action == "lr_hold":  # little sister starts walking to the stairs, the narrator grabs her
+            sis_start = middle + np.array([0.6, 0.0, -0.5])
+            d = stair - sis_start
+            d[1] = 0.0
+            d /= np.linalg.norm(d)
+            sis = Figure(sister_parts, sis_start, anim="walk", size=0.72,
+                         path=LinePath(sis_start, d, 0.7, stop_at=1.2))
+            hero_fig.anim = "point"
+            hero_fig.face_target = stair
+        else:
+            sis = Figure(sister_parts, middle + np.array([-0.6, 0.0, 0.5]), anim="look_up", size=0.72,
+                         face_target=landing)
+        members = [hero_fig, sis, fake_mom(say)] + members
+        look, focus = members[2], 0
+    elif action in ("lr_door", "lr_two"):
+        start = w((-3.0, 0.0, 5.2))
+        mom = Figure(lib.figure("mom"), start, anim="walk", label=say if action == "lr_door" else say,
+                     label_style="speech_hero", label_locked=True,
+                     path=LinePath(start, np.array([0.0, 0.0, -1.0]), 1.2, stop_at=2.4 if action == "lr_door" else 0.01))
+        if action == "lr_two":
+            mom.path = None
+            mom.position = w((-3.0, 0.0, 2.8))
+            mom.anim = "idle"
+            mom.face_target = middle
+        hero_fig = Figure(hero, middle.copy(), anim="idle", face_target=w((-3.0, 0.0, 2.8)))
+        sis = Figure(sister_parts, middle + np.array([-0.5, 0.0, -0.5]), anim="idle", size=0.72,
+                     face_target=w((-3.0, 0.0, 2.8)))
+        members = [hero_fig, sis, mom] + members
+        if action == "lr_two":
+            members.append(fake_mom(reply))
+            look = members[-1]
+        else:
+            look = mom
+    return Group(members, focus, look=look, look_ratio=0.55), 0.3
+
+
 def _bedroom_scene(action: str, duration: float, lib: ActorLibrary, rng: np.random.Generator, hero):
     w = interior.world
     door_key = lib.raw("door", interior.door_mesh())
@@ -796,6 +892,17 @@ class Director:
                 for k in range(int(d / 1.1)):
                     out.append((t0 + 0.2 + k * 1.1 + float(rng.uniform(-0.1, 0.1)), "bells"))
                 out.append((t0 + d * 0.3, "chains"))
+            if a == "lr_upstairs":
+                for k in range(int(d / 1.0)):
+                    out.append((t0 + 0.4 + k * 1.0, "step"))
+            if a in ("lr_upstairs", "lr_hold", "lr_two"):
+                for k in range(int(d / 0.75)):
+                    out.append((t0 + k * 0.75, "heartbeat"))
+            if a == "lr_phone":
+                out.append((t0 + 0.2, "buzz"))
+                out.append((t0 + 0.9, "buzz"))
+            if a == "lr_door":
+                out.append((t0 + d * 0.12, "creak"))
             if a in ("noises",) and "KRAMPUS" in getattr(self.storyboard, "wheel_pick", "").upper():
                 out.append((t0 + d * 0.5, "bells"))
             for m in members:
@@ -824,7 +931,8 @@ class Director:
         hits, prev = [], None
         for s in self.scenes:
             if s.scene.action in ("monster", "standoff", "panic", "faceoff", "rampage", "street_panic",
-                                  "doorway", "closet", "watch", "doll_behind", "krampus_lane", "krampus_door") and \
+                                  "doorway", "closet", "watch", "doll_behind", "krampus_lane", "krampus_door",
+                                  "lr_upstairs", "lr_two") and \
                     prev not in ("monster", "standoff", "faceoff", "rampage", "street_panic", "doorway", "closet"):
                 hits.append(s.start)
             prev = s.scene.action
@@ -872,7 +980,8 @@ class Director:
         ps = self.scene_at(t)
         local = t - ps.start
         shot, yaw, u, _ = ps.shot_at(local)
-        indoor = ps.scene.setting == "bedroom" or ps.scene.action in INTERIOR_ACTIONS
+        living = ps.scene.setting == "livingroom" or ps.scene.action in LR_ACTIONS
+        indoor = living or ps.scene.setting == "bedroom" or ps.scene.action in INTERIOR_ACTIONS
         k = min(local / MOOD_BLEND_SECONDS, 1.0)
         mood = mood_lib.blend(ps.mood_from, ps.mood_to, k * k * (3 - 2 * k))
         cam: Camera = shot_camera(
@@ -880,10 +989,13 @@ class Director:
             look=ps.actor.look.focus if isinstance(ps.actor, Group) and ps.actor.look is not None else None,
             look_ratio=ps.actor.look_ratio if isinstance(ps.actor, Group) else None,
             obstacles=None if indoor else self._obstacles(ps, local),
-            bounds=(interior.BOUNDS_MIN, interior.BOUNDS_MAX) if indoor else self._cam_bounds(ps),
+            bounds=((livingroom.BOUNDS_MIN, livingroom.BOUNDS_MAX) if living else
+                    (interior.BOUNDS_MIN, interior.BOUNDS_MAX) if indoor else self._cam_bounds(ps)),
         )
         if shot == "pov":
             cam = self._pov_camera(ps, local, u) or cam
+        if living and ps.scene.action in ("lr_upstairs", "lr_hold", "lr_two") and shot != "medium":
+            cam = self._stairs_camera(shot, u, local) or cam
         shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
         if shake > 0.01:
             amp = shake * 0.35 * max(1.0, ps.scale)
@@ -914,8 +1026,15 @@ class Director:
             flicker = 1.0
             if ps.scene.action in ("noises", "doorway", "closet"):
                 flicker = 0.75 + 0.25 * math.sin(t * 23.0) * math.sin(t * 7.3)
-            extras["point_light"] = (interior.world(interior.LAMP_LOCAL + np.array([0.0, 0.15, 0.0])),
-                                     (1.0 * flicker, 0.72 * flicker, 0.4 * flicker), 4.5)
+            lamp = interior.world(interior.LAMP_LOCAL + np.array([0.0, 0.15, 0.0]))
+            radius = 4.5
+            if living:
+                lamp, radius = livingroom.world(livingroom.LAMP_LOCAL + np.array([0.0, 0.1, 0.0])), 10.0
+                if ps.scene.action in ("lr_upstairs", "lr_two", "lr_hold"):
+                    flicker = 0.7 + 0.3 * math.sin(t * 19.0) * math.sin(t * 5.3)
+                    if (t * 3.1) % 4.0 < 0.12:
+                        flicker = 0.15  # the lights cut out for a moment
+            extras["point_light"] = (lamp, (1.0 * flicker, 0.72 * flicker, 0.4 * flicker), radius)
         return cam, mood, draws, flash, extent, extras
 
     def _assign_labels(self, actor: Actor, scene: Scene, board: Storyboard) -> None:
@@ -954,6 +1073,17 @@ class Director:
                 if text:
                     out.append((m.focus(local) + np.array([0.0, 1.55 * m.size, 0.0]), text, m.label_style))
         return out
+
+    @staticmethod
+    def _stairs_camera(shot: str, u: float, local: float):
+        """Fixed compositions for the thing on the stairs: wide from the couch, or close on its face."""
+        head = livingroom.world(livingroom.LANDING_LOCAL + np.array([0.0, 2.35, 0.0]))
+        e = u * u * (3 - 2 * u)
+        if shot in ("closeup", "crane_up"):
+            eye = head + np.array([0.35 - 0.1 * e, -0.35, 2.4 - 0.9 * e])
+            return Camera(tuple(eye), tuple(head + np.array([0.0, -0.1, 0.0])), 50)
+        eye = livingroom.world((2.3 - 0.5 * e, 1.25, 2.9 - 0.7 * e))
+        return Camera(tuple(eye), tuple(head + np.array([0.0, -0.9, 0.0])), 62)
 
     def _pov_camera(self, ps: PlannedScene, local: float, u: float):
         hero_parts = self.library.figure("hero")

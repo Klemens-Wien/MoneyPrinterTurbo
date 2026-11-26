@@ -1,0 +1,123 @@
+{
+  "title": "Mama sagte: Wenn ich von oben rufe, antwortet nicht",
+  "language": "de",
+  "voice": "de-DE-FlorianMultilingualNeural",
+  "pitch": "+10Hz",
+  "description": "Sie ging um 9. Um 10 rief sie uns von oben. Dann vibrierte mein Handy… Welche Mama ist echt? 👇",
+  "hashtags": [
+    "Shorts",
+    "gruselgeschichte",
+    "horror",
+    "gruselig",
+    "story",
+    "animation"
+  ],
+  "question": {
+    "text": "Welche Mama ist echt?",
+    "a": "Die an der Tür",
+    "b": "Die von oben"
+  },
+  "duration": [
+    55,
+    66
+  ],
+  "label_style": "speech",
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "say": "KINDER? KOMMT RAUF.",
+      "narration": "Um zehn Uhr abends hat meine Mama uns von oben gerufen. Aber sie war seit einer Stunde weg."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_goodbye",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "ANTWORTET NICHT. DAS BIN NICHT ICH.",
+      "card": "1 Stunde vorher",
+      "narration": "Bevor sie ging, hat sie sich runtergekniet und geflüstert: Wenn ich euch von oben rufe, antwortet nicht. Das bin nicht ich."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_couch",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "narration": "Dann hat sie die Tür von außen abgeschlossen. Meine kleine Schwester Lily hat gelacht. Ich nicht."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_couch",
+      "shot": "player_cam",
+      "mood": "indoor_lr",
+      "narration": "Wir saßen auf der Couch, alle Lichter an. Der Fernseher hat ständig geflackert."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "dolly_in",
+      "mood": "indoor_lr",
+      "narration": "Um zehn haben wir Schritte gehört. Oben. Langsam. Schwer. Von Zimmer zu Zimmer."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "say": "KINDER? KOMMT MAL.",
+      "narration": "Dann Mamas Stimme: Kinder? Könnt ihr mal kurz raufkommen?"
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_hold",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "KÄFERCHEN? HIER IST MAMA.",
+      "narration": "Lily ist aufgestanden. Ich hab sie am Arm gepackt. Denn nur Mama nennt sie Käferchen."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "ICH BIN GESTÜRZT. BITTE.",
+      "narration": "Es hat gesagt, es ist gestürzt. Dass es wehtut. Dann hat es angefangen zu weinen. Es klang *genau* wie sie."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_phone",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "phone": "Geht nicht rauf. Ich sitz noch im Auto. Egal was ihr hört, das bin NICHT ich.",
+      "narration": "Dann hat mein Handy vibriert."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_door",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "KINDER! ICH BIN DA!",
+      "narration": "Zehn Sekunden später ging die Haustür auf. Mama kam rein, völlig außer Atem."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_two",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "say": "KOMMT HER, SCHNELL!",
+      "reply": "LASST SIE NICHT REIN! DAS BIN NICHT ICH!",
+      "narration": "Und von oben hat Mamas Stimme geschrien: Lasst sie nicht rein! Das bin *nicht* ich!"
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_two",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "say": "KOMMT HER, SCHNELL!",
+      "reply": "LASST SIE NICHT REIN! DAS BIN NICHT ICH!",
+      "narration": "Zwei Mamas. Gleiche Stimme. Gleiches Gesicht. Zu welcher rennen wir? Sag's mir."
+    }
+  ]
+}

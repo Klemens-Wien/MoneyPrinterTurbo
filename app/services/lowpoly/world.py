@@ -111,6 +111,9 @@ SETTINGS: dict[str, Setting] = {
                            "(alpine village) in front of the narrator's chalet", clear_radius=0.0),
     "village_edge": Setting("village_edge", (1600.0, 30.0), "x", 0.0, -2.2,
                             "(alpine village) where the village ends and the dark snowy forest begins", clear_radius=0.0),
+    "livingroom": Setting("livingroom", (-1499.4, 1.6), "x", 0.0, -1.2,
+                          "(indoor) living room at night: couch, TV, front door, stairs up to a dark landing",
+                          clear_radius=0.0),
     "main_street": Setting("main_street", (-62.0, 7.0), "x", 0.0, 0.45,
                            "the main street of the town, houses on both sides", clear_radius=6.0),
 }
@@ -410,7 +413,7 @@ def build_world(seed: int = 7) -> World:
     obstacles: list = []
     specs = _town(static, rng, obstacles)
     _trees(static, terrain, rng, fields)
-    from . import interior, skyline, village
+    from . import interior, livingroom, skyline, village
 
     sky_static, sky_obstacles = skyline.build_static(seed)
     vil_static, vil_obstacles = village.build_static(seed)
@@ -418,7 +421,8 @@ def build_world(seed: int = 7) -> World:
     return World(
         seed=seed,
         terrain=terrain,
-        static=np.concatenate([static.build(), interior.build_static(), sky_static, vil_static]),
+        static=np.concatenate([static.build(), interior.build_static(), livingroom.build_static(), sky_static,
+                               vil_static]),
         water=_water().build(),
         clouds=_clouds(rng).build(),
         house_specs=specs,

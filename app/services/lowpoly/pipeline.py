@@ -195,6 +195,8 @@ def generate(opts: Options) -> dict:
                 for ps in director.scenes if ps.scene.card]
     counter = overlays.CounterBadge(opts.width, opts.height,
                                     [(ps.start, ps.end, ps.scene.counter) for ps in director.scenes if ps.scene.counter])
+    phones = [overlays.PhoneCard(opts.width, opts.height, "Mom" if board.language != "de" else "Mama",
+                                 ps.scene.phone, ps.start + 0.3, ps.end) for ps in director.scenes if ps.scene.phone]
     ranks = [overlays.RankCard(opts.width, opts.height, ps.scene.rank, ps.start, ps.end, board.language)
              for ps in director.scenes if ps.scene.rank]
     video_path = os.path.join(work, f"{_slug(board.title)}.mp4")
@@ -212,6 +214,8 @@ def generate(opts: Options) -> dict:
             frame = overlays.pov_say(labels, frame, extras.get("pov_say"))
             frame = counter.composite(frame, t)
             for card in ranks:
+                frame = card.composite(frame, t)
+            for card in phones:
                 frame = card.composite(frame, t)
             for sticker in stickers:
                 frame = sticker.composite(frame, t)

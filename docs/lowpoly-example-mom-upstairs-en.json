@@ -1,0 +1,123 @@
+{
+  "title": "Mom Said: If I Call You From Upstairs, Don't Answer",
+  "language": "en",
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "description": "She left at 9. At 10, she called us from upstairs. Then my phone buzzed… Which mom is real? 👇",
+  "hashtags": [
+    "Shorts",
+    "horrorstory",
+    "scary",
+    "creepy",
+    "story",
+    "animation"
+  ],
+  "question": {
+    "text": "Which mom is real?",
+    "a": "The one at the door",
+    "b": "The one upstairs"
+  },
+  "duration": [
+    55,
+    66
+  ],
+  "label_style": "speech",
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "say": "KIDS? COME UPSTAIRS.",
+      "narration": "At ten p.m., my mom called us from upstairs. But she had left the house an hour ago."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_goodbye",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "DON'T ANSWER. IT'S NOT ME.",
+      "card": "1 hour earlier",
+      "narration": "Before she left, she knelt down and whispered: if you hear me call from upstairs, don't answer. It's not me."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_couch",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "narration": "Then she locked the door from the outside. My little sister Lily laughed. I didn't."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_couch",
+      "shot": "player_cam",
+      "mood": "indoor_lr",
+      "narration": "We sat on the couch with every light on. The TV kept flickering."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "dolly_in",
+      "mood": "indoor_lr",
+      "narration": "At ten, we heard footsteps. Upstairs. Slow. Heavy. Walking from room to room."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "say": "KIDS? COME HERE.",
+      "narration": "Then mom's voice: kids? Can you come up here for a second?"
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_hold",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "LILY-BUG? IT'S MOMMY.",
+      "narration": "Lily stood up. I grabbed her arm. Because only mom calls her Lily-bug."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "I FELL. IT HURTS. PLEASE.",
+      "narration": "It said it fell. That it was hurt. Then it started crying. It sounded *exactly* like her."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_phone",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "phone": "Don't go upstairs. I'm still in the car. Whatever you hear, it's NOT me.",
+      "narration": "Then my phone buzzed."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_door",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "say": "KIDS! I'M HOME!",
+      "narration": "Ten seconds later, the front door opened. Mom walked in, out of breath."
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_two",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "say": "COME HERE, QUICK!",
+      "reply": "DON'T LET HER IN! THAT'S NOT ME!",
+      "narration": "And from upstairs, mom's voice screamed: don't let her in! That's *not* me!"
+    },
+    {
+      "setting": "livingroom",
+      "action": "lr_two",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "say": "COME HERE, QUICK!",
+      "reply": "DON'T LET HER IN! THAT'S NOT ME!",
+      "narration": "Two moms. Same voice. Same face. Which one do we run to? Tell me."
+    }
+  ]
+}

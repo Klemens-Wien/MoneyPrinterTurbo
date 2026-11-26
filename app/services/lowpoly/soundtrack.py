@@ -112,6 +112,11 @@ def foley(kind: str, rng: np.random.Generator) -> np.ndarray:
         syll = np.clip(np.sin(2 * np.pi * 3.2 * t), 0, 1) ** 2 * np.sin(np.pi * t / 1.8)
         x = band(rng.standard_normal((n, 2)).astype(np.float32), 1500, 7000) * syll[:, None]
         return (_norm(x) * 0.12).astype(np.float32)
+    if kind == "buzz":  # phone vibration
+        n = int(0.45 * SR)
+        t = np.arange(n) / SR
+        x = np.sign(np.sin(2 * np.pi * 170 * t)) * (0.6 + 0.4 * np.sign(np.sin(2 * np.pi * 9 * t))) * np.sin(np.pi * t / 0.45)
+        return (band(x.astype(np.float32), 100, 900)[:, None] * 0.25).astype(np.float32)
     if kind == "bells":  # Krampus cow bells: a few inharmonic metallic clangs
         n = int(1.2 * SR)
         t = np.arange(n) / SR

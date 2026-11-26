@@ -93,6 +93,12 @@ MOODS: dict[str, Mood] = {
         fog_density=0.0022, cloud_tint=hex_color("#3a4470"), exposure=1.2, saturation=1.0,
         stars=0.7, window_glow=1.0, snow=0.85,
     ),
+    "indoor_lr": Mood(  # living room at night: warm lamp, cold moonlight, readable shadows
+        sun_elevation=24, sun_azimuth=90, sun_color=hex_color("#9fb8ff"), sun_strength=0.9,
+        sky_ambient=hex_color("#4a5288"), ground_ambient=hex_color("#2c2a44"), shadow_tint=hex_color("#2a2c5c"),
+        sky_zenith=hex_color("#0b1030"), sky_horizon=hex_color("#24326c"), fog_color=hex_color("#10142c"),
+        fog_density=0.003, cloud_tint=hex_color("#3a4470"), exposure=1.75, saturation=1.0, stars=1.0,
+    ),
     "indoor": Mood(
         sun_elevation=26, sun_azimuth=90, sun_color=hex_color("#9fb8ff"), sun_strength=1.1,
         sky_ambient=hex_color("#2c3566"), ground_ambient=hex_color("#1a1f3a"), shadow_tint=hex_color("#1e2450"),

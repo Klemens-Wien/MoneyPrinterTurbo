@@ -35,6 +35,13 @@ ACTIONS = {
     "collapse": "a house shakes, tilts and sinks into the ground, the narrator panics",
     "wave": "the narrator waves at the camera",
     "duo": "the narrator and a friend talk face to face, people walk past",
+    "lr_goodbye": "(living room) mom says goodbye at the front door and warns the kids (say = her words)",
+    "lr_couch": "(living room) the kids sit on the couch in front of the flickering TV",
+    "lr_upstairs": "(living room) a voice calls from the dark landing upstairs (say = what it says)",
+    "lr_hold": "(living room) the little sister walks towards the stairs, the narrator grabs her",
+    "lr_phone": "(living room) a text message arrives on the phone (phone = the message)",
+    "lr_door": "(living room) the front door opens and mom walks in (say = her words)",
+    "lr_two": "(living room) mom at the door (say) and the voice upstairs (reply) at the same time",
     "speak_freeze": "the narrator says a word and the person in front of them turns to stone",
     "freeze_one": "in a crowd, one person says a forbidden word and gets switched off (turns grey and freezes)",
     "new_kid": "a new kid walks into the crowd talking normally; everyone stares",
@@ -105,6 +112,7 @@ class Scene:
     reply: str = ""  # answer of a second character (e.g. after being switched back on)
     partner: str = ""  # figure variant of the narrator's partner in this scene, e.g. "finn"
     counter: str = ""  # persistent badge at the top during the scene, e.g. "NIGHT 41"
+    phone: str = ""  # text message shown on a phone ("MOM: I'm still in the car")
     variant: str = ""  # monster variant for this scene (grey, lava, ice, shadow, swamp)
     rank: dict | None = None  # ranking card: {"n": 3, "name": "...", "stats": {"SPEED": 7, ...}}
 
@@ -209,6 +217,7 @@ def normalize_scene(raw: dict) -> Scene:
         reply=str(raw.get("reply") or "").strip()[:32],
         partner=str(raw.get("partner") or "").strip()[:16],
         counter=str(raw.get("counter") or "").strip()[:24],
+        phone=str(raw.get("phone") or "").strip()[:120],
         variant=str(raw.get("variant") or "").strip()[:12],
         rank=raw.get("rank") if isinstance(raw.get("rank"), dict) else None,
     )

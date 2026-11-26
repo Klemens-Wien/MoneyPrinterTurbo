@@ -308,6 +308,21 @@ FINN_COLORS = {  # the new kid: red hair, teal hoodie
     "cap": False,
 }
 
+MOM_COLORS = {
+    "skin": hex_color("#ffd6a8"),
+    "shirt": hex_color("#8a2b3a"),
+    "pants": hex_color("#2b2f45"),
+    "hair": hex_color("#4a2c18"),
+    "cap": False,
+}
+MOM_FAKE_COLORS = {  # the thing upstairs: the same clothes, but pale and wrong
+    "skin": hex_color("#cfd2d8"),
+    "shirt": hex_color("#5a1e28"),
+    "pants": hex_color("#1a1c28"),
+    "hair": hex_color("#1a1210"),
+    "cap": False,
+}
+
 SISTER_COLORS = {
     "skin": hex_color("#ffd6a8"),
     "shirt": hex_color("#ff6fb5"),
