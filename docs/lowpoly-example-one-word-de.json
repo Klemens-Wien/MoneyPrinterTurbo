@@ -1,0 +1,160 @@
+{
+  "title": "In dieser Stadt darfst du nur ein Wort sagen",
+  "language": "de",
+  "voice": "de-DE-FlorianMultilingualNeural",
+  "pitch": "+10Hz",
+  "description": "Sag ein anderes Wort und du wirst abgeschaltet. Dann kam ein neuer Junge… und hat geredet.",
+  "hashtags": [
+    "Shorts",
+    "geschichte",
+    "story",
+    "storytime",
+    "animation",
+    "lowpoly"
+  ],
+  "question": {
+    "text": "Soll ich meinen Namen sagen?",
+    "a": "Sag ihn",
+    "b": "Bleib still"
+  },
+  "npc_labels": {
+    "default": [
+      "HUSS"
+    ]
+  },
+  "label_style": "speech",
+  "hero_label": "HUSS",
+  "scenes": [
+    {
+      "setting": "town",
+      "action": "crowd",
+      "shot": "medium",
+      "mood": "day",
+      "hero_label": "HUSS",
+      "narration": "In dieser Stadt darfst du genau ein einziges Wort sagen: *Huss*."
+    },
+    {
+      "setting": "main_street",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "day",
+      "hero_label": "HUSS",
+      "narration": "Guten Morgen? Huss. Ich hab dich lieb? Huss. Hilfe? *Huss*. Zwei Millionen Menschen, ein einziges Wort."
+    },
+    {
+      "setting": "town",
+      "action": "freeze_one",
+      "shot": "low_angle",
+      "mood": "day",
+      "say": "HALLO",
+      "narration": "Und wenn du irgendein anderes Wort sagst, wirst du *abgeschaltet*."
+    },
+    {
+      "setting": "town",
+      "action": "freeze_one",
+      "shot": "closeup",
+      "mood": "overcast",
+      "say": "ENTSCHULDIGUNG",
+      "narration": "Herr Braun hat einmal Entschuldigung gesagt. Nur ein einziges Mal. Seitdem steht er auf dem Platz."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "player_cam",
+      "mood": "overcast",
+      "card": "Der Platz",
+      "narration": "Hunderte von ihnen. Grau. Erstarrt. Keiner weiß, ob sie uns noch hören können."
+    },
+    {
+      "setting": "home",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "day",
+      "hero_label": "HUSS",
+      "narration": "Ich habe in meinem Leben ungefähr elftausend Mal Huss gesagt. Meinen eigenen Namen habe ich noch nie gesagt."
+    },
+    {
+      "setting": "main_street",
+      "action": "new_kid",
+      "shot": "low_angle",
+      "mood": "day",
+      "say": "HI! ICH BIN FINN",
+      "npc_label": "HUSS?!",
+      "card": "Montag",
+      "narration": "Dann ist an einem Montag ein neuer Junge unsere Straße runtergelaufen. Und er hat *geredet*."
+    },
+    {
+      "setting": "main_street",
+      "action": "new_kid",
+      "shot": "closeup",
+      "mood": "day",
+      "say": "WO IST DER BÄCKER?",
+      "npc_label": "HUSS?!",
+      "narration": "Echte Wörter. Hallo. Coole Schuhe. Wo ist der Bäcker? Die ganze Straße wurde still."
+    },
+    {
+      "setting": "main_street",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "day",
+      "partner": "finn",
+      "say": "WIE HEISST DU?",
+      "hero_label": "HUSS",
+      "narration": "Alle haben auf den Blitz gewartet. Er kam nie. Finn hat nur gelächelt und mich nach meinem Namen gefragt."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "closeup",
+      "mood": "night",
+      "partner": "finn",
+      "say": "DAS IST NICHT ECHT",
+      "hero_label": "HUSS",
+      "card": "In der Nacht",
+      "narration": "In der Nacht hat er mir ein Geheimnis erzählt. Das Abschalten war nie eine Regel. Es war eine *Geschichte*. Damit wir Angst haben."
+    },
+    {
+      "setting": "town",
+      "action": "unfreeze",
+      "shot": "dolly_in",
+      "mood": "overcast",
+      "say": "DU KANNST AUFHÖREN",
+      "reply": "...DANKE",
+      "narration": "Am nächsten Morgen ist er zu Herrn Braun gegangen und hat gesagt: Du kannst aufhören. Und Herr Braun hat *geblinzelt*."
+    },
+    {
+      "setting": "town",
+      "action": "unfreeze",
+      "shot": "crane_up",
+      "mood": "overcast",
+      "say": "DU KANNST AUFHÖREN",
+      "reply": "DANKE",
+      "narration": "Er war nie abgeschaltet. Er hatte nur zu viel Angst, sich zu bewegen. Elf Jahre lang."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "low_angle",
+      "mood": "sunset",
+      "narration": "Jede Statue auf diesem Platz ist ein Mensch, der darauf wartet, dass jemand sagt: Es ist okay."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "sunset",
+      "partner": "finn",
+      "say": "DU ZUERST?",
+      "hero_label": "HUSS",
+      "narration": "Morgen um zwölf trifft sich die ganze Stadt auf dem Platz. Finn will, dass ich meinen Namen sage. Laut. Vor allen."
+    },
+    {
+      "setting": "home",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "sunset",
+      "hero_label": "?",
+      "narration": "Wenn er falsch liegt, werde ich für immer abgeschaltet. Wenn er recht hat, bekommen zwei Millionen Menschen ihre Wörter zurück. Soll ich es sagen? Und was wäre *dein* erstes Wort?"
+    }
+  ]
+}

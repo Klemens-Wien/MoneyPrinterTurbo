@@ -336,6 +336,8 @@ LABEL_STYLES = {
     "hero": ((255, 221, 30), (20, 16, 10, 220)),
     "npc": ((255, 255, 255), (16, 18, 30, 190)),
     "danger": ((255, 255, 255), (200, 30, 40, 230)),
+    "speech": ((20, 20, 26), (255, 255, 255, 235)),
+    "speech_hero": ((20, 20, 26), (255, 221, 30, 245)),
 }
 
 
@@ -355,7 +357,13 @@ class LabelLayer:
             w, h = tw + pad * 2, int(size * 1.3)
             img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
             d = ImageDraw.Draw(img)
-            d.rounded_rectangle((0, 0, w - 1, h - 1), radius=h // 2, fill=bg, outline=(255, 255, 255, 140), width=3)
+            if style.startswith("speech"):  # comic speech bubble with a little tail
+                img = Image.new("RGBA", (w, h + h // 3), (0, 0, 0, 0))
+                d = ImageDraw.Draw(img)
+                d.rounded_rectangle((0, 0, w - 1, h - 1), radius=h // 3, fill=bg, outline=(20, 20, 26, 255), width=4)
+                d.polygon([(w // 2 - h // 5, h - 3), (w // 2 + h // 5, h - 3), (w // 2, h + h // 3 - 2)], fill=bg)
+            else:
+                d.rounded_rectangle((0, 0, w - 1, h - 1), radius=h // 2, fill=bg, outline=(255, 255, 255, 140), width=3)
             d.text((pad, (h - size) // 2 - size * 0.06), text, font=font, fill=fg + (255,))
             self._cache[key] = img
         return self._cache[key]

@@ -300,6 +300,14 @@ def class_colors(kind: str, idx: int) -> dict:
             "cap": bool(rng.random() < 0.4), "cap_color": hex_color("#5a5a60")}
 
 
+FINN_COLORS = {  # the new kid: red hair, teal hoodie
+    "skin": hex_color("#f1c27d"),
+    "shirt": hex_color("#20b8a8"),
+    "pants": hex_color("#2b2f45"),
+    "hair": hex_color("#c8502b"),
+    "cap": False,
+}
+
 SISTER_COLORS = {
     "skin": hex_color("#ffd6a8"),
     "shirt": hex_color("#ff6fb5"),

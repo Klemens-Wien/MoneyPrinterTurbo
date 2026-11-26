@@ -112,6 +112,14 @@ def foley(kind: str, rng: np.random.Generator) -> np.ndarray:
         syll = np.clip(np.sin(2 * np.pi * 3.2 * t), 0, 1) ** 2 * np.sin(np.pi * t / 1.8)
         x = band(rng.standard_normal((n, 2)).astype(np.float32), 1500, 7000) * syll[:, None]
         return (_norm(x) * 0.12).astype(np.float32)
+    if kind == "zap":  # being "switched off": electric buzz + power-down
+        n = int(0.9 * SR)
+        t = np.arange(n) / SR
+        f = 120 * np.exp(-t * 2.5) + 40
+        buzz = np.sign(np.sin(2 * np.pi * np.cumsum(f) / SR)) * np.exp(-t * 3.5)
+        crackle = band(rng.standard_normal(n).astype(np.float32), 2000, 9000) * np.exp(-t * 9)
+        x = buzz * 0.5 + _norm(crackle) * 0.5
+        return (_norm(x)[:, None] * 0.3).astype(np.float32)
     if kind == "heartbeat":
         n = int(0.6 * SR)
         t = np.arange(n) / SR

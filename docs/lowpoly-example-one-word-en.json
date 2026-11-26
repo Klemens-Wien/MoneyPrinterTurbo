@@ -1,0 +1,160 @@
+{
+  "title": "In This City You Can Only Say One Word",
+  "language": "en",
+  "voice": "en-US-BrianNeural",
+  "pitch": "+10Hz",
+  "description": "Say any other word and you get switched off. Then a new kid walked down our street… talking.",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "story",
+    "storytime",
+    "animation",
+    "lowpoly"
+  ],
+  "question": {
+    "text": "Should I say my name?",
+    "a": "Say it",
+    "b": "Stay silent"
+  },
+  "npc_labels": {
+    "default": [
+      "HUSS"
+    ]
+  },
+  "label_style": "speech",
+  "hero_label": "HUSS",
+  "scenes": [
+    {
+      "setting": "town",
+      "action": "crowd",
+      "shot": "medium",
+      "mood": "day",
+      "hero_label": "HUSS",
+      "narration": "In this city, you're allowed to say exactly one word: *Huss*."
+    },
+    {
+      "setting": "main_street",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "day",
+      "hero_label": "HUSS",
+      "narration": "Good morning? Huss. I love you? Huss. Help? *Huss*. Two million people, one single word."
+    },
+    {
+      "setting": "town",
+      "action": "freeze_one",
+      "shot": "low_angle",
+      "mood": "day",
+      "say": "HELLO",
+      "narration": "And if you say anything else, you get *switched off*."
+    },
+    {
+      "setting": "town",
+      "action": "freeze_one",
+      "shot": "closeup",
+      "mood": "overcast",
+      "say": "SORRY",
+      "narration": "Mister Brown said sorry once. Just once. He has been standing on the square ever since."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "player_cam",
+      "mood": "overcast",
+      "card": "The square",
+      "narration": "Hundreds of them. Grey. Frozen. Nobody knows if they can still hear us."
+    },
+    {
+      "setting": "home",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "day",
+      "hero_label": "HUSS",
+      "narration": "I've said Huss about eleven thousand times in my life. I have never said my own name."
+    },
+    {
+      "setting": "main_street",
+      "action": "new_kid",
+      "shot": "low_angle",
+      "mood": "day",
+      "say": "HI! I'M FINN",
+      "npc_label": "HUSS?!",
+      "card": "Monday",
+      "narration": "Then one Monday, a new kid walked down our street. And he was *talking*."
+    },
+    {
+      "setting": "main_street",
+      "action": "new_kid",
+      "shot": "closeup",
+      "mood": "day",
+      "say": "WHERE'S THE BAKERY?",
+      "npc_label": "HUSS?!",
+      "narration": "Real words. Hello. Nice shoes. Where's the bakery? The whole street went silent."
+    },
+    {
+      "setting": "main_street",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "day",
+      "partner": "finn",
+      "say": "WHAT'S YOUR NAME?",
+      "hero_label": "HUSS",
+      "narration": "We all waited for the zap. It never came. Finn just smiled and asked me my name."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "closeup",
+      "mood": "night",
+      "partner": "finn",
+      "say": "IT'S NOT REAL",
+      "hero_label": "HUSS",
+      "card": "That night",
+      "narration": "That night, he told me a secret. The switching off was never a rule. It was a *story*. Told to scare us."
+    },
+    {
+      "setting": "town",
+      "action": "unfreeze",
+      "shot": "dolly_in",
+      "mood": "overcast",
+      "say": "YOU CAN STOP NOW",
+      "reply": "...THANK YOU",
+      "narration": "The next morning, he walked up to Mister Brown and said: you can stop now. And Mister Brown *blinked*."
+    },
+    {
+      "setting": "town",
+      "action": "unfreeze",
+      "shot": "crane_up",
+      "mood": "overcast",
+      "say": "YOU CAN STOP NOW",
+      "reply": "THANK YOU",
+      "narration": "He was never switched off. He was just too scared to move. For eleven years."
+    },
+    {
+      "setting": "town",
+      "action": "statues",
+      "shot": "low_angle",
+      "mood": "sunset",
+      "narration": "Every statue on that square is a person still waiting for someone to say: it's okay."
+    },
+    {
+      "setting": "home",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "sunset",
+      "partner": "finn",
+      "say": "YOU FIRST?",
+      "hero_label": "HUSS",
+      "narration": "Tomorrow at noon, the whole city meets on the square. Finn wants me to say my name. Out loud. In front of everyone."
+    },
+    {
+      "setting": "home",
+      "action": "alone",
+      "shot": "medium",
+      "mood": "sunset",
+      "hero_label": "?",
+      "narration": "If he's wrong, I get switched off forever. If he's right, two million people get their words back. Should I say it? And what would *your* first word be?"
+    }
+  ]
+}

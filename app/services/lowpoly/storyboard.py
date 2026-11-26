@@ -35,6 +35,10 @@ ACTIONS = {
     "collapse": "a house shakes, tilts and sinks into the ground, the narrator panics",
     "wave": "the narrator waves at the camera",
     "duo": "the narrator and a friend talk face to face, people walk past",
+    "freeze_one": "in a crowd, one person says a forbidden word and gets switched off (turns grey and freezes)",
+    "new_kid": "a new kid walks into the crowd talking normally; everyone stares",
+    "unfreeze": "a switched-off grey person is talked to and switches back on",
+    "statues": "a square full of switched-off grey people, others walk past in silence",
     "landscape": "no people, just the scenery",
     "chase": "the truck convoy flees while the giant grey monster stomps after it",
     "monster": "the giant grey monster with glowing eyes appears and roars",
@@ -88,6 +92,10 @@ class Scene:
     clock: str = ""  # optional time of night shown when this scene starts, e.g. "02:00"
     card: str = ""  # comic sticker shown when the scene starts, e.g. "3 DAYS LATER"
     hero_label: str = ""  # text floating above the narrator in this scene (overrides the story default)
+    npc_label: str = ""  # one text above all other people in this scene (e.g. their only word)
+    say: str = ""  # what the special character of the scene says (rule breaker / partner)
+    reply: str = ""  # answer of a second character (e.g. after being switched back on)
+    partner: str = ""  # figure variant of the narrator's partner in this scene, e.g. "finn"
 
 
 @dataclass
@@ -108,6 +116,7 @@ class Storyboard:
     pitch: str = ""  # optional pitch shift, e.g. "+10Hz" for a younger narrator
     hero_label: str = ""  # the rule made visible: text floating above the narrator (e.g. "3 DAYS")
     npc_labels: dict = field(default_factory=dict)  # {"default"|"rich"|"poor"|"guard": [texts above people]}
+    label_style: str = ""  # "speech" renders labels as speech bubbles
 
     @property
     def word_count(self) -> int:
@@ -138,6 +147,7 @@ class Storyboard:
             voice=str(data.get("voice") or "").strip(),
             hero_label=str(data.get("hero_label") or "").strip()[:24],
             npc_labels=_parse_npc_labels(data.get("npc_labels")),
+            label_style=str(data.get("label_style") or "").strip(),
             pitch=str(data.get("pitch") or "").strip() if re.match(r"^[+-]\d{1,3}Hz$", str(data.get("pitch") or "").strip()) else "",
         )
 
@@ -179,6 +189,10 @@ def normalize_scene(raw: dict) -> Scene:
         clock=_parse_clock(raw.get("clock")),
         card=str(raw.get("card") or "").strip()[:40],
         hero_label=str(raw.get("hero_label") or "").strip()[:24],
+        npc_label=str(raw.get("npc_label") or "").strip()[:24],
+        say=str(raw.get("say") or "").strip()[:32],
+        reply=str(raw.get("reply") or "").strip()[:32],
+        partner=str(raw.get("partner") or "").strip()[:16],
     )
 
 

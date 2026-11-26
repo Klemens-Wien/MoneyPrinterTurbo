@@ -91,6 +91,7 @@ uniform vec3 u_sky_horizon;
 uniform float u_flash;
 uniform float u_alpha;
 uniform float u_window_glow;
+uniform float u_grey;
 uniform float u_lights_out;   // windows within this radius of the town centre are dark (-1 = none)
 uniform vec3 u_pl_pos;        // optional point light (night lamp)
 uniform vec3 u_pl_col;
@@ -115,6 +116,7 @@ void main() {
     vec3 V = -v_rel;
     if (dot(N, V) < 0.0) N = -N;
     vec3 albedo = v_col * u_tint;
+    if (u_grey > 0.0) albedo = mix(albedo, vec3(dot(albedo, vec3(0.3, 0.59, 0.11)) * 0.85 + 0.08), u_grey);
     if (u_material == 1) {
         N = normalize(vec3(0.05 * sin(v_world.x * 0.21 + u_time * 1.4) + 0.04 * sin(v_world.z * 0.33 - u_time * 1.1),
                            1.0,
@@ -315,6 +317,7 @@ class Draw:
     key: str
     model: np.ndarray
     tint: tuple = (1.0, 1.0, 1.0)
+    grey: float = 0.0  # 1 = fully desaturated (stone-like)
 
 
 class Renderer:
@@ -480,6 +483,7 @@ class Renderer:
             self._set(p, "u_material", material)
             self._set(p, "u_model", _gl(d.model))
             self._set(p, "u_tint", tuple(float(t) for t in tint))
+            self._set(p, "u_grey", float(d.grey))
             scene_vao.render()
 
         # 4. resolve + post

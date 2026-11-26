@@ -152,7 +152,7 @@ def _flat(x: float, z: float) -> float:
 
 
 def build_actor(action: str, setting_name: str, duration: float, yaw: float, mood: str,
-                lib: ActorLibrary, rng: np.random.Generator, ground=_flat) -> tuple[Actor, float]:
+                lib: ActorLibrary, rng: np.random.Generator, ground=_flat, scene: Scene | None = None) -> tuple[Actor, float]:
     """Returns the actor group for a scene and a camera distance scale."""
     s = SETTINGS[setting_name]
     stage = np.array([s.stage[0], s.stage_y, s.stage[1]])
@@ -242,12 +242,66 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
     if action == "duo":
         friend_pos = stage + np.array([math.sin(facing_cam + 1.4), 0.0, math.cos(facing_cam + 1.4)]) * 1.9
         hero_fig = Figure(hero, stage.copy(), anim="talk", face_target=friend_pos)
-        friend = Figure(_npc(lib, rng), friend_pos, anim="talk", phase=1.1, face_target=stage)
+        partner = scene.partner if scene is not None else ""
+        friend = Figure(lib.figure(partner) if partner else _npc(lib, rng), friend_pos, anim="talk", phase=1.1,
+                        face_target=stage)
+        if scene is not None and scene.say:
+            friend.label, friend.label_locked, friend.label_style = scene.say, True, "speech_hero"
         extras = [Figure(_npc(lib, rng), stage + np.array([math.sin(a), 0, math.cos(a)]) * 9, anim="walk",
                          path=LinePath(stage + np.array([math.sin(a), 0, math.cos(a)]) * 9,
                                        np.array([math.cos(a), 0, -math.sin(a)]), 1.3), phase=float(i))
                   for i, a in enumerate(rng.uniform(0, 2 * math.pi, 3))]
         return Group([hero_fig, friend] + extras, 0), 0.5
+
+    if action in ("freeze_one", "new_kid", "unfreeze", "statues"):
+        say = (scene.say if scene is not None else "") or "HELLO"
+        reply = (scene.reply if scene is not None else "") or "THANK YOU"
+
+        def bystanders(n, center, r0, r1, look_at=None, anims=("idle", "talk", "idle")):
+            out = []
+            for i in range(n):
+                ang = facing_cam + math.pi + rng.uniform(-2.4, 2.4)
+                p = center + np.array([math.sin(ang), 0.0, math.cos(ang)]) * rng.uniform(r0, r1)
+                out.append(Figure(_npc(lib, rng), p, anim=str(rng.choice(anims)), phase=float(rng.uniform(0, 4)),
+                                  face_target=center if look_at is None else look_at))
+            return out
+
+        if action == "freeze_one":
+            breaker = Figure(_npc(lib, rng), stage.copy(), heading=facing_cam, anim="talk", label=say,
+                             label_style="danger", label_locked=True, freeze_at=duration * 0.45)
+            hero_fig = Figure(hero, stage + np.array([math.sin(facing_cam + 1.2), 0, math.cos(facing_cam + 1.2)]) * 4.0,
+                              anim="idle", face_target=stage)
+            return Group([breaker, hero_fig] + bystanders(13, stage, 3.5, 9.0), 0), 0.45
+        if action == "new_kid":
+            d = np.array([math.sin(facing_cam + math.pi / 2), 0.0, math.cos(facing_cam + math.pi / 2)])
+            start = stage - d * 7.0
+            finn = Figure(lib.figure("finn"), start, anim="walk", label=say, label_style="speech_hero",
+                          label_locked=True, path=LinePath(start, d, 1.6, stop_at=6.0))
+            hero_fig = Figure(hero, stage + d * 3.5 + np.array([math.sin(facing_cam), 0, math.cos(facing_cam)]) * 1.5,
+                              anim="idle", face_target=stage)
+            crowd = bystanders(12, stage, 4.0, 9.5, look_at=stage)
+            return Group([finn, hero_fig] + crowd, 0), 0.45
+        if action == "unfreeze":
+            statue = Figure(_npc(lib, rng), stage.copy(), heading=facing_cam + 0.6, anim="point", label_locked=True,
+                            freeze_at=-1.0, unfreeze_at=duration * 0.55, label_unfrozen=reply, label_style="speech")
+            side = np.array([math.sin(facing_cam - 1.1), 0, math.cos(facing_cam - 1.1)])
+            finn = Figure(lib.figure("finn"), stage + side * 1.8, anim="talk", label=say, label_style="speech_hero",
+                          label_locked=True, face_target=stage)
+            hero_fig = Figure(hero, stage + side * 4.2 + np.array([math.sin(facing_cam), 0, math.cos(facing_cam)]) * 2,
+                              anim="idle", face_target=stage)
+            return Group([statue, finn, hero_fig] + bystanders(6, stage, 7.0, 11.0), 0), 0.4
+        # statues: a square of switched-off people
+        members: list[Actor] = [Figure(hero, stage.copy(), anim="walk", path=LinePath(
+            stage - np.array([math.sin(facing_cam + 1.57), 0, math.cos(facing_cam + 1.57)]) * 4,
+            np.array([math.sin(facing_cam + 1.57), 0, math.cos(facing_cam + 1.57)]), 1.0))]
+        for i in range(9):
+            ang = rng.uniform(0, 2 * math.pi)
+            p = stage + np.array([math.sin(ang), 0, math.cos(ang)]) * rng.uniform(3.0, 10.0)
+            members.append(Figure(_npc(lib, rng), p, heading=float(rng.uniform(0, 6.3)),
+                                  anim=str(rng.choice(["talk", "point", "wave", "walk"])), freeze_at=-1.0,
+                                  label_locked=True, phase=float(rng.uniform(0, 3))))
+        members += bystanders(5, stage, 10.0, 14.0, anims=("walk", "idle"))
+        return Group(members, 0), 0.5
 
     if action in ("alone", "wave"):
         sad = mood in ("storm", "night", "overcast")
@@ -604,7 +658,7 @@ class Director:
             setting = SETTINGS[scene.setting]
             yaw = setting.view_heading + float(rng.uniform(-0.6, 0.6))
             actor, cam_scale = build_actor(scene.action, scene.setting, dur, yaw, scene.mood, self.library, rng,
-                                           ground=world.ground)
+                                           ground=world.ground, scene=scene)
             target = mood_lib.get(scene.mood)
             flashes = []
             if target.lightning > 0:
@@ -653,6 +707,12 @@ class Director:
             if a == "closet":
                 out.append((t0 + d * 0.12, "creak"))
                 out.append((t0 + d * 0.4, "whisper"))
+            members = s.actor.members if isinstance(s.actor, Group) else [s.actor]
+            for m in members:
+                if isinstance(m, Figure) and m.freeze_at is not None and m.freeze_at >= 0:
+                    out.append((t0 + m.freeze_at, "zap"))
+                if isinstance(m, Figure) and m.unfreeze_at is not None:
+                    out.append((t0 + m.unfreeze_at, "creak"))
             if a in ("noises", "doorway", "closet", "sit_up", "doll_floor", "doll_bed", "doll_behind"):
                 for k in range(int(d / 0.8)):
                     out.append((t0 + k * 0.8, "heartbeat"))
@@ -740,6 +800,10 @@ class Director:
             cam.target = tuple(np.asarray(cam.target) + jitter * 0.6)
         draws = self.static_draws(t) + ps.actor.draws(local)
         flash = flash_value(ps.flashes, t)
+        members = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+        for m in members:
+            if isinstance(m, Figure) and m.freeze_at is not None and 0 <= local - m.freeze_at < 0.25:
+                flash = max(flash, 0.35 * (1 - (local - m.freeze_at) / 0.25))
         dist = float(np.linalg.norm(np.asarray(cam.eye) - np.asarray(cam.target)))
         extent = float(np.clip(dist * 0.9 + 14, 22, 320))
         extras: dict = {"lights_out": self._lights_out(ps, local), "labels": self._figure_labels(ps, local)}
@@ -757,27 +821,36 @@ class Director:
         npc_labels = getattr(board, "npc_labels", {}) or {}
         hero_parts = self.library.figure("hero")
         members = actor.members if isinstance(actor, Group) else [actor]
+        speech = getattr(board, "label_style", "") == "speech"
         for i, m in enumerate(members):
-            if not isinstance(m, Figure):
+            if not isinstance(m, Figure) or m.label_locked:
                 continue
             if m.parts == hero_parts:
                 m.label = hero_label
                 m.label_style = "danger" if hero_label.startswith("!") else "hero"
                 m.label = m.label.lstrip("!")
+                if speech and m.label_style == "hero":
+                    m.label_style = "speech_hero"
+            elif scene.npc_label and m.size >= 0.7:
+                m.label, m.label_style = scene.npc_label, "speech" if speech else "npc"
             elif npc_labels and m.size >= 0.7:
                 key = next(iter(m.parts.values()))  # e.g. "fig_rich3_torso"
                 kind = next((k for k in ("rich", "poor", "guard") if f"fig_{k}" in key), "default")
                 pool = npc_labels.get(kind) or npc_labels.get("default") or []
                 if pool:
                     m.label = pool[(i * 7 + len(scene.narration)) % len(pool)]
+                    if speech:
+                        m.label_style = "speech"
 
     @staticmethod
     def _figure_labels(ps: PlannedScene, local: float) -> list:
         out = []
         members = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
         for m in members:
-            if isinstance(m, Figure) and m.label:
-                out.append((m.focus(local) + np.array([0.0, 1.55 * m.size, 0.0]), m.label, m.label_style))
+            if isinstance(m, Figure):
+                text = m.current_label(local)
+                if text:
+                    out.append((m.focus(local) + np.array([0.0, 1.55 * m.size, 0.0]), text, m.label_style))
         return out
 
     @staticmethod

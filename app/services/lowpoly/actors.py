@@ -44,6 +44,8 @@ class ActorLibrary:
             colors = props.SISTER_COLORS
         elif variant == "doll":
             colors = props.DOLL_COLORS
+        elif variant == "finn":
+            colors = props.FINN_COLORS
         elif variant.startswith(("rich", "poor", "guard")):
             kind = "rich" if variant.startswith("rich") else "poor" if variant.startswith("poor") else "guard"
             digits = variant[len(kind):]
@@ -200,6 +202,21 @@ class Figure(Actor):
     look_turn: float = 0.0  # head yaw offset for the "sit" pose
     label: str = ""  # text floating above the head
     label_style: str = "npc"
+    label_locked: bool = False  # keep the label even if the story assigns labels to everyone
+    freeze_at: float | None = None  # "switched off": turns grey and stops moving at this time
+    unfreeze_at: float | None = None
+    label_frozen: str = ""
+    label_unfrozen: str = ""
+
+    def frozen(self, t: float) -> bool:
+        return self.freeze_at is not None and t >= self.freeze_at and (self.unfreeze_at is None or t < self.unfreeze_at)
+
+    def current_label(self, t: float) -> str:
+        if self.frozen(t):
+            return self.label_frozen
+        if self.unfreeze_at is not None and t >= self.unfreeze_at and self.label_unfrozen:
+            return self.label_unfrozen
+        return self.label
 
     def _state(self, t: float):
         if self.path is not None:
@@ -223,8 +240,10 @@ class Figure(Actor):
         return np.array([math.sin(heading), 0.0, math.cos(heading)])
 
     def draws(self, t: float) -> list[Draw]:
-        pos, heading, moving = self._state(t)
-        tt = t + self.phase
+        frozen = self.frozen(t)
+        t_pose = max(self.freeze_at, 0.0) if frozen else t
+        pos, heading, moving = self._state(t_pose)
+        tt = t_pose + self.phase
         anim = self.anim
         if self.path is not None and not moving and anim in ("walk", "run"):
             anim = "idle"
@@ -303,10 +322,19 @@ class Figure(Actor):
         base = base @ scale(self.size)
         if body_tilt:
             base = base @ translate(0, 0.95, 0) @ rotate_x(body_tilt) @ translate(0, -0.95, 0)
+        tint, grey = (1.0, 1.0, 1.0), 0.0
+        if frozen:
+            tint, grey = (0.92, 0.94, 1.0), 1.0
+            since = t - max(self.freeze_at, 0.0)
+            if since < 0.35:  # electric jolt when being switched off
+                base = translate(math.sin(t * 90) * 0.06, 0, math.cos(t * 77) * 0.06) @ base
+                tint, grey = (0.9, 1.0, 1.4), since / 0.35
+        elif self.unfreeze_at is not None and 0 <= t - self.unfreeze_at < 0.5:
+            grey = 1.0 - (t - self.unfreeze_at) / 0.5  # colour flows back
         out = []
         for part, key in self.parts.items():
             px, py, pz = props.FIGURE_PIVOTS[part]
-            out.append(Draw(key, base @ translate(px, py, pz) @ rot[part]))
+            out.append(Draw(key, base @ translate(px, py, pz) @ rot[part], tint, grey))
         return out
 
 
