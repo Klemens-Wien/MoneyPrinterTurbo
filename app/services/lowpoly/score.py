@@ -334,8 +334,149 @@ class HorrorScore(Score):
         return (buf / peak * 0.9).astype(np.float32)
 
 
+class MysteryScore(HorrorScore):
+    """Puzzle / "spot the fake" score: clock ticks, plucked pizzicato ostinato in D minor,
+    celesta motif, low piano stabs and a rising tension pad."""
+
+    MOTIF = [74, 77, 76, 73, 74, 81, 79, 77]
+
+    def render(self) -> np.ndarray:
+        n = self.n
+        t = np.arange(n) / SR
+        energy = np.interp(t, self._grid, self._energy)
+        buf = np.zeros((n, 2))
+        # soft pad (D minor add9), opening up with tension
+        pad = np.zeros(n)
+        for note in (50, 57, 62, 65, 64):
+            f = midi_hz(note)
+            pad += np.sin(2 * np.pi * f * t + np.sin(2 * np.pi * 0.3 * t) * 0.4) * 0.2
+        pad = self._fft_band(pad, 80, 1800) * (0.05 + 0.07 * energy)
+        buf += np.stack([pad, np.roll(pad, 400)], axis=1)
+        # pizzicato ostinato (eighths at 100 bpm), louder with energy
+        step = 0.3
+        ost = [50, 57, 53, 57, 50, 58, 53, 57]
+        k = 0
+        while k * step < self.duration:
+            tt = k * step
+            e = self.energy(tt)
+            if e > 0.22:
+                m = int(0.35 * SR)
+                x = np.arange(m) / SR
+                f = midi_hz(ost[k % len(ost)])
+                sig = (np.sin(2 * np.pi * f * x) + 0.5 * np.sin(4 * np.pi * f * x)) * np.exp(-x * 18)
+                _add(buf, tt, sig * 0.09 * min(1.0, e + 0.2), pan=-0.3 if k % 2 else 0.3)
+            # clock tick on every beat
+            if k % 2 == 0:
+                m = int(0.03 * SR)
+                x = np.arange(m) / SR
+                tick = np.diff(self.rng.standard_normal(m + 1)) * np.exp(-x * 250)
+                _add(buf, tt, tick * (0.05 if k % 4 == 0 else 0.03), pan=0.5)
+            k += 1
+        # celesta motif in the calm parts
+        step = 0.6
+        k = 0
+        while k * step < self.duration:
+            tt = k * step
+            if self.energy(tt) < 0.55 and (k // 8) % 2 == 0:
+                f = midi_hz(self.MOTIF[k % len(self.MOTIF)])
+                m = int(1.2 * SR)
+                x = np.arange(m) / SR
+                sig = (np.sin(2 * np.pi * f * x) + 0.3 * np.sin(2 * np.pi * f * 4.0 * x) * np.exp(-x * 6)) * np.exp(-x * 3.2)
+                _add(buf, tt, sig * 0.045, pan=float(self.rng.uniform(-0.6, 0.6)))
+            k += 1
+        # low piano stabs every 4.8 s when tense
+        tt = 2.4
+        while tt < self.duration:
+            if self.energy(tt) > 0.4:
+                m = int(2.5 * SR)
+                x = np.arange(m) / SR
+                sig = sum(np.sin(2 * np.pi * midi_hz(nn) * x) * np.exp(-x * 1.8) for nn in (26, 38, 45))
+                _add(buf, tt, sig * 0.12)
+            tt += 4.8
+        for hit in self.impacts:
+            self._braam(buf, hit)
+        buf = np.tanh(buf * 1.3) / np.tanh(1.3)
+        return (buf / (np.max(np.abs(buf)) + 1e-9) * 0.9).astype(np.float32)
+
+
+class EpicScore(Score):
+    """Hybrid trailer / trap score: 808 bass, rolling hi-hats, big toms, brass-like stabs and a choir pad.
+    Builds with the story energy (hours counting up)."""
+
+    PROG = [(57, "min"), (53, "maj"), (48, "maj"), (55, "maj")]
+
+    def render(self) -> np.ndarray:
+        n = self.n
+        buf = np.zeros((n, 2))
+        beat = 60 / 140
+        bar = beat * 4
+        t0 = 0.0
+        idx = 0
+        while t0 < self.duration:
+            root, q = self.PROG[(idx // 2) % len(self.PROG)]
+            e = self.energy(t0)
+            # choir-ish pad: stacked detuned sines with vibrato
+            m = int((bar + 1.0) * SR)
+            x = np.arange(m) / SR
+            env = _env(m, 0.4, 0.9)
+            pad = np.zeros(m)
+            for note in _chord(root, q) + [root + 12]:
+                f = midi_hz(note)
+                for det in (-0.004, 0.0, 0.004):
+                    pad += np.sin(2 * np.pi * f * (1 + det) * x + 0.3 * np.sin(2 * np.pi * 5.2 * x))
+            _add(buf, t0, pad * env * (0.012 + 0.012 * e))
+            for b in range(4):
+                tb = t0 + b * beat
+                eb = self.energy(tb)
+                # 808 on 1 and the "and" of 2
+                for off in ((0.0,) if b % 2 else (0.0, beat * 0.5) if b == 2 else (0.0,)):
+                    if b in (0, 2) and eb > 0.35:
+                        mm = int(0.9 * SR)
+                        xx = np.arange(mm) / SR
+                        f = midi_hz(root - 24)
+                        sig = np.sin(2 * np.pi * np.cumsum(f * (1 + 1.5 * np.exp(-xx * 30))) / SR) * np.exp(-xx * 2.5)
+                        _add(buf, tb + off, np.tanh(sig * 2.2) * 0.32 * min(1.0, eb + 0.1))
+                # clap / snare on 2 and 4
+                if b in (1, 3) and eb > 0.5:
+                    mm = int(0.3 * SR)
+                    xx = np.arange(mm) / SR
+                    noise = self.rng.standard_normal(mm) * (np.exp(-xx * 20) + 0.5 * np.exp(-np.maximum(xx - 0.012, 0) * 22))
+                    _add(buf, tb, noise * 0.13)
+                # hats: 8ths, 16th/32nd rolls when intense
+                sub = 4 if eb > 0.8 else 2
+                for h in range(sub):
+                    th = tb + h * beat / sub
+                    if self.energy(th) > 0.3:
+                        mm = int(0.04 * SR)
+                        xx = np.arange(mm) / SR
+                        noise = np.diff(self.rng.standard_normal(mm + 1))
+                        _add(buf, th, noise * np.exp(-xx * 120) * 0.03, pan=0.35)
+                # big toms at bar starts when very intense
+                if b == 0 and eb > 0.75:
+                    mm = int(0.8 * SR)
+                    xx = np.arange(mm) / SR
+                    tom = np.sin(2 * np.pi * np.cumsum(70 + 60 * np.exp(-xx * 12)) / SR) * np.exp(-xx * 4)
+                    _add(buf, tb, tom * 0.4)
+            # brass-like stab on each new chord
+            if idx % 2 == 0 and e > 0.45:
+                mm = int(0.9 * SR)
+                xx = np.arange(mm) / SR
+                st = sum(_saw(midi_hz(nn - 12), mm, 8) for nn in _chord(root, q)) * _env(mm, 0.02, 0.5) * np.exp(-xx * 2)
+                _add(buf, t0, st * 0.05)
+            t0 += bar
+            idx += 1
+        for hit in self.impacts:
+            self._riser(buf, hit)
+            self._braam(buf, hit)
+        buf = np.tanh(buf * 1.25) / np.tanh(1.25)
+        return (buf / (np.max(np.abs(buf)) + 1e-9) * 0.9).astype(np.float32)
+
+
+STYLES = {"horror": HorrorScore, "mystery": MysteryScore, "epic": EpicScore}
+
+
 def write_score(path: str, duration: float, scenes, impacts: list[float], seed: int = 0, style: str = "") -> str:
-    cls = HorrorScore if style == "horror" else Score
+    cls = STYLES.get(style, Score)
     audio = cls(duration, sections_for(scenes), impacts, seed).render()
     pcm = (np.clip(audio, -1, 1) * 32767).astype(np.int16)
     with wave.open(path, "wb") as wf:

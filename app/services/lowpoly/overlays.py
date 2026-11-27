@@ -618,3 +618,115 @@ class PhoneChat:
         k = min(1.0, age / 0.25)
         y = int(self.height * 0.3 + (1 - k) * self.height * 0.45)
         return blend(frame, img, (self.width - img.shape[1]) // 2, y, 1.0)
+
+
+class Countdown:
+    """Big ticking countdown number in a ring ("SPOT THE FAKE: 10 ... 0")."""
+
+    def __init__(self, width: int, height: int, seconds: int, start: float, end: float, title: str = ""):
+        self.width, self.height = width, height
+        self.seconds, self.start, self.end = seconds, start, min(end, start + seconds + 0.6)
+        self.title = np.asarray(_text_img(title.upper(), int(width * 0.06), fill=(255, 221, 30))) if title else None
+        self._cache: dict[int, np.ndarray] = {}
+
+    def tick_times(self) -> list[float]:
+        return [self.start + i for i in range(self.seconds) if self.start + i < self.end]
+
+    def _img(self, k: int) -> np.ndarray:
+        if k not in self._cache:
+            W = self.width
+            r = int(W * 0.12)
+            im = Image.new("RGBA", (2 * r + 12, 2 * r + 12), (0, 0, 0, 0))
+            d = ImageDraw.Draw(im)
+            col = (255, 60, 60, 255) if k <= 3 else (255, 255, 255, 255)
+            d.ellipse((6, 6, 2 * r + 6, 2 * r + 6), fill=(12, 12, 18, 210), outline=col, width=10)
+            num = _text_img(str(k), int(r * 1.15), fill=col[:3], stroke_ratio=0.0)
+            im.alpha_composite(num, ((im.width - num.width) // 2, (im.height - num.height) // 2))
+            self._cache[k] = np.asarray(im)
+        return self._cache[k]
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end):
+            return frame
+        age = t - self.start
+        k = max(0, self.seconds - int(age))
+        frac = age - int(age)
+        img = self._img(k)
+        s = 1.0 + 0.25 * max(0.0, 1 - frac / 0.15)
+        if s > 1.01:
+            im = Image.fromarray(img)
+            img = np.asarray(im.resize((int(im.width * s), int(im.height * s)), Image.BILINEAR))
+        y = int(self.height * 0.16)
+        frame = blend(frame, img, (self.width - img.shape[1]) // 2, y - img.shape[0] // 2 + int(self.width * 0.12), 1.0)
+        if self.title is not None:
+            frame = blend(frame, self.title, (self.width - self.title.shape[1]) // 2, int(self.height * 0.075), 1.0)
+        return frame
+
+
+class NoteCard:
+    """A handwritten-looking paper note with numbered rules that appear one at a time."""
+
+    def __init__(self, width: int, height: int, title: str, lines: list[str], start: float, end: float):
+        self.width, self.height = width, height
+        self.start, self.end = start, end
+        self.title, self.lines = title, lines
+        self._cache: dict[int, np.ndarray] = {}
+
+    def _img(self, count: int) -> np.ndarray:
+        if count not in self._cache:
+            W = self.width
+            pw = int(W * 0.8)
+            fs = int(W * 0.045)
+            rows = [_text_img(f"{i + 1}. {ln}", fs, fill=(30, 26, 40), stroke_ratio=0.0, max_width=int(pw * 0.84))
+                    for i, ln in enumerate(self.lines[:count])]
+            head = _text_img(self.title.upper(), int(W * 0.06), fill=(190, 20, 30), stroke_ratio=0.0)
+            ph = int(fs * 1.4) + head.height + sum(r.height + int(fs * 0.4) for r in rows) + int(fs * 1.2)
+            im = Image.new("RGBA", (pw, ph), (0, 0, 0, 0))
+            d = ImageDraw.Draw(im)
+            d.rectangle((0, 0, pw - 1, ph - 1), fill=(250, 244, 214, 250), outline=(120, 100, 60, 255), width=3)
+            for y in range(int(fs * 1.4) + head.height, ph, int(fs * 1.3)):
+                d.line((10, y, pw - 10, y), fill=(160, 190, 230, 160), width=2)
+            d.rectangle((pw // 2 - 50, -10, pw // 2 + 50, 22), fill=(230, 230, 200, 200))  # tape
+            im.alpha_composite(head, ((pw - head.width) // 2, int(fs * 0.7)))
+            y = int(fs * 1.4) + head.height
+            for r in rows:
+                im.alpha_composite(r, (int(pw * 0.08), y))
+                y += r.height + int(fs * 0.4)
+            self._cache[count] = np.asarray(im.rotate(-2, expand=True, resample=Image.BICUBIC))
+        return self._cache[count]
+
+    def line_times(self) -> list[float]:
+        span = max(0.5, (self.end - self.start - 0.5) / max(1, len(self.lines)))
+        return [self.start + 0.3 + i * span for i in range(len(self.lines))]
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end):
+            return frame
+        count = sum(1 for lt in self.line_times() if t >= lt)
+        img = self._img(max(0, count))
+        k = min(1.0, (t - self.start) / 0.25) * min(1.0, (self.end - t) / 0.2)
+        return blend(frame, img, (self.width - img.shape[1]) // 2, int(self.height * 0.12), k)
+
+
+def reveal_circle(frame: np.ndarray, point, vp, t: float, start: float, label: str = "FAKE") -> np.ndarray:
+    """Red hand-drawn circle + label around a projected 3D point (the answer of a puzzle)."""
+    if point is None or vp is None:
+        return frame
+    H, W = frame.shape[:2]
+    p = vp @ np.array([point[0], point[1], point[2], 1.0])
+    if p[3] <= 0:
+        return frame
+    x, y = (p[0] / p[3] * 0.5 + 0.5) * W, (1 - (p[1] / p[3] * 0.5 + 0.5)) * H
+    age = t - start
+    if age < 0:
+        return frame
+    r = int(W * 0.15)
+    im = Image.new("RGBA", (2 * r + 40, 2 * r + 40), (0, 0, 0, 0))
+    d = ImageDraw.Draw(im)
+    sweep = min(1.0, age / 0.45) * 370
+    d.arc((20, 20, 2 * r + 20, 2 * r + 20), -100, -100 + sweep, fill=(255, 40, 40, 255), width=14)
+    frame = blend(frame, np.asarray(im), int(x) - im.width // 2, int(y) - im.height // 2, 1.0)
+    if age > 0.4:
+        tag = np.asarray(_text_img(label.upper(), int(W * 0.08), fill=(255, 40, 40)))
+        frame = blend(frame, tag, int(x) - tag.shape[1] // 2, int(y) - r - tag.shape[0] - 10, min(1.0, (age - 0.4) / 0.15))
+    return frame

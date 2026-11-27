@@ -738,11 +738,11 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
         look, focus = members[2], 0
     elif action == "lr_twins":  # two identical moms side by side: spot the fake
         left, right = w((-1.2, 0.0, -1.2)), w((0.6, 0.0, -1.2))
-        fake_left = rng.random() < 0.5
+        fake_left = False  # same side in every scene, so the puzzle is fair
         real = Figure(lib.figure("mom"), right if fake_left else left, anim="idle", heading=0.0, phase=0.7)
-        fake = Figure(lib.figure("mom_fake"), left if fake_left else right, anim="doll", heading=0.0, phase=1.9,
-                      tint=(1.45, 1.42, 1.5))
-        members = [real, fake, Marker(w((-0.3, 1.9, -1.2)))] + members
+        fake = Figure(lib.figure("mom_fake"), left if fake_left else right, anim="idle", heading=0.0, phase=1.9,
+                      tint=(1.12, 1.1, 1.16))
+        members = [real, fake, Marker(w((-0.3, 1.9, -1.2)))]  # just the two of them, nobody in the way
         look, focus = None, 2
     elif action == "lr_knock":  # someone knocks at the closed front door; the kids stare at it
         door = w((-3.0, 0.0, 3.6))
@@ -1050,7 +1050,7 @@ class Director:
             mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
             tgt = next((m for m in mem if isinstance(m, Figure) and m.parts == parts), None)
             if tgt is not None:
-                extras["reveal"] = tgt.focus(local) + np.array([0.0, 0.35 * tgt.size, 0.0])
+                extras["reveal"] = tgt.focus(local) + np.array([0.0, 0.55 * tgt.size, 0.0])
         if shot == "pov" and not ps.scene.pov_of:  # what "you" say can't float above your own head
             hero_parts = self.library.figure("hero")
             mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
@@ -1167,10 +1167,10 @@ class Director:
     @staticmethod
     def _twins_camera(shot: str, u: float):
         e = u * u * (3 - 2 * u)
-        tgt = livingroom.world((-0.3, 1.75, -1.2))
+        tgt = livingroom.world((-0.3, 1.45, -1.2))
         if shot in ("closeup", "dolly_in"):
-            return Camera(tuple(livingroom.world((-0.3, 1.9, 2.2 - 0.6 * e))), tuple(tgt), 46)
-        return Camera(tuple(livingroom.world((-0.3 + 0.2 * math.sin(u * 3), 1.8, 3.3 - 0.4 * e))), tuple(tgt), 52)
+            return Camera(tuple(livingroom.world((-0.3, 1.95, 3.5 - 0.5 * e))), tuple(livingroom.world((-0.3, 1.6, -1.2))), 54)
+        return Camera(tuple(livingroom.world((-0.3 + 0.25 * math.sin(u * 3), 1.6, 3.7 - 0.3 * e))), tuple(tgt), 62)
 
     @staticmethod
     def _door_camera(shot: str, u: float, goodbye: bool = False):

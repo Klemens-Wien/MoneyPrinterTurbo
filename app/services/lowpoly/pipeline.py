@@ -167,6 +167,16 @@ def generate(opts: Options) -> dict:
                         w.color = rgb
     cap.to_srt(timed, os.path.join(work, "captions.srt"))
 
+    countdowns = [overlays.Countdown(opts.width, opts.height, ps.scene.countdown, ps.start + 0.2, ps.end,
+                                     title=ps.scene.card or "")
+                  for ps in director.scenes if ps.scene.countdown]
+    notes = [overlays.NoteCard(opts.width, opts.height, board.note_title or "RULES", ps.scene.note, ps.start + 0.1,
+                               ps.end) for ps in director.scenes if ps.scene.note]
+    reveals = [(ps.start + max(0.3, (ps.end - ps.start) * 0.35), ps.end) for ps in director.scenes if ps.scene.reveal]
+    tick_list = (wheel.tick_times() if wheel else []) + [x for c in countdowns for x in c.tick_times()]
+    ding_list = ([wheel.land_time] if wheel else []) + [x for nt in notes for x in nt.line_times()] + \
+        [a for a, _ in reveals]
+
     # 4. sound
     music = None
     music_volume = 0.30
@@ -185,7 +195,7 @@ def generate(opts: Options) -> dict:
         [soundtrack.VoicePlacement(c.path, s) for c, s in zip(clips, starts)],
         director.storm_spans, director.flashes, director.cut_times, music, seed,
         music_volume=music_volume, thuds=director.monster_steps,
-        ticks=wheel.tick_times() if wheel else None, dings=[wheel.land_time] if wheel else None,
+        ticks=tick_list or None, dings=ding_list or None,
         sfx=director.sfx,
     )
 
@@ -218,7 +228,7 @@ def generate(opts: Options) -> dict:
     banner = cap.HookBanner(opts.width, opts.height, "" if wheel else board.hook, 0.0, hook_end)
     labels = overlays.LabelLayer(opts.width, opts.height)
     stickers = [overlays.StickerCard(opts.width, opts.height, ps.scene.card, ps.start + 0.05)
-                for ps in director.scenes if ps.scene.card]
+                for ps in director.scenes if ps.scene.card and not ps.scene.countdown]
     counter = overlays.CounterBadge(opts.width, opts.height,
                                     [(ps.start, ps.end, ps.scene.counter) for ps in director.scenes if ps.scene.counter])
     chat_name = board.chat_name or ("Mom" if board.language != "de" else "Mama")
@@ -250,6 +260,13 @@ def generate(opts: Options) -> dict:
                 frame = card.composite(frame, t)
             for sticker in stickers:
                 frame = sticker.composite(frame, t)
+            for nt in notes:
+                frame = nt.composite(frame, t)
+            for cd in countdowns:
+                frame = cd.composite(frame, t)
+            for a, b in reveals:
+                if a <= t < b:
+                    frame = overlays.reveal_circle(frame, extras.get("reveal"), getattr(renderer, "last_vp", None), t, a)
             if wheel is not None:
                 frame = wheel.composite(frame, t)
             if clock is not None:
@@ -258,7 +275,8 @@ def generate(opts: Options) -> dict:
                 frame = question.composite(frame, t)
             low = wheel is not None and t < wheel.end
             on_phone = any(c.start <= t < c.end for c in chats + phones)
-            frame = captioner.composite(frame, word, t, y_frac=0.85 if low else 0.2 if on_phone else None)
+            low = low or any(nt.start <= t < nt.end for nt in notes)
+            frame = captioner.composite(frame, word, t, y_frac=0.84 if low else 0.2 if on_phone else None)
             frame = banner.composite(frame, t)
             writer.stdin.write(frame.tobytes())
             if i % (opts.fps * 5) == 0:
