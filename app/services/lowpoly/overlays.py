@@ -553,3 +553,68 @@ class PhoneCard:
         img = np.asarray(self.image)
         y = int(self.height * 0.34 + (1 - k) * self.height * 0.4 + math.sin(t * 9) * 3 * (age < 0.6))
         return blend(frame, img, (self.width - img.shape[1]) // 2, y, 1.0)
+
+
+class PhoneChat:
+    """A phone with a chat thread; messages pop in one after another during the scene."""
+
+    def __init__(self, width: int, height: int, name: str, messages: list, start: float, end: float):
+        self.width, self.height = width, height
+        self.start, self.end = start, end
+        self.messages = messages
+        W = width
+        self.pw, self.ph = int(W * 0.7), int(W * 1.05)
+        base = Image.new("RGBA", (self.pw, self.ph), (0, 0, 0, 0))
+        d = ImageDraw.Draw(base)
+        d.rounded_rectangle((0, 0, self.pw - 1, self.ph - 1), radius=int(self.pw * 0.11), fill=(18, 18, 24, 255))
+        self.inner = (int(self.pw * 0.05), int(self.pw * 0.07), self.pw - int(self.pw * 0.05), self.ph - int(self.pw * 0.07))
+        d.rounded_rectangle(self.inner, radius=int(self.pw * 0.07), fill=(240, 242, 248, 255))
+        d.rectangle((self.inner[0], self.inner[1] + 40, self.inner[2], self.inner[1] + int(W * 0.12)), fill=(226, 229, 238, 255))
+        head = _text_img(name, int(W * 0.05), fill=(30, 30, 40), stroke_ratio=0.0)
+        base.alpha_composite(head, ((self.pw - head.width) // 2, self.inner[1] + int(W * 0.03)))
+        self.base = base
+        self.bubbles = []
+        for side, text in messages:
+            mine = side.lower() in ("me", "i", "ich")
+            msg = _text_img(text, int(W * 0.042), fill=(255, 255, 255) if mine else (20, 20, 26), stroke_ratio=0.0,
+                            max_width=int(self.pw * 0.62))
+            b = Image.new("RGBA", (msg.width + 28, msg.height + 20), (0, 0, 0, 0))
+            ImageDraw.Draw(b).rounded_rectangle((0, 0, b.width - 1, b.height - 1), radius=20,
+                                                fill=(52, 120, 246, 255) if mine else (214, 216, 224, 255))
+            b.alpha_composite(msg, (14, 10))
+            self.bubbles.append((mine, b))
+        self._cache: dict[int, np.ndarray] = {}
+
+    def _image(self, count: int) -> np.ndarray:
+        if count not in self._cache:
+            img = self.base.copy()
+            top = self.inner[1] + int(self.width * 0.15)
+            bottom = self.inner[3] - 20
+            shown = self.bubbles[:count]
+            y = bottom
+            placed = []
+            for mine, b in reversed(shown):  # newest at the bottom, older ones scroll up
+                y -= b.height + 14
+                if y < top:
+                    break
+                placed.append((mine, b, y))
+            for mine, b, yy in placed:
+                x = self.inner[2] - b.width - 14 if mine else self.inner[0] + 14
+                img.alpha_composite(b, (x, yy))
+            self._cache[count] = np.asarray(img.rotate(3, expand=True, resample=Image.BICUBIC))
+        return self._cache[count]
+
+    def message_times(self) -> list[float]:
+        n = max(len(self.bubbles), 1)
+        span = max(self.end - self.start - 0.6, 0.5)
+        return [self.start + 0.15 + i * span / n for i in range(len(self.bubbles))]
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end) or not self.bubbles:
+            return frame
+        count = sum(1 for mt in self.message_times() if t >= mt)
+        img = self._image(max(count, 0))
+        age = t - self.start
+        k = min(1.0, age / 0.25)
+        y = int(self.height * 0.3 + (1 - k) * self.height * 0.45)
+        return blend(frame, img, (self.width - img.shape[1]) // 2, y, 1.0)

@@ -46,6 +46,8 @@ class ActorLibrary:
             colors = props.DOLL_COLORS
         elif variant == "finn":
             colors = props.FINN_COLORS
+        elif variant == "max":
+            colors = props.MAX_COLORS
         elif variant in ("mom", "mom_fake"):
             parts = props.figure_parts(props.MOM_COLORS if variant == "mom" else props.MOM_FAKE_COLORS)
             parts["head"].box((0, 0.2, -0.36), (0.86, 0.95, 0.16), (props.MOM_COLORS if variant == "mom" else props.MOM_FAKE_COLORS)["hair"])

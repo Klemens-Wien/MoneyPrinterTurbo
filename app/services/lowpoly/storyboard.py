@@ -41,6 +41,7 @@ ACTIONS = {
     "lr_hold": "(living room) the little sister walks towards the stairs, the narrator grabs her",
     "lr_phone": "(living room) a text message arrives on the phone (phone = the message)",
     "lr_door": "(living room) the front door opens and mom walks in (say = her words)",
+    "lr_knock": "(living room) someone knocks on the closed front door, the kids stare at it",
     "lr_two": "(living room) mom at the door (say) and the voice upstairs (reply) at the same time",
     "speak_freeze": "the narrator says a word and the person in front of them turns to stone",
     "freeze_one": "in a crowd, one person says a forbidden word and gets switched off (turns grey and freezes)",
@@ -113,6 +114,8 @@ class Scene:
     partner: str = ""  # figure variant of the narrator's partner in this scene, e.g. "finn"
     counter: str = ""  # persistent badge at the top during the scene, e.g. "NIGHT 41"
     phone: str = ""  # text message shown on a phone ("MOM: I'm still in the car")
+    chat: list = field(default_factory=list)  # phone chat thread: [["me"|"them", "text"], ...] revealed one by one
+    speaker: str = ""  # who speaks this line (key into the story's "voices"); default: the narrator
     variant: str = ""  # monster variant for this scene (grey, lava, ice, shadow, swamp)
     rank: dict | None = None  # ranking card: {"n": 3, "name": "...", "stats": {"SPEED": 7, ...}}
 
@@ -137,6 +140,9 @@ class Storyboard:
     npc_labels: dict = field(default_factory=dict)  # {"default"|"rich"|"poor"|"guard": [texts above people]}
     label_style: str = ""  # "speech" renders labels as speech bubbles
     wheel_compact: bool = False  # small wheel at the top so the hero stays visible underneath
+    voices: dict = field(default_factory=dict)  # {"speaker": {"voice", "pitch", "rate", "fx", "color"}}
+    music_style: str = ""  # "horror" for the creepy score
+    chat_name: str = ""  # name shown at the top of the phone chat
     duration: list = field(default_factory=list)  # optional [min, max] seconds for this story
 
     @property
@@ -170,6 +176,9 @@ class Storyboard:
             npc_labels=_parse_npc_labels(data.get("npc_labels")),
             label_style=str(data.get("label_style") or "").strip(),
             wheel_compact=bool(data.get("wheel_compact", False)),
+            voices={str(k): dict(v) for k, v in (data.get("voices") or {}).items() if isinstance(v, dict)},
+            music_style=str(data.get("music_style") or "").strip(),
+            chat_name=str(data.get("chat_name") or "").strip()[:20],
             duration=[float(x) for x in data.get("duration", [])][:2] if isinstance(data.get("duration"), list) else [],
             pitch=str(data.get("pitch") or "").strip() if re.match(r"^[+-]\d{1,3}Hz$", str(data.get("pitch") or "").strip()) else "",
         )
@@ -218,6 +227,8 @@ def normalize_scene(raw: dict) -> Scene:
         partner=str(raw.get("partner") or "").strip()[:16],
         counter=str(raw.get("counter") or "").strip()[:24],
         phone=str(raw.get("phone") or "").strip()[:120],
+        chat=[[str(m[0]), str(m[1])[:90]] for m in raw.get("chat", []) if isinstance(m, (list, tuple)) and len(m) == 2][:6],
+        speaker=str(raw.get("speaker") or "").strip()[:16],
         variant=str(raw.get("variant") or "").strip()[:12],
         rank=raw.get("rank") if isinstance(raw.get("rank"), dict) else None,
     )

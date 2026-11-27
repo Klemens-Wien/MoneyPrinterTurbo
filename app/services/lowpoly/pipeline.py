@@ -106,10 +106,12 @@ def generate(opts: Options) -> dict:
     spoken = [s.narration.replace("*", "") for s in board.scenes]
     stressed = [{re.sub(r"\W", "", w).lower() for w in re.findall(r"\*([^*]+)\*", s.narration) for w in w.split()}
                 for s in board.scenes]
+    specs = [dict(board.voices.get(s.speaker or "narrator", {})) for s in board.scenes]
     clips, backend = narration.synthesize(
         spoken, os.path.join(work, "voice"), board.language,
         opts.voice or board.voice or None, opts.tts,
         target_range=duration_range, gap=gap, pitch=opts.pitch or board.pitch or "+0Hz", rate_pct=opts.base_rate,
+        specs=specs if board.voices else None,
     )
     durations = _scene_durations(clips, gap, duration_range)
     logger.info(f"narration via {backend}: {sum(durations):.1f}s")
@@ -155,6 +157,14 @@ def generate(opts: Options) -> dict:
         words += [Word(w.text, w.start + start, w.end + start, re.sub(r"\W", "", w.text).lower() in marks)
                   for w in clip.words]
     timed = cap.build_timeline(words)
+    if board.voices:  # colour the captions by who is speaking
+        for ps in director.scenes:
+            color = board.voices.get(ps.scene.speaker or "narrator", {}).get("color")
+            if color:
+                rgb = tuple(int(str(color).lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
+                for w in timed:
+                    if ps.start <= w.start < ps.end:
+                        w.color = rgb
     cap.to_srt(timed, os.path.join(work, "captions.srt"))
 
     # 4. sound
@@ -162,7 +172,7 @@ def generate(opts: Options) -> dict:
     music_volume = 0.30
     if opts.music == "auto":
         music = score.write_score(os.path.join(work, "score.wav"), director.duration, director.scenes,
-                                  director.impacts, seed)
+                                  director.impacts, seed, style=board.music_style)
         music_volume = 0.42
     elif opts.music == "songs":
         music = soundtrack.pick_song(seed)
@@ -195,6 +205,9 @@ def generate(opts: Options) -> dict:
                 for ps in director.scenes if ps.scene.card]
     counter = overlays.CounterBadge(opts.width, opts.height,
                                     [(ps.start, ps.end, ps.scene.counter) for ps in director.scenes if ps.scene.counter])
+    chat_name = board.chat_name or ("Mom" if board.language != "de" else "Mama")
+    chats = [overlays.PhoneChat(opts.width, opts.height, chat_name, ps.scene.chat, ps.start + 0.2, ps.end)
+             for ps in director.scenes if ps.scene.chat]
     phones = [overlays.PhoneCard(opts.width, opts.height, "Mom" if board.language != "de" else "Mama",
                                  ps.scene.phone, ps.start + 0.3, ps.end) for ps in director.scenes if ps.scene.phone]
     ranks = [overlays.RankCard(opts.width, opts.height, ps.scene.rank, ps.start, ps.end, board.language)
@@ -217,6 +230,8 @@ def generate(opts: Options) -> dict:
                 frame = card.composite(frame, t)
             for card in phones:
                 frame = card.composite(frame, t)
+            for card in chats:
+                frame = card.composite(frame, t)
             for sticker in stickers:
                 frame = sticker.composite(frame, t)
             if wheel is not None:
@@ -225,8 +240,9 @@ def generate(opts: Options) -> dict:
                 frame = clock.composite(frame, t)
             if question is not None:
                 frame = question.composite(frame, t)
-            low = (wheel is not None and t < wheel.end)
-            frame = captioner.composite(frame, word, t, y_frac=0.85 if low else None)
+            low = wheel is not None and t < wheel.end
+            on_phone = any(c.start <= t < c.end for c in chats + phones)
+            frame = captioner.composite(frame, word, t, y_frac=0.85 if low else 0.2 if on_phone else None)
             frame = banner.composite(frame, t)
             writer.stdin.write(frame.tobytes())
             if i % (opts.fps * 5) == 0:

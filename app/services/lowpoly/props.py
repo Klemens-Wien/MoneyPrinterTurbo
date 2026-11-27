@@ -308,16 +308,24 @@ FINN_COLORS = {  # the new kid: red hair, teal hoodie
     "cap": False,
 }
 
-MOM_COLORS = {
+MAX_COLORS = {  # the narrator's best friend: green hoodie, dark curly hair
+    "skin": hex_color("#c68642"),
+    "shirt": hex_color("#4caf50"),
+    "pants": hex_color("#3b3b4f"),
+    "hair": hex_color("#1d1d24"),
+    "cap": False,
+}
+
+MOM_COLORS = {  # night-shift nurse scrubs
     "skin": hex_color("#ffd6a8"),
-    "shirt": hex_color("#8a2b3a"),
+    "shirt": hex_color("#2a9d8f"),
     "pants": hex_color("#2b2f45"),
     "hair": hex_color("#4a2c18"),
     "cap": False,
 }
 MOM_FAKE_COLORS = {  # the thing upstairs: the same clothes, but pale and wrong
     "skin": hex_color("#cfd2d8"),
-    "shirt": hex_color("#5a1e28"),
+    "shirt": hex_color("#1f6a62"),
     "pants": hex_color("#1a1c28"),
     "hair": hex_color("#1a1210"),
     "cap": False,

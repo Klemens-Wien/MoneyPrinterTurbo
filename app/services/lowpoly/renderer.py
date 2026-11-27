@@ -96,6 +96,9 @@ uniform float u_lights_out;   // windows within this radius of the town centre a
 uniform vec3 u_pl_pos;        // optional point light (night lamp)
 uniform vec3 u_pl_col;
 uniform float u_pl_radius;
+uniform vec3 u_pl2_pos;       // second point light (e.g. a flickering TV)
+uniform vec3 u_pl2_col;
+uniform float u_pl2_radius;
 out vec4 f_color;
 
 float shadow_at(vec3 N) {
@@ -133,6 +136,12 @@ void main() {
         float dp = length(Lp);
         float att = pow(clamp(1.0 - dp / u_pl_radius, 0.0, 1.0), 2.0);
         light += u_pl_col * att * (0.35 + 0.65 * max(dot(N, Lp / max(dp, 1e-4)), 0.0));
+    }
+    if (u_pl2_radius > 0.0) {
+        vec3 Lq = u_pl2_pos - v_world;
+        float dq = length(Lq);
+        float att2 = pow(clamp(1.0 - dq / u_pl2_radius, 0.0, 1.0), 2.0);
+        light += u_pl2_col * att2 * (0.3 + 0.7 * max(dot(N, Lq / max(dq, 1e-4)), 0.0));
     }
     vec3 col = albedo * light;
     if (u_material == 1) {
@@ -497,6 +506,13 @@ class Renderer:
             self._set(p, "u_pl_radius", float(light[2]))
         else:
             self._set(p, "u_pl_radius", 0.0)
+        light2 = extras.get("point_light2")
+        if light2:
+            self._set(p, "u_pl2_pos", tuple(float(v) for v in light2[0]))
+            self._set(p, "u_pl2_col", tuple(float(v) for v in light2[1]))
+            self._set(p, "u_pl2_radius", float(light2[2]))
+        else:
+            self._set(p, "u_pl2_radius", 0.0)
         for d in draws:
             scene_vao, _, _ = self.meshes[d.key]
             material = self.materials.get(d.key, 0)

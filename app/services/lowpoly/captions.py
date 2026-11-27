@@ -36,6 +36,7 @@ class TimedWord:
     start: float
     end: float
     emphasis: bool = False
+    color: tuple | None = None  # per-speaker caption colour
 
 
 def build_timeline(words: list[Word], min_dur: float = 0.18) -> list[TimedWord]:
@@ -80,7 +81,7 @@ class CaptionRenderer:
         return text
 
     def word_image(self, word: TimedWord) -> np.ndarray:
-        key = (word.text, word.emphasis)
+        key = (word.text, word.emphasis, word.color)
         if key in self._cache:
             return self._cache[key]
         text = self._apply_case(word.text)
@@ -103,7 +104,7 @@ class CaptionRenderer:
                                     fill=(0, 0, 0, 150), stroke_width=stroke, stroke_fill=(0, 0, 0, 150))
         shadow = shadow.filter(ImageFilter.GaussianBlur(stroke * 0.6))
         layer = Image.new("RGBA", (w, h), (0, 0, 0, 0))
-        fill = EMPHASIS_FILL if word.emphasis else FILL
+        fill = EMPHASIS_FILL if word.emphasis else (word.color or FILL)
         ImageDraw.Draw(layer).text(origin, text, font=font, fill=fill + (255,), stroke_width=stroke,
                                    stroke_fill=STROKE + (255,))
         img = Image.alpha_composite(shadow, layer)

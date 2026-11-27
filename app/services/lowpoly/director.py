@@ -662,7 +662,7 @@ def _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene):
     return Group([watcher, k], 0, look=k, look_ratio=0.5), 0.6
 
 
-LR_ACTIONS = {"lr_goodbye", "lr_couch", "lr_upstairs", "lr_hold", "lr_phone", "lr_door", "lr_two"}
+LR_ACTIONS = {"lr_goodbye", "lr_couch", "lr_upstairs", "lr_hold", "lr_phone", "lr_door", "lr_two", "lr_knock"}
 
 
 def _livingroom_scene(action, duration, lib, rng, hero, scene):
@@ -672,7 +672,9 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
     door_key = lib.raw("lr_door", livingroom.door_mesh())
     tv_key = lib.raw("lr_tv", livingroom.tv_mesh(), material=3)
     lamp_key = lib.raw("lr_lamp", livingroom.lamp_mesh(), material=3)
-    sister_parts = lib.figure("sister")
+    partner = (scene.partner if scene is not None and scene.partner else "sister")
+    sister_parts = lib.figure(partner)
+    psize = 0.72 if partner in ("sister", "doll") else 1.0
     landing = w(livingroom.LANDING_LOCAL)
 
     def ramp(a0, a1, t0=0.1, t1=0.6):
@@ -703,16 +705,16 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
     if action in ("lr_couch", "lr_phone"):
         hero_fig = Figure(hero, w(couch + np.array([0.0, livingroom.SEAT - 0.95 + 0.05, 0.5])), anim="sit",
                           heading=-math.pi / 2, look_turn=0.0 if action == "lr_couch" else 0.5)
-        sis = Figure(sister_parts, w(couch + np.array([0.0, livingroom.SEAT - 0.95 * 0.72 + 0.05, -0.45])),
-                     anim="sit", heading=-math.pi / 2, size=0.72, look_turn=-0.35)
+        sis = Figure(sister_parts, w(couch + np.array([0.0, livingroom.SEAT - 0.95 * psize + 0.05, -0.6])),
+                     anim="sit", heading=-math.pi / 2, size=psize, look_turn=-0.35)
         members = [hero_fig, sis] + members
         if action == "lr_couch" and say:
             members.append(fake_mom(say))
     elif action == "lr_goodbye":
         mom = Figure(lib.figure("mom"), w((-2.7, 0.0, 2.9)), anim="talk", face_target=middle,
                      label=say, label_style="speech_hero", label_locked=True)
-        hero_fig = Figure(hero, middle + np.array([0.3, 0.0, -0.3]), anim="idle", face_target=w((-2.7, 0, 2.9)))
-        sis = Figure(sister_parts, middle + np.array([-0.5, 0.0, 0.4]), anim="idle", size=0.72,
+        hero_fig = Figure(hero, middle + np.array([0.7, 0.0, -0.2]), anim="idle", face_target=w((-2.7, 0, 2.9)))
+        sis = Figure(sister_parts, middle + np.array([-1.0, 0.0, -0.7]), anim="idle", size=psize,
                      face_target=w((-2.7, 0, 2.9)))
         members = [hero_fig, sis, mom] + members
         look, focus = mom, 0
@@ -724,14 +726,20 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
             d = stair - sis_start
             d[1] = 0.0
             d /= np.linalg.norm(d)
-            sis = Figure(sister_parts, sis_start, anim="walk", size=0.72,
+            sis = Figure(sister_parts, sis_start, anim="walk", size=psize,
                          path=LinePath(sis_start, d, 0.7, stop_at=1.2))
             hero_fig.anim = "point"
             hero_fig.face_target = stair
         else:
-            sis = Figure(sister_parts, middle + np.array([-0.6, 0.0, 0.5]), anim="look_up", size=0.72,
+            sis = Figure(sister_parts, middle + np.array([-0.6, 0.0, 0.5]), anim="look_up", size=psize,
                          face_target=landing)
         members = [hero_fig, sis, fake_mom(say)] + members
+        look, focus = members[2], 0
+    elif action == "lr_knock":  # someone knocks at the closed front door; the kids stare at it
+        door = w((-3.0, 0.0, 3.6))
+        hero_fig = Figure(hero, middle.copy(), anim="idle", face_target=door)
+        sis = Figure(sister_parts, middle + np.array([-0.7, 0.0, -0.4]), anim="idle", size=psize, face_target=door)
+        members = [hero_fig, sis, Marker(door + np.array([0.0, 1.3, 0.0]))] + members
         look, focus = members[2], 0
     elif action in ("lr_door", "lr_two"):
         start = w((-3.0, 0.0, 5.2))
@@ -744,7 +752,7 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
             mom.anim = "idle"
             mom.face_target = middle
         hero_fig = Figure(hero, middle.copy(), anim="idle", face_target=w((-3.0, 0.0, 2.8)))
-        sis = Figure(sister_parts, middle + np.array([-0.5, 0.0, -0.5]), anim="idle", size=0.72,
+        sis = Figure(sister_parts, middle + np.array([-0.5, 0.0, -0.5]), anim="idle", size=psize,
                      face_target=w((-3.0, 0.0, 2.8)))
         members = [hero_fig, sis, mom] + members
         if action == "lr_two":
@@ -898,11 +906,20 @@ class Director:
             if a in ("lr_upstairs", "lr_hold", "lr_two"):
                 for k in range(int(d / 0.75)):
                     out.append((t0 + k * 0.75, "heartbeat"))
-            if a == "lr_phone":
+            if a == "lr_phone" and not s.scene.chat:
                 out.append((t0 + 0.2, "buzz"))
                 out.append((t0 + 0.9, "buzz"))
+            if s.scene.chat:  # one buzz per incoming message
+                nmsg = len(s.scene.chat)
+                span = max(d - 0.2 - 0.6, 0.5)
+                for i, (side, _) in enumerate(s.scene.chat):
+                    if side.lower() not in ("me", "i", "ich"):
+                        out.append((t0 + 0.35 + i * span / nmsg, "buzz"))
             if a == "lr_door":
                 out.append((t0 + d * 0.12, "creak"))
+            if a == "lr_knock":
+                for k in range(3):
+                    out.append((t0 + 0.4 + k * 0.55, "knock"))
             if a in ("noises",) and "KRAMPUS" in getattr(self.storyboard, "wheel_pick", "").upper():
                 out.append((t0 + d * 0.5, "bells"))
             for m in members:
@@ -996,6 +1013,8 @@ class Director:
             cam = self._pov_camera(ps, local, u) or cam
         if living and ps.scene.action in ("lr_upstairs", "lr_hold", "lr_two") and shot != "medium":
             cam = self._stairs_camera(shot, u, local) or cam
+        if living and ps.scene.action in ("lr_goodbye", "lr_knock"):
+            cam = self._door_camera(shot, u, ps.scene.action == "lr_goodbye")
         shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
         if shake > 0.01:
             amp = shake * 0.35 * max(1.0, ps.scale)
@@ -1035,6 +1054,10 @@ class Director:
                     if (t * 3.1) % 4.0 < 0.12:
                         flicker = 0.15  # the lights cut out for a moment
             extras["point_light"] = (lamp, (1.0 * flicker, 0.72 * flicker, 0.4 * flicker), radius)
+            if living:  # the TV throws cold flickering light across the room
+                tv = 0.75 + 0.25 * math.sin(t * 13.0) * math.sin(t * 3.7 + 1.0)
+                extras["point_light2"] = (livingroom.world(livingroom.TV_LOCAL + np.array([0.6, 0.0, 0.0])),
+                                          (0.45 * tv, 0.62 * tv, 0.95 * tv), 7.5)
         return cam, mood, draws, flash, extent, extras
 
     def _assign_labels(self, actor: Actor, scene: Scene, board: Storyboard) -> None:
@@ -1075,13 +1098,31 @@ class Director:
         return out
 
     @staticmethod
+    def _door_camera(shot: str, u: float, goodbye: bool = False):
+        """Looking from the room towards the front door, the kids in the foreground."""
+        e = u * u * (3 - 2 * u)
+        door = livingroom.world((-2.9, 1.45, 3.4))
+        if goodbye:  # behind the boys, mom at the door facing us
+            mom_head = livingroom.world((-2.7, 2.05, 2.9))
+            eye = livingroom.world((-0.2 - 0.3 * e, 2.05, -1.4 + 0.4 * e))
+            return Camera(tuple(eye), tuple(mom_head), 34 if shot in ("closeup", "dolly_in") else 50)
+        if shot in ("closeup", "dolly_in"):  # from beside the TV, tight on the door
+            eye = livingroom.world((-4.2, 1.85, 0.0 + 0.5 * e))
+            return Camera(tuple(eye), tuple(door + np.array([0.3, 0.0, 0.0])), 46)
+        eye = livingroom.world((-4.55, 2.3, -3.5 + 0.4 * e))  # wide: the door and the boys staring at it
+        return Camera(tuple(eye), tuple(livingroom.world((-1.95, 1.3, 1.9))), 66)
+
+    @staticmethod
     def _stairs_camera(shot: str, u: float, local: float):
         """Fixed compositions for the thing on the stairs: wide from the couch, or close on its face."""
         head = livingroom.world(livingroom.LANDING_LOCAL + np.array([0.0, 2.35, 0.0]))
         e = u * u * (3 - 2 * u)
-        if shot in ("closeup", "crane_up"):
-            eye = head + np.array([0.35 - 0.1 * e, -0.35, 2.4 - 0.9 * e])
-            return Camera(tuple(eye), tuple(head + np.array([0.0, -0.1, 0.0])), 50)
+        if shot == "closeup":  # her face, slowly pushing in
+            eye = head + np.array([0.45 - 0.1 * e, -0.45, 3.4 - 0.8 * e])
+            return Camera(tuple(eye), tuple(head + np.array([0.0, -0.35, 0.0])), 50)
+        if shot == "crane_up":  # from the foot of the stairs, looking up at her
+            eye = livingroom.world((-2.2 + 0.4 * e, 0.7, -1.6))
+            return Camera(tuple(eye), tuple(head + np.array([0.0, -0.7, 0.0])), 58)
         eye = livingroom.world((2.3 - 0.5 * e, 1.25, 2.9 - 0.7 * e))
         return Camera(tuple(eye), tuple(head + np.array([0.0, -0.9, 0.0])), 62)
 

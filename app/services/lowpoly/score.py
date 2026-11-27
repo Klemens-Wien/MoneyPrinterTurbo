@@ -244,8 +244,99 @@ def sections_for(scenes) -> list[Section]:
     return out
 
 
-def write_score(path: str, duration: float, scenes, impacts: list[float], seed: int = 0) -> str:
-    audio = Score(duration, sections_for(scenes), impacts, seed).render()
+class HorrorScore(Score):
+    """Creepy score: dissonant drone, detuned music box lullaby, glassy tones, heartbeat bass,
+    string-cluster swells, and a silence-then-hit on every scare."""
+
+    LULLABY = [69, 72, 76, 74, 72, 71, 69, 64, 69, 72, 76, 77, 76, 74, 72, 71]  # A minor, slow
+
+    def _fft_band(self, x, lo, hi):
+        spec = np.fft.rfft(x)
+        f = np.fft.rfftfreq(len(x), 1.0 / SR)
+        g = 1.0 / (1.0 + (lo / np.maximum(f, 1e-3)) ** 4) / (1.0 + (f / hi) ** 4)
+        return np.fft.irfft(spec * g, n=len(x))
+
+    def render(self) -> np.ndarray:
+        n = self.n
+        t = np.arange(n) / SR
+        energy = np.interp(t, self._grid, self._energy)
+        buf = np.zeros((n, 2))
+        # 1) dissonant low drone (A1 + Bb1), slowly breathing
+        drone = np.zeros(n)
+        for f0, det in ((55.0, 0.0), (58.27, 0.0), (55.0, 0.004), (82.4, -0.003)):
+            drone += np.sign(np.sin(2 * np.pi * f0 * (1 + det) * t)) * 0.25
+        drone = self._fft_band(drone, 30, 380)
+        drone *= (0.55 + 0.45 * np.sin(2 * np.pi * 0.07 * t) ** 2) * (0.10 + 0.10 * energy)
+        buf += np.stack([drone, np.roll(drone, 300)], axis=1)
+        # 2) detuned music box lullaby in the quiet parts
+        step = 0.62
+        k = 0
+        while k * step < self.duration:
+            tt = k * step
+            e = self.energy(tt)
+            if e < 0.5:
+                note = self.LULLABY[k % len(self.LULLABY)]
+                f = midi_hz(note) * 2 ** (self.rng.uniform(-18, 18) / 1200)
+                m = int(1.6 * SR)
+                x = np.arange(m) / SR
+                sig = sum(np.sin(2 * np.pi * f * r * x) * a * np.exp(-x * d)
+                          for r, a, d in ((1.0, 1.0, 2.5), (2.76, 0.45, 5.0), (5.4, 0.2, 9.0)))
+                _add(buf, tt, sig * 0.05 * (1 - e * 1.6), pan=float(self.rng.uniform(-0.5, 0.5)))
+            k += 1
+        # 3) glassy beating tones now and then
+        tt = 1.5
+        while tt < self.duration:
+            f = float(self.rng.choice([1318.5, 1567.98, 1975.5]))
+            m = int(5.0 * SR)
+            x = np.arange(m) / SR
+            env = np.minimum(x / 2.0, 1.0) * np.exp(-np.maximum(x - 2.0, 0) * 0.8)
+            sig = (np.sin(2 * np.pi * f * x) + np.sin(2 * np.pi * (f + 6.5) * x)) * env
+            _add(buf, tt, sig * 0.014, pan=float(self.rng.uniform(-0.8, 0.8)))
+            tt += float(self.rng.uniform(5.0, 8.0))
+        # 4) heartbeat sub pulse when tension rises
+        tt = 0.0
+        while tt < self.duration:
+            e = self.energy(tt)
+            if e > 0.33:
+                m = int(0.55 * SR)
+                x = np.arange(m) / SR
+                beat = lambda d: np.sin(2 * np.pi * 48 * np.maximum(x - d, 0)) * np.exp(-np.maximum(x - d, 0) * 16) * (x >= d)  # noqa: E731
+                _add(buf, tt, (beat(0.0) + 0.75 * beat(0.2)) * 0.35 * min(1.0, (e - 0.25) * 2))
+                tt += 1.0 - 0.45 * e
+            else:
+                tt += 0.5
+        # 5) dissonant string-cluster swells in the intense parts
+        cluster = np.zeros(n)
+        for note in (57, 58, 64, 65, 70):
+            f = midi_hz(note)
+            cluster += np.sign(np.sin(2 * np.pi * f * t + note)) * 0.2
+        cluster = self._fft_band(cluster, 180, 2600)
+        cluster *= np.clip((energy - 0.5) * 2.2, 0, 1) * (0.6 + 0.4 * np.sin(2 * np.pi * 0.11 * t))
+        buf += np.stack([cluster, np.roll(cluster, 500)], axis=1) * 0.05
+        # 6) silence before each scare, then a hit + high shriek
+        gate = np.ones(n)
+        for hit in self.impacts:
+            a, b = int((hit - 0.7) * SR), int(hit * SR)
+            if 0 <= a < b <= n:
+                gate[a:b] = np.linspace(1.0, 0.08, b - a)
+            c = min(n, b + int(0.25 * SR))
+            if b < c:
+                gate[b:c] = np.linspace(0.08, 1.0, c - b)
+        buf *= gate[:, None]
+        for hit in self.impacts:
+            self._braam(buf, hit)
+            m = int(1.4 * SR)
+            x = np.arange(m) / SR
+            shriek = sum(np.sin(2 * np.pi * f * x + 3 * np.sin(2 * np.pi * 7 * x)) for f in (1760, 1864.7, 2093))
+            _add(buf, hit, shriek * np.exp(-x * 3.0) * 0.02)
+        buf = np.tanh(buf * 1.3) / np.tanh(1.3)
+        peak = np.max(np.abs(buf)) + 1e-9
+        return (buf / peak * 0.9).astype(np.float32)
+
+
+def write_score(path: str, duration: float, scenes, impacts: list[float], seed: int = 0, style: str = "") -> str:
+    cls = HorrorScore if style == "horror" else Score
+    audio = cls(duration, sections_for(scenes), impacts, seed).render()
     pcm = (np.clip(audio, -1, 1) * 32767).astype(np.int16)
     with wave.open(path, "wb") as wf:
         wf.setnchannels(2)

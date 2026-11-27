@@ -157,13 +157,37 @@ def _silent_clip(text: str, rate_pct: int, out_wav: str, language: str) -> Clip:
     return Clip(out_wav, duration, estimate_words(text, 0.1, duration - 0.25))
 
 
+VOICE_FX = {
+    # the thing that imitates mom: echo, a slight wobble and a muffled top end
+    "eerie": "aecho=0.8:0.75:70|140:0.35|0.22,vibrato=f=4.5:d=0.12,lowpass=f=4200",
+    # a voice coming through a phone speaker
+    "phone": "highpass=f=350,lowpass=f=3200,acompressor",
+}
+
+
+def _apply_fx(path: str, fx: str) -> None:
+    chain = VOICE_FX.get(fx)
+    if not chain:
+        return
+    tmp = path[:-4] + ".fx.wav"
+    os.replace(path, tmp)
+    subprocess.run([_ffmpeg(), "-y", "-loglevel", "error", "-i", tmp, "-af", chain, "-ac", "1", "-ar", str(SAMPLE_RATE), path],
+                   check=True)
+    os.remove(tmp)
+
+
 def _synthesize_once(texts: list[str], out_dir: str, backend: str, voice: str, language: str, rate_pct: int,
-                     pitch: str = "+0Hz") -> list[Clip]:
+                     pitch: str = "+0Hz", specs: list[dict] | None = None) -> list[Clip]:
     clips = []
     for i, text in enumerate(texts):
         path = os.path.join(out_dir, f"voice_{i:02d}.wav")
+        spec = (specs[i] if specs and i < len(specs) else None) or {}
         if backend == "edge":
-            clip = _edge_clip(text, voice, rate_pct, path, pitch)
+            clip = _edge_clip(text, spec.get("voice") or voice, int(np.clip(rate_pct + int(spec.get("rate", 0)), -50, 60)),
+                              path, spec.get("pitch") or pitch)
+            if spec.get("fx"):
+                _apply_fx(path, spec["fx"])
+                clip.duration = wav_duration(path)
             if not clip.words:
                 lead, trail = _trim_silence(path)
                 clip.words = estimate_words(text, lead, clip.duration - trail)
@@ -194,6 +218,7 @@ def synthesize(
     target_range: tuple[float, float] = (75.0, 95.0),
     gap: float = 0.18,
     pitch: str = "+0Hz",
+    specs: list[dict] | None = None,
 ) -> tuple[list[Clip], str]:
     """Synthesize one clip per scene; re-time the speech so the total fits the target range."""
     os.makedirs(out_dir, exist_ok=True)
@@ -201,7 +226,7 @@ def synthesize(
     last_error: Exception | None = None
     for name in _resolve_backend(backend, voice):
         try:
-            clips = _synthesize_once(texts, out_dir, name, voice, language, rate_pct, pitch)
+            clips = _synthesize_once(texts, out_dir, name, voice, language, rate_pct, pitch, specs)
         except Exception as exc:
             last_error = exc
             logger.warning(f"TTS backend '{name}' failed: {exc}")
@@ -214,7 +239,7 @@ def synthesize(
             new_rate = int(np.clip(rate_pct + (total / ideal - 1) * 100, -30, 40))
             if new_rate != rate_pct and name != "silent":
                 logger.info(f"narration {total:.1f}s -> re-synthesizing at rate {new_rate:+d}%")
-                clips = _synthesize_once(texts, out_dir, name, voice, language, new_rate, pitch)
+                clips = _synthesize_once(texts, out_dir, name, voice, language, new_rate, pitch, specs)
                 total = sum(c.duration for c in clips) + gap * len(clips)
         if total > hi:
             tempo = min(total / (hi - 1.0), 1.35)

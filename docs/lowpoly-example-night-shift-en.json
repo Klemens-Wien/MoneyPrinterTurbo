@@ -1,0 +1,235 @@
+{
+  "title": "Mom Works Night Shifts. So Who Is Calling Us From Upstairs?",
+  "language": "en",
+  "description": "Mom said: if anyone calls you from upstairs, it's not me. At 2 AM, someone did. Then she texted… 👇",
+  "hashtags": [
+    "Shorts",
+    "horrorstory",
+    "scary",
+    "creepy",
+    "story",
+    "animation"
+  ],
+  "question": {
+    "text": "What do we do?",
+    "a": "Open the door",
+    "b": "Go upstairs"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "pitch": "+10Hz",
+      "color": "#ffffff"
+    },
+    "max": {
+      "voice": "en-US-RogerNeural",
+      "pitch": "+16Hz",
+      "rate": 4,
+      "color": "#9dff8a"
+    },
+    "mom": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+0Hz",
+      "rate": -4,
+      "color": "#7fe3ff"
+    },
+    "fake": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "-7Hz",
+      "rate": -20,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    }
+  },
+  "music_style": "horror",
+  "label_style": "speech",
+  "duration": [
+    62,
+    82
+  ],
+  "chat_name": "Mom",
+  "scenes": [
+    {
+      "narration": "Boys? Can you come upstairs for a second?",
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "speaker": "fake",
+      "say": "BOYS? COME UPSTAIRS."
+    },
+    {
+      "narration": "My mom works night shifts at the hospital. So at two in the morning, that could *not* be her.",
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "partner": "max"
+    },
+    {
+      "narration": "I'm working all night. If anyone calls you from upstairs, it is not me. Don't answer. Don't go up.",
+      "setting": "livingroom",
+      "action": "lr_goodbye",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "speaker": "mom",
+      "say": "IT'S NOT ME. DON'T GO UP.",
+      "card": "6 hours earlier"
+    },
+    {
+      "narration": "My best friend Max was sleeping over. He laughed. I didn't. My mom never jokes.",
+      "setting": "livingroom",
+      "action": "lr_couch",
+      "shot": "player_cam",
+      "mood": "indoor_lr",
+      "partner": "max"
+    },
+    {
+      "narration": "At midnight, I texted her. Like always.",
+      "setting": "livingroom",
+      "action": "lr_phone",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "chat": [
+        [
+          "me",
+          "can we stay up late?"
+        ],
+        [
+          "them",
+          "bed by 1. love you"
+        ]
+      ]
+    },
+    {
+      "narration": "At two, we heard footsteps. Upstairs. Slow. Heavy.",
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "dolly_in",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "card": "2:00 AM"
+    },
+    {
+      "narration": "Boys? I came home early. Come up here, please.",
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "speaker": "fake",
+      "say": "BOYS? COME HERE."
+    },
+    {
+      "narration": "Dude. That is literally your mom's voice.",
+      "setting": "livingroom",
+      "action": "lr_couch",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "speaker": "max"
+    },
+    {
+      "narration": "I grabbed my phone.",
+      "setting": "livingroom",
+      "action": "lr_phone",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "chat": [
+        [
+          "me",
+          "mom are you home??"
+        ],
+        [
+          "them",
+          "no I'm at work. why?"
+        ],
+        [
+          "me",
+          "someone is upstairs using your voice"
+        ],
+        [
+          "them",
+          "DO NOT ANSWER. stay downstairs. I'm coming"
+        ]
+      ]
+    },
+    {
+      "narration": "Max, sweetie? Your mom is up here. She wants to talk to you.",
+      "setting": "livingroom",
+      "action": "lr_hold",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "speaker": "fake",
+      "say": "MAX, SWEETIE?"
+    },
+    {
+      "narration": "Wait. How does it know my *name*?",
+      "setting": "livingroom",
+      "action": "lr_hold",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "speaker": "max"
+    },
+    {
+      "narration": "Ten minutes later, my phone buzzed again.",
+      "setting": "livingroom",
+      "action": "lr_phone",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "chat": [
+        [
+          "them",
+          "I'm outside. open the door"
+        ]
+      ]
+    },
+    {
+      "narration": "Then someone knocked on the front door. Three times.",
+      "setting": "livingroom",
+      "action": "lr_knock",
+      "shot": "low_angle",
+      "mood": "indoor_lr",
+      "partner": "max"
+    },
+    {
+      "narration": "Don't open it, boys! That's *not* me!",
+      "setting": "livingroom",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "speaker": "fake",
+      "say": "DON'T OPEN IT! THAT'S NOT ME!"
+    },
+    {
+      "narration": "And then one last message came in. From my mom.",
+      "setting": "livingroom",
+      "action": "lr_phone",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "chat": [
+        [
+          "them",
+          "still at the hospital. who are you talking to??"
+        ]
+      ]
+    },
+    {
+      "narration": "Something is knocking at the door. Something is waiting upstairs. Do we open the door, or go upstairs? Tell me.",
+      "setting": "livingroom",
+      "action": "lr_knock",
+      "shot": "medium",
+      "mood": "indoor_lr",
+      "partner": "max"
+    }
+  ]
+}
