@@ -867,6 +867,8 @@ class Director:
             self._assign_labels(actor, scene, storyboard)
             planned = PlannedScene(scene, t, t + dur, actor, yaw, cam_scale, prev_mood, target, flashes)
             planned.shots = plan_subshots(scene.shot, yaw, dur, actor, rng, fast_cuts)
+            if scene.action == "faceoff":  # only the low angle keeps the giant and the narrator in one frame
+                planned.shots = [(s0, "low_angle", y0 * 0.25 + yaw * 0.75) for s0, _, y0 in planned.shots]
             self.scenes.append(planned)
             prev_mood = target
             t += dur
@@ -1023,7 +1025,7 @@ class Director:
         )
         if shot == "pov":
             cam = self._pov_camera(ps, local, u) or cam
-        if living and ps.scene.action in ("lr_upstairs", "lr_hold", "lr_two") and shot not in ("medium", "pov"):
+        if living and ps.scene.action in ("lr_upstairs", "lr_hold", "lr_two") and shot != "pov":
             cam = self._stairs_camera(shot, u, local) or cam
         if living and shot == "pov" and ps.scene.pov_of:  # through the eyes of the thing on the stairs
             hero_parts = self.library.figure("hero")
@@ -1154,7 +1156,8 @@ class Director:
         fixed = 0
         for ps in self.scenes:
             for i, (st, shot, yaw) in enumerate(list(ps.shots)):
-                if shot in ("pov", "medium_low"):
+                if shot in ("pov", "medium_low") or ps.scene.action == "faceoff" or ps.scene.action in LR_ACTIONS:
+                    # composed on purpose (fixed living-room cameras, POV, the giant face-off)
                     continue
                 end = ps.shots[i + 1][0] if i + 1 < len(ps.shots) else ps.duration
 
@@ -1224,9 +1227,9 @@ class Director:
         if shot == "closeup":  # her face, slowly pushing in
             eye = head + np.array([0.45 - 0.1 * e, -0.45, 3.4 - 0.8 * e])
             return Camera(tuple(eye), tuple(head + np.array([0.0, -0.35, 0.0])), 50)
-        if shot == "crane_up":  # from the foot of the stairs, looking up at her
-            eye = livingroom.world((-2.2 + 0.4 * e, 0.7, -1.6))
-            return Camera(tuple(eye), tuple(head + np.array([0.0, -0.7, 0.0])), 58)
+        if shot in ("crane_up", "dolly_in"):  # half-close: her whole body on the stairs, pushing in
+            eye = head + np.array([0.9 - 0.2 * e, -0.9, 5.0 - 1.2 * e])
+            return Camera(tuple(eye), tuple(head + np.array([0.0, -0.8, 0.0])), 52)
         eye = livingroom.world((2.3 - 0.5 * e, 1.25, 2.9 - 0.7 * e))
         return Camera(tuple(eye), tuple(head + np.array([0.0, -0.9, 0.0])), 62)
 
