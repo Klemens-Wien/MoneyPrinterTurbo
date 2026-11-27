@@ -308,6 +308,13 @@ FINN_COLORS = {  # the new kid: red hair, teal hoodie
     "cap": False,
 }
 
+HERO_VARIANTS = {
+    "babysitter": {"skin": hex_color("#f1c27d"), "shirt": hex_color("#7a5cd6"), "pants": hex_color("#2b2f45"),
+                   "hair": hex_color("#6a3a1e"), "cap": False},
+    "rich_kid": {"skin": hex_color("#ffdbac"), "shirt": hex_color("#fbfaf4"), "pants": hex_color("#c99a1e"),
+                 "hair": hex_color("#e8d27a"), "cap": False},
+}
+
 MAX_COLORS = {  # the narrator's best friend: green hoodie, dark curly hair
     "skin": hex_color("#c68642"),
     "shirt": hex_color("#4caf50"),

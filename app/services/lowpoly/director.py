@@ -662,7 +662,8 @@ def _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene):
     return Group([watcher, k], 0, look=k, look_ratio=0.5), 0.6
 
 
-LR_ACTIONS = {"lr_goodbye", "lr_couch", "lr_upstairs", "lr_hold", "lr_phone", "lr_door", "lr_two", "lr_knock"}
+LR_ACTIONS = {"lr_goodbye", "lr_couch", "lr_upstairs", "lr_hold", "lr_phone", "lr_door", "lr_two", "lr_knock",
+              "lr_twins"}
 
 
 def _livingroom_scene(action, duration, lib, rng, hero, scene):
@@ -735,6 +736,14 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
                          face_target=landing)
         members = [hero_fig, sis, fake_mom(say)] + members
         look, focus = members[2], 0
+    elif action == "lr_twins":  # two identical moms side by side: spot the fake
+        left, right = w((-1.2, 0.0, -1.2)), w((0.6, 0.0, -1.2))
+        fake_left = rng.random() < 0.5
+        real = Figure(lib.figure("mom"), right if fake_left else left, anim="idle", heading=0.0, phase=0.7)
+        fake = Figure(lib.figure("mom_fake"), left if fake_left else right, anim="doll", heading=0.0, phase=1.9,
+                      tint=(1.45, 1.42, 1.5))
+        members = [real, fake, Marker(w((-0.3, 1.9, -1.2)))] + members
+        look, focus = None, 2
     elif action == "lr_knock":  # someone knocks at the closed front door; the kids stare at it
         door = w((-3.0, 0.0, 3.6))
         hero_fig = Figure(hero, middle.copy(), anim="idle", face_target=door)
@@ -838,6 +847,7 @@ class Director:
         self.seed = seed
         self.library = ActorLibrary(seed)
         self.library.monster_variant = getattr(storyboard, "monster", "grey") or "grey"
+        self.library.hero_variant = getattr(storyboard, "hero", "") or ""
         rng = np.random.default_rng(seed + 99)
         self.scenes: list[PlannedScene] = []
         t = 0.0
@@ -1013,6 +1023,8 @@ class Director:
             cam = self._pov_camera(ps, local, u) or cam
         if living and ps.scene.action in ("lr_upstairs", "lr_hold", "lr_two") and shot != "medium":
             cam = self._stairs_camera(shot, u, local) or cam
+        if living and ps.scene.action == "lr_twins":
+            cam = self._twins_camera(shot, u)
         if living and ps.scene.action in ("lr_goodbye", "lr_knock"):
             cam = self._door_camera(shot, u, ps.scene.action == "lr_goodbye")
         shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
@@ -1022,8 +1034,9 @@ class Director:
             cam.eye = tuple(np.asarray(cam.eye) + jitter)
             cam.target = tuple(np.asarray(cam.target) + jitter * 0.6)
         draws = self.static_draws(t) + ps.actor.draws(local)
-        if shot == "pov":  # we are looking through the narrator's eyes: hide their body
-            draws = [d for d in draws if not d.key.startswith("fig_hero_")]
+        if shot == "pov":  # we are looking through someone's eyes: hide their body
+            hide = f"fig_{ps.scene.pov_of}_" if ps.scene.pov_of else "fig_hero_"
+            draws = [d for d in draws if not d.key.startswith(hide)]
         flash = flash_value(ps.flashes, t)
         members = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
         for m in members:
@@ -1032,7 +1045,13 @@ class Director:
         dist = float(np.linalg.norm(np.asarray(cam.eye) - np.asarray(cam.target)))
         extent = float(np.clip(dist * 0.9 + 14, 22, 320))
         extras: dict = {"lights_out": self._lights_out(ps, local), "labels": self._figure_labels(ps, local)}
-        if shot == "pov":  # what "you" say can't float above your own head: show it at the bottom
+        if ps.scene.reveal:  # where the answer is (for the circle overlay)
+            parts = self.library.figure(ps.scene.reveal)
+            mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+            tgt = next((m for m in mem if isinstance(m, Figure) and m.parts == parts), None)
+            if tgt is not None:
+                extras["reveal"] = tgt.focus(local) + np.array([0.0, 0.35 * tgt.size, 0.0])
+        if shot == "pov" and not ps.scene.pov_of:  # what "you" say can't float above your own head
             hero_parts = self.library.figure("hero")
             mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
             me = next((m for m in mem if isinstance(m, Figure) and m.parts == hero_parts), None)
@@ -1097,6 +1116,62 @@ class Director:
                     out.append((m.focus(local) + np.array([0.0, 1.55 * m.size, 0.0]), text, m.label_style))
         return out
 
+    # ------------------------------------------------------------------ #
+    # automatic shot QA: no black frames, no camera stuck inside a figure or wall
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def frame_penalty(img: np.ndarray) -> float:
+        a = img.astype(np.float32)
+        lum = float(a.mean()) / 255.0
+        g = a.mean(axis=2)
+        grad = np.abs(np.diff(g, axis=1))[:-1, :] + np.abs(np.diff(g, axis=0))[:, :-1]
+        # a big smooth bright area = the camera is inside / right against a head, shoulder or wall
+        blob = float(((grad < 1.5) & (a.max(axis=2)[:-1, :-1] > 110)).mean())
+        return max(0.0, 0.035 - lum) * 25.0 + max(0.0, blob - 0.56) * 4.0
+
+    def qa_fix(self, render, log=None) -> int:
+        """render(t) -> RGB frame. Replaces failing sub-shots; returns the number of shots fixed."""
+        candidates = ("medium", "player_cam", "low_angle", "dolly_in", "closeup", "crane_up", "aerial_orbit",
+                      "side_track", "pull_back", "top_down")
+        fixed = 0
+        for ps in self.scenes:
+            for i, (st, shot, yaw) in enumerate(list(ps.shots)):
+                if shot in ("pov", "medium_low"):
+                    continue
+                end = ps.shots[i + 1][0] if i + 1 < len(ps.shots) else ps.duration
+
+                def score(sh, yw):
+                    ps.shots[i] = (st, sh, yw)
+                    self._cursor = 0
+                    return max(self.frame_penalty(render(ps.start + st + (end - st) * f)) for f in (0.15, 0.55, 0.92))
+
+                best = (score(shot, yaw), shot, yaw)
+                if best[0] <= 0:
+                    continue
+                for k, alt in enumerate(c for c in candidates if c != shot):
+                    for dy in (0.0, 0.9, -0.9):
+                        p = score(alt, yaw + dy)
+                        if p < best[0]:
+                            best = (p, alt, yaw + dy)
+                        if p <= 0:
+                            break
+                    if best[0] <= 0:
+                        break
+                ps.shots[i] = (st, best[1], best[2])
+                fixed += 1
+                if log:
+                    log(f"QA: scene '{ps.scene.action}' shot {i}: {shot} -> {best[1]} (penalty {best[0]:.2f})")
+        self._cursor = 0
+        return fixed
+
+    @staticmethod
+    def _twins_camera(shot: str, u: float):
+        e = u * u * (3 - 2 * u)
+        tgt = livingroom.world((-0.3, 1.75, -1.2))
+        if shot in ("closeup", "dolly_in"):
+            return Camera(tuple(livingroom.world((-0.3, 1.9, 2.2 - 0.6 * e))), tuple(tgt), 46)
+        return Camera(tuple(livingroom.world((-0.3 + 0.2 * math.sin(u * 3), 1.8, 3.3 - 0.4 * e))), tuple(tgt), 52)
+
     @staticmethod
     def _door_camera(shot: str, u: float, goodbye: bool = False):
         """Looking from the room towards the front door, the kids in the foreground."""
@@ -1127,7 +1202,7 @@ class Director:
         return Camera(tuple(eye), tuple(head + np.array([0.0, -0.9, 0.0])), 62)
 
     def _pov_camera(self, ps: PlannedScene, local: float, u: float):
-        hero_parts = self.library.figure("hero")
+        hero_parts = self.library.figure(ps.scene.pov_of or "hero")
         members = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
         hero = next((m for m in members if isinstance(m, Figure) and m.parts == hero_parts), None)
         if hero is None:

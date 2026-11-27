@@ -27,6 +27,7 @@ class ActorLibrary:
         self.meshes: dict[str, np.ndarray] = {}
         self.materials: dict[str, int] = {"monster_eyes": 3}
         self.monster_variant = "grey"
+        self.hero_variant = ""  # e.g. "babysitter": the narrator figure looks different in this story
 
     def _store(self, key: str, builder: MeshBuilder) -> str:
         if key not in self.meshes:
@@ -39,7 +40,7 @@ class ActorLibrary:
         if all(k in self.meshes for k in keys):
             return {p: k for k, p in keys.items()}
         if variant == "hero":
-            colors = props.HERO_COLORS
+            colors = props.HERO_VARIANTS.get(self.hero_variant, props.HERO_COLORS)
         elif variant == "sister":
             colors = props.SISTER_COLORS
         elif variant == "doll":
@@ -48,6 +49,8 @@ class ActorLibrary:
             colors = props.FINN_COLORS
         elif variant == "max":
             colors = props.MAX_COLORS
+        elif variant in props.HERO_VARIANTS:
+            colors = props.HERO_VARIANTS[variant]
         elif variant in ("mom", "mom_fake"):
             parts = props.figure_parts(props.MOM_COLORS if variant == "mom" else props.MOM_FAKE_COLORS)
             parts["head"].box((0, 0.2, -0.36), (0.86, 0.95, 0.16), (props.MOM_COLORS if variant == "mom" else props.MOM_FAKE_COLORS)["hair"])

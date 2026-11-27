@@ -41,6 +41,7 @@ ACTIONS = {
     "lr_hold": "(living room) the little sister walks towards the stairs, the narrator grabs her",
     "lr_phone": "(living room) a text message arrives on the phone (phone = the message)",
     "lr_door": "(living room) the front door opens and mom walks in (say = her words)",
+    "lr_twins": "(living room) two identical moms stand side by side, one of them is fake",
     "lr_knock": "(living room) someone knocks on the closed front door, the kids stare at it",
     "lr_two": "(living room) mom at the door (say) and the voice upstairs (reply) at the same time",
     "speak_freeze": "the narrator says a word and the person in front of them turns to stone",
@@ -116,6 +117,10 @@ class Scene:
     phone: str = ""  # text message shown on a phone ("MOM: I'm still in the car")
     chat: list = field(default_factory=list)  # phone chat thread: [["me"|"them", "text"], ...] revealed one by one
     speaker: str = ""  # who speaks this line (key into the story's "voices"); default: the narrator
+    pov_of: str = ""  # POV shots through the eyes of this figure variant (e.g. "mom_fake") instead of the narrator
+    note: list = field(default_factory=list)  # lines on a paper note, revealed one by one
+    countdown: int = 0  # big countdown (seconds) during this scene, e.g. "spot the fake in 10 seconds"
+    reveal: str = ""  # figure variant to circle at the end of the scene (the answer)
     variant: str = ""  # monster variant for this scene (grey, lava, ice, shadow, swamp)
     rank: dict | None = None  # ranking card: {"n": 3, "name": "...", "stats": {"SPEED": 7, ...}}
 
@@ -141,7 +146,9 @@ class Storyboard:
     label_style: str = ""  # "speech" renders labels as speech bubbles
     wheel_compact: bool = False  # small wheel at the top so the hero stays visible underneath
     voices: dict = field(default_factory=dict)  # {"speaker": {"voice", "pitch", "rate", "fx", "color"}}
-    music_style: str = ""  # "horror" for the creepy score
+    music_style: str = ""  # "horror" | "mystery" | "epic" (default: generic score)
+    hero: str = ""  # alternative narrator figure, e.g. "babysitter" or "rich_kid"
+    note_title: str = ""
     chat_name: str = ""  # name shown at the top of the phone chat
     duration: list = field(default_factory=list)  # optional [min, max] seconds for this story
 
@@ -178,6 +185,8 @@ class Storyboard:
             wheel_compact=bool(data.get("wheel_compact", False)),
             voices={str(k): dict(v) for k, v in (data.get("voices") or {}).items() if isinstance(v, dict)},
             music_style=str(data.get("music_style") or "").strip(),
+            hero=str(data.get("hero") or "").strip(),
+            note_title=str(data.get("note_title") or "").strip()[:30],
             chat_name=str(data.get("chat_name") or "").strip()[:20],
             duration=[float(x) for x in data.get("duration", [])][:2] if isinstance(data.get("duration"), list) else [],
             pitch=str(data.get("pitch") or "").strip() if re.match(r"^[+-]\d{1,3}Hz$", str(data.get("pitch") or "").strip()) else "",
@@ -229,6 +238,10 @@ def normalize_scene(raw: dict) -> Scene:
         phone=str(raw.get("phone") or "").strip()[:120],
         chat=[[str(m[0]), str(m[1])[:90]] for m in raw.get("chat", []) if isinstance(m, (list, tuple)) and len(m) == 2][:6],
         speaker=str(raw.get("speaker") or "").strip()[:16],
+        pov_of=str(raw.get("pov_of") or "").strip()[:16],
+        note=[str(x)[:60] for x in raw.get("note", [])][:7],
+        countdown=int(raw.get("countdown") or 0),
+        reveal=str(raw.get("reveal") or "").strip()[:16],
         variant=str(raw.get("variant") or "").strip()[:12],
         rank=raw.get("rank") if isinstance(raw.get("rank"), dict) else None,
     )

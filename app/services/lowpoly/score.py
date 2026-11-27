@@ -228,7 +228,7 @@ ACTION_ENERGY = {
     "krampus_door": 0.4, "krampus_leave": 0.3,
     "freeze_one": 0.6, "speak_freeze": 0.7,
     "lr_goodbye": 0.25, "lr_couch": 0.2, "lr_upstairs": 0.4, "lr_hold": 0.5, "lr_phone": 0.45, "lr_door": 0.55,
-    "lr_two": 0.75, "new_kid": 0.5, "unfreeze": 0.55, "statues": 0.3,
+    "lr_two": 0.75, "lr_twins": 0.5, "lr_knock": 0.55, "new_kid": 0.5, "unfreeze": 0.55, "statues": 0.3,
 }
 
 

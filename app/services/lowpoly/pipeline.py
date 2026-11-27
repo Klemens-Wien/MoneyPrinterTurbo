@@ -189,7 +189,23 @@ def generate(opts: Options) -> dict:
         sfx=director.sfx,
     )
 
-    # 5. render
+    # 5. automatic shot QA on a small preview renderer
+    qa = Renderer(216, 384, samples=0, shadow_size=1024)
+    qa.register_mesh("static", world.static)
+    qa.register_mesh("water", world.water, material=1)
+    qa.register_mesh("clouds", world.clouds, material=2)
+    for key, verts in director.library.meshes.items():
+        qa.register_mesh(key, verts, material=director.library.materials.get(key, 0))
+
+    def _qa_render(tq):
+        cq, mq, dq, fq, eq, xq = director.frame(tq)
+        return qa.render(cq, mq, dq, tq, flash=fq, shadow_extent=eq, extras=xq)
+
+    fixed = director.qa_fix(_qa_render, log=logger.info)
+    qa.release()
+    logger.info(f"shot QA: {fixed} shot(s) replaced")
+
+    # 6. render
     renderer = Renderer(opts.width, opts.height, samples=opts.samples)
     renderer.register_mesh("static", world.static)
     renderer.register_mesh("water", world.water, material=1)
