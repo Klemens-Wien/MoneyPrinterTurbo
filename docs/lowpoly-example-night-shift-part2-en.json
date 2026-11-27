@@ -1,0 +1,197 @@
+{
+  "title": "Mom Works Night Shifts. Part 2: Now It Knows Max's Voice",
+  "language": "en",
+  "description": "Part 2. You said: don't open the door. So we didn't. Then the voice upstairs started sounding like Max… and Max was sitting right next to me. 😨",
+  "hashtags": [
+    "Shorts",
+    "part2",
+    "horrorstory",
+    "scary",
+    "creepy",
+    "dontanswer",
+    "animation"
+  ],
+  "question": {
+    "text": "What do I do?",
+    "a": "Run to the door",
+    "b": "Find the real Max"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "pitch": "+10Hz",
+      "color": "#ffffff"
+    },
+    "max": {
+      "voice": "en-US-RogerNeural",
+      "pitch": "+16Hz",
+      "rate": 4,
+      "color": "#9dff8a"
+    },
+    "mom": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+0Hz",
+      "rate": -4,
+      "color": "#7fe3ff"
+    },
+    "fake": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "-7Hz",
+      "rate": -20,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    },
+    "fakemax": {
+      "voice": "en-US-RogerNeural",
+      "pitch": "+12Hz",
+      "rate": -16,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    },
+    "maxfake": {
+      "voice": "en-US-RogerNeural",
+      "pitch": "+10Hz",
+      "rate": -10,
+      "color": "#9dff8a"
+    }
+  },
+  "music_style": "horror",
+  "label_style": "speech",
+  "duration": [
+    62,
+    82
+  ],
+  "chat_name": "Mom",
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Part two. Most of you said: don't open the door. So we didn't. That was a *mistake*.",
+      "action": "lr_knock",
+      "shot": "low_angle",
+      "card": "PART 2"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Mom works night shifts. Something upstairs has been using her voice all night.",
+      "action": "lr_upstairs",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Then the knocking stopped. And the footsteps upstairs stopped too.",
+      "action": "lr_couch",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "I texted mom.",
+      "action": "lr_phone",
+      "shot": "medium",
+      "chat": [
+        [
+          "me",
+          "it stopped talking"
+        ],
+        [
+          "them",
+          "that's worse"
+        ],
+        [
+          "them",
+          "it's learning a new voice. stay together"
+        ]
+      ]
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Dude. What does she mean, a new voice?",
+      "action": "lr_couch",
+      "shot": "closeup",
+      "speaker": "max"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Guys? I'm up here. Who's that on the couch with you?",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "speaker": "fakemax",
+      "say": "WHO'S ON THE COUCH?"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "That was *Max's* voice. But Max was sitting right next to me. Wasn't he?",
+      "action": "lr_couch",
+      "shot": "closeup"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max_fake",
+      "narration": "So I asked him something only Max would know. What did I give you for your birthday?",
+      "action": "lr_couch",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max_fake",
+      "narration": "A bike, right?",
+      "action": "lr_couch",
+      "shot": "closeup",
+      "speaker": "maxfake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max_fake",
+      "narration": "I never gave Max a bike. And then I saw his *eyes*.",
+      "action": "lr_couch",
+      "shot": "closeup"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Boys! It's me! Open the door! It's inside with you!",
+      "action": "lr_knock",
+      "shot": "closeup",
+      "speaker": "mom"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max_fake",
+      "narration": "My phone buzzed one last time.",
+      "action": "lr_phone",
+      "shot": "medium",
+      "chat": [
+        [
+          "them",
+          "I'm at the front door. OPEN IT NOW"
+        ]
+      ]
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max_fake",
+      "narration": "Mom at the door. Max's voice upstairs. And something on the couch next to me, wearing his face. Do I run to the door, or go find the real Max? Tell me.",
+      "action": "lr_knock",
+      "shot": "medium"
+    }
+  ]
+}
