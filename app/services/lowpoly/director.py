@@ -782,15 +782,23 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
     focus = 0
 
     def fake_mom(label=""):
-        f = Figure(lib.figure("mom_fake"), landing.copy(), heading=0.35, anim="doll", phase=1.0, tint=(2.3, 2.3, 2.6))
+        stair_thing = (scene.variant if scene is not None and scene.variant else "") or "mom_fake"
+        f = Figure(lib.figure(stair_thing), landing.copy(), heading=0.35, anim="doll", phase=1.0, tint=(2.3, 2.3, 2.6))
         if label:
             f.label, f.label_style, f.label_locked = label, "danger", True
         return f
 
     if action in ("lr_couch", "lr_phone"):
-        hero_fig = Figure(hero, w(couch + np.array([0.0, livingroom.SEAT - 0.95 + 0.05, 0.5])), anim="sit",
+        seat = livingroom.seat_height()
+
+        def on_couch(dz, size):
+            p_ = w(couch + np.array([0.0, 0.0, dz]))
+            p_[1] = seat - 0.95 * size + 0.05
+            return p_
+
+        hero_fig = Figure(hero, on_couch(0.5, 1.0), anim="sit",
                           heading=-math.pi / 2, look_turn=0.0 if action == "lr_couch" else 0.5)
-        sis = Figure(sister_parts, w(couch + np.array([0.0, livingroom.SEAT - 0.95 * psize + 0.05, -0.6])),
+        sis = Figure(sister_parts, on_couch(-0.6, psize),
                      anim="sit", heading=-math.pi / 2, size=psize, look_turn=-0.35)
         members = [hero_fig, sis] + members
         if action == "lr_couch" and say:

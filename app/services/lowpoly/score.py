@@ -473,7 +473,67 @@ class EpicScore(Score):
         return (buf / (np.max(np.abs(buf)) + 1e-9) * 0.9).astype(np.float32)
 
 
-STYLES = {"horror": HorrorScore, "mystery": MysteryScore, "epic": EpicScore}
+class DreadScore(HorrorScore):
+    """The creepiest score: the horror bed plus a sub-bass rumble that beats against itself, whispers
+    panning around the listener, metallic scrapes, creaking wood and reversed swells sucking into each scare."""
+
+    def render(self) -> np.ndarray:
+        base = super().render().astype(np.float64) * 0.75
+        n = len(base)
+        t = np.arange(n) / SR
+        energy = np.interp(t, self._grid, self._energy)
+        buf = np.zeros((n, 2))
+        # 1) beating sub rumble (felt more than heard)
+        sub = np.sin(2 * np.pi * 31.0 * t) + np.sin(2 * np.pi * 32.6 * t) + 0.4 * np.sin(2 * np.pi * 46.5 * t)
+        sub *= (0.05 + 0.13 * energy) * (0.7 + 0.3 * np.sin(2 * np.pi * 0.05 * t))
+        buf += np.stack([sub, sub], axis=1)
+        # 2) whispers: band-passed noise shaped like syllables, wandering in the stereo field
+        tt = 2.0
+        while tt < self.duration - 1.5:
+            m = int(float(self.rng.uniform(1.0, 2.0)) * SR)
+            x = np.arange(m) / SR
+            noise = self._fft_band(self.rng.standard_normal(m), 1400, 4200)
+            syll = np.clip(np.sin(2 * np.pi * float(self.rng.uniform(5.5, 8.5)) * x + float(self.rng.uniform(0, 6))), 0, 1) ** 2
+            env = np.sin(np.pi * x / x[-1]) ** 1.5
+            sig = noise * syll * env
+            sig /= np.max(np.abs(sig)) + 1e-9
+            pan = float(self.rng.uniform(-1, 1))
+            _add(buf, tt, sig * 0.05, pan=pan)
+            tt += float(self.rng.uniform(3.5, 6.5))
+        # 3) metallic scrapes
+        tt = 5.0
+        while tt < self.duration - 2:
+            m = int(1.8 * SR)
+            x = np.arange(m) / SR
+            f = float(self.rng.uniform(1800, 3200)) * (1 + 0.25 * x)
+            sig = np.sin(2 * np.pi * np.cumsum(f) / SR + 4 * np.sin(2 * np.pi * 37 * x)) * np.exp(-x * 1.6) * np.minimum(x / 0.3, 1)
+            _add(buf, tt, sig * 0.018, pan=float(self.rng.uniform(-0.7, 0.7)))
+            tt += float(self.rng.uniform(9, 15))
+        # 4) creaking wood (old house settling)
+        tt = 3.5
+        while tt < self.duration - 1:
+            m = int(0.9 * SR)
+            x = np.arange(m) / SR
+            f0 = float(self.rng.uniform(90, 140))
+            pulses = (np.sin(2 * np.pi * np.cumsum(f0 * (1 + 0.4 * x)) / SR) > 0.6).astype(float)
+            sig = self._fft_band(pulses * (0.6 + 0.4 * self.rng.random(m)), 150, 1500) * np.sin(np.pi * x / x[-1])
+            _add(buf, tt, sig * 0.05, pan=float(self.rng.uniform(-0.9, 0.9)))
+            tt += float(self.rng.uniform(6, 11))
+        # 5) reversed swell sucking into every scare
+        for hit in self.impacts:
+            m = int(1.6 * SR)
+            x = np.arange(m) / SR
+            chord = sum(np.sin(2 * np.pi * midi_hz(nn) * x) for nn in (45, 51, 56, 58)) * np.exp(-x * 2.2)
+            rev = chord[::-1] * 0.08
+            start = hit - 1.6
+            if start > 0:
+                _add(buf, start, rev)
+        out = base + buf
+        out = np.tanh(out * 1.2) / np.tanh(1.2)
+        return (out / (np.max(np.abs(out)) + 1e-9) * 0.9).astype(np.float32)
+
+
+STYLES = {"dread": DreadScore, "horror": HorrorScore, "mystery": MysteryScore, "epic": EpicScore}
 
 
 def write_score(path: str, duration: float, scenes, impacts: list[float], seed: int = 0, style: str = "") -> str:

@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import numpy as np
 
-from .mesh import MeshBuilder, hex_color, translate
+from .mesh import MeshBuilder, hex_color, scale, translate
 
 ROOM = np.array([-1500.0, 0.0, 0.0])
 HX, HZ, H = 5.0, 4.0, 3.0
+SXZ, SY = 1.4, 1.2  # the room is built in these local units and scaled up (a big, tall family room)
+SCALE = np.array([SXZ, SY, SXZ])
 
 COUCH_LOCAL = np.array([0.6, 0.0, 1.6])
 SEAT = 0.5
@@ -22,8 +24,8 @@ DOOR_W, DOOR_H = 1.2, 2.2
 LANDING_LOCAL = np.array([-0.4, 2.0, -3.3])  # halfway up the stairs, in the half-dark
 STAIR_FOOT_LOCAL = np.array([-2.6, 0.0, -2.0])
 
-BOUNDS_MIN = ROOM + np.array([-HX + 0.35, 0.35, -HZ + 0.4])
-BOUNDS_MAX = ROOM + np.array([HX - 0.35, H - 0.2, HZ - 0.35])
+BOUNDS_MIN = ROOM + np.array([-HX + 0.35, 0.35, -HZ + 0.4]) * SCALE
+BOUNDS_MAX = ROOM + np.array([HX - 0.35, H - 0.2, HZ - 0.35]) * SCALE
 
 WALL = hex_color("#5b5470")
 WALL2 = hex_color("#4c465f")
@@ -34,12 +36,17 @@ WINDOW = hex_color("#2c3e78")
 
 
 def world(local) -> np.ndarray:
-    return ROOM + np.asarray(local, dtype=np.float64)
+    return ROOM + np.asarray(local, dtype=np.float64) * SCALE
+
+
+def seat_height() -> float:
+    """World height of the couch seat top (figures sit on it unscaled)."""
+    return SEAT * SY
 
 
 def build_static() -> np.ndarray:
     mb = MeshBuilder()
-    with mb.transform(translate(*ROOM)):
+    with mb.transform(translate(*ROOM) @ scale(SXZ, SY, SXZ)):
         t = 0.2
         mb.box_min((-HX - t, -0.2, -HZ - t), (HX + t, 0.0, HZ + t), FLOOR)
         for z in np.arange(-HZ, HZ, 0.55):
@@ -105,19 +112,97 @@ def build_static() -> np.ndarray:
             mb.box((x, 1.9, -HZ + 0.08), (0.55, 0.4, 0.03), hex_color(c))
         mb.box((3.6, 0.9, 3.6), (1.2, 1.8, 0.5), WOOD)  # cupboard
         mb.box((3.6, 1.83, 3.6), (0.18, 0.06, 0.12), hex_color("#e8d27a"))
+        _details(mb)
     return mb.build()
+
+
+def _details(mb: MeshBuilder) -> None:
+    """Baseboards, wainscoting, bookshelf, curtains, plants, clock, coat rack, ceiling lamp, kitchen pass."""
+    trim = hex_color("#e8e2d0")
+    panel = hex_color("#4f4864")
+    # baseboards and a wainscot rail on every wall
+    mb.box_min((-HX, 0.0, -HZ), (HX, 0.12, -HZ + 0.03), trim)
+    mb.box_min((-HX, 0.0, -HZ), (-HX + 0.03, 0.12, HZ), trim)
+    mb.box_min((-HX, 0.0, HZ - 0.03), (-3.7, 0.12, HZ), trim)
+    mb.box_min((-2.3, 0.0, HZ - 0.03), (HX, 0.12, HZ), trim)
+    mb.box_min((HX - 0.03, 0.0, -HZ), (HX, 0.12, HZ), trim)
+    mb.box_min((-HX, 0.9, -HZ), (-HX + 0.04, 0.95, HZ), trim)
+    mb.box_min((-2.3, 0.9, HZ - 0.04), (HX, 0.95, HZ), trim)
+    for z in np.arange(-HZ + 0.4, HZ - 0.3, 0.9):  # wainscot panels on the TV wall
+        if 0.2 < z < 3.0:
+            continue
+        mb.box_min((-HX, 0.2, z), (-HX + 0.025, 0.8, z + 0.65), panel)
+    # bookshelf on the window wall
+    mb.box_min((HX - 0.45, 0.0, -2.3), (HX - 0.02, 2.3, -0.5), hex_color("#4a3222"))
+    book_cols = ["#c0392b", "#2e86c1", "#f1c40f", "#27ae60", "#8e44ad", "#e67e22", "#ecf0f1"]
+    for k, y in enumerate((0.35, 0.85, 1.35, 1.85)):
+        mb.box_min((HX - 0.44, y - 0.05, -2.28), (HX - 0.03, y, -0.52), hex_color("#5a3e2a"))
+        z = -2.25
+        i = k
+        while z < -0.6:
+            w = 0.08 + 0.05 * ((i * 7) % 3)
+            hgt = 0.3 + 0.05 * ((i * 5) % 3)
+            mb.box_min((HX - 0.38, y, z), (HX - 0.1, y + hgt, z + w), hex_color(book_cols[i % len(book_cols)]))
+            z += w + 0.015
+            i += 1
+    # curtains beside the window
+    for z0, z1 in ((-0.15, 0.25), (1.75, 2.15)):
+        mb.box_min((HX - 0.12, 0.6, z0), (HX - 0.04, 2.7, z1), hex_color("#7a2638"))
+    mb.box_min((HX - 0.1, 2.72, -0.3), (HX - 0.05, 2.78, 2.3), hex_color("#2a2a2a"))
+    # potted plants
+    for x, z in ((4.4, 2.6),):
+        mb.cylinder((x, 0.25, z), 0.28, 0.5, hex_color("#c46a3a"), segments=8)
+        mb.icosphere((x, 0.85, z), 0.45, hex_color("#3f8a4a"), squash=(1.0, 1.2, 1.0))
+        mb.icosphere((x + 0.15, 1.2, z - 0.1), 0.3, hex_color("#4fa35a"))
+    # wall clock above the TV (stopped at 2:00)
+    mb.cylinder((-HX + 0.04, 2.45, 1.6), 0.3, 0.05, trim, segments=12, axis="x")
+    mb.box((-HX + 0.08, 2.55, 1.6), (0.02, 0.2, 0.04), hex_color("#1a1a1a"))
+    mb.box((-HX + 0.08, 2.45, 1.68), (0.02, 0.04, 0.16), hex_color("#1a1a1a"))
+    # coat rack and shoes by the front door
+    mb.box((-4.4, 0.9, 3.7), (0.08, 1.8, 0.08), hex_color("#3a2a20"))
+    mb.box((-4.4, 1.75, 3.7), (0.5, 0.06, 0.06), hex_color("#3a2a20"))
+    mb.box((-4.25, 1.35, 3.68), (0.35, 0.7, 0.25), hex_color("#2f5a8a"))  # mom's coat
+    for x in (-4.6, -4.25):
+        mb.box((x, 0.06, 3.5), (0.2, 0.12, 0.38), hex_color("#2a2a33"))
+    # ceiling lamp (off) and a smoke detector with a red dot
+    mb.box((1.5, H - 0.25, 2.0), (0.04, 0.5, 0.04), hex_color("#2a2a2a"))
+    mb.cone((1.5, H - 0.6, 2.0), 0.4, 0.3, hex_color("#3a3a44"), segments=8)
+    mb.cylinder((-2.0, H - 0.03, 2.4), 0.12, 0.05, trim, segments=8)
+    mb.box((-2.0, H - 0.06, 2.48), (0.03, 0.02, 0.03), hex_color("#ff2020"))
+    # pass-through to a dark kitchen on the TV wall side of the front wall
+    mb.box_min((0.8, 1.0, HZ - 0.04), (2.4, 2.1, HZ), hex_color("#12101a"))
+    mb.box_min((0.75, 0.95, HZ - 0.3), (2.45, 1.0, HZ), trim)
+    # family photos on the front wall and a mirror by the stairs
+    for x, c in ((-1.4, "#ff8fa3"), (3.0, "#9be27a")):
+        mb.box((x, 1.85, HZ - 0.04), (0.6, 0.75, 0.04), trim)
+        mb.box((x, 1.85, HZ - 0.07), (0.46, 0.6, 0.02), hex_color(c))
+    mb.box((-4.95, 1.6, -3.2), (0.04, 1.2, 0.7), hex_color("#9fb8d8"))
+    mb.box((-4.97, 1.6, -3.2), (0.03, 1.3, 0.8), WOOD)
+    # cushions and a side table with a mug on the couch
+    cx, _, cz = COUCH_LOCAL
+    for dz, c in ((1.0, "#f2c94c"), (-1.0, "#eb5757")):
+        mb.box((cx + 0.2, 0.7, cz + dz), (0.2, 0.4, 0.4), hex_color(c))
+    mb.box((cx - 0.1, 0.3, cz + 1.9), (0.5, 0.6, 0.5), WOOD)
+    mb.cylinder((cx - 0.1, 0.68, cz + 1.9), 0.07, 0.16, hex_color("#f2f2f2"), segments=8)
+    # game controller and snacks on the coffee table
+    mb.box((-1.6, 0.53, cz + 0.3), (0.25, 0.06, 0.15), hex_color("#1f1f26"))
+    mb.box((-1.5, 0.56, cz - 0.4), (0.3, 0.12, 0.2), hex_color("#e74c3c"))
 
 
 def door_mesh() -> np.ndarray:
     mb = MeshBuilder()
-    mb.box((DOOR_W / 2, DOOR_H / 2, 0.0), (DOOR_W, DOOR_H, 0.07), hex_color("#7a3b2e"))
-    mb.box((DOOR_W - 0.15, 1.05, -0.07), (0.08, 0.08, 0.06), hex_color("#e8d27a"))
+    with mb.transform(scale(SXZ, SY, SXZ)):
+        mb.box((DOOR_W / 2, DOOR_H / 2, 0.0), (DOOR_W, DOOR_H, 0.07), hex_color("#7a3b2e"))
+        for py in (0.55, 1.55):  # raised panels
+            mb.box((DOOR_W / 2, py, -0.045), (DOOR_W * 0.7, 0.7, 0.03), hex_color("#6a3226"))
+        mb.box((DOOR_W - 0.15, 1.05, -0.07), (0.08, 0.08, 0.06), hex_color("#e8d27a"))
+        mb.box((DOOR_W / 2, 1.75, -0.06), (0.06, 0.06, 0.03), hex_color("#e8d27a"))  # peephole
     return mb.build()
 
 
 def tv_mesh() -> np.ndarray:
     mb = MeshBuilder()
-    mb.box((0.0, 0.0, 0.0), (0.04, 0.95, 1.75), hex_color("#9fd8ff"))
+    mb.box((0.0, 0.0, 0.0), (0.04, 0.95 * SY, 1.75 * SXZ), hex_color("#9fd8ff"))
     return mb.build()
 
 

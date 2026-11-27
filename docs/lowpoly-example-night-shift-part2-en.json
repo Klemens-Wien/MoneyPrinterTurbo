@@ -55,7 +55,7 @@
       "color": "#9dff8a"
     }
   },
-  "music_style": "horror",
+  "music_style": "dread",
   "label_style": "speech",
   "duration": [
     62,
@@ -127,7 +127,8 @@
       "action": "lr_upstairs",
       "shot": "closeup",
       "speaker": "fakemax",
-      "say": "WHO'S ON THE COUCH?"
+      "say": "WHO'S ON THE COUCH?",
+      "variant": "max_fake"
     },
     {
       "setting": "livingroom",
