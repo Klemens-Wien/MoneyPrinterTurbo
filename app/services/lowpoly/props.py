@@ -236,6 +236,7 @@ FIGURE_PARTS = ("torso", "head", "arm_l", "arm_r", "leg_l", "leg_r")
 FIGURE_PIVOTS = {
     "torso": (0.0, 0.95, 0.0),
     "head": (0.0, 1.9, 0.0),
+    "hat": (0.0, 1.9, 0.0),
     "arm_l": (-0.72, 1.78, 0.0),
     "arm_r": (0.72, 1.78, 0.0),
     "leg_l": (-0.26, 0.95, 0.0),
@@ -314,6 +315,20 @@ HERO_VARIANTS = {
     "rich_kid": {"skin": hex_color("#ffdbac"), "shirt": hex_color("#fbfaf4"), "pants": hex_color("#c99a1e"),
                  "hair": hex_color("#e8d27a"), "cap": False},
 }
+
+HAT_MAN_COLORS = {"skin": hex_color("#e3b88f"), "shirt": hex_color("#3b3f4a"), "pants": hex_color("#23252c"),
+                  "hair": hex_color("#8a8580"), "cap": False}
+
+
+def hat_builder() -> MeshBuilder:
+    """A dark fedora in head-local coordinates (sits on top of the head / hair)."""
+    hat = MeshBuilder()
+    hat.box((0, 0.93, 0.02), (1.3, 0.07, 1.3), hex_color("#1e1f24"))  # brim
+    hat.box((0, 1.22, 0), (0.84, 0.56, 0.84), hex_color("#25262c"))  # crown
+    hat.box((0, 1.02, 0), (0.87, 0.13, 0.87), hex_color("#7a2a2a"))  # band
+    hat.box((0, 1.51, 0), (0.6, 0.06, 0.5), hex_color("#1a1b20"))  # dent
+    return hat
+
 
 MAX_COLORS = {  # the narrator's best friend: green hoodie, dark curly hair
     "skin": hex_color("#c68642"),

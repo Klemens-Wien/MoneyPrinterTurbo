@@ -1,0 +1,143 @@
+{
+  "title": "In Our City, The Number Above Your Head Is How Many People You've Killed",
+  "language": "en",
+  "description": "Everyone in Zero City is a 0. We're proud of it. Except Mr. Gray never takes off his hat. Then the wind took it… 😳",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "story",
+    "plottwist",
+    "animation",
+    "mystery"
+  ],
+  "question": {
+    "text": "Do I put on the hat?",
+    "a": "Put it on",
+    "b": "Burn it"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+10Hz",
+      "rate": 2,
+      "color": "#ffffff"
+    },
+    "gray": {
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-10Hz",
+      "rate": -10,
+      "color": "#ff5a68"
+    }
+  },
+  "npc_labels": {
+    "default": [
+      "0"
+    ]
+  },
+  "hero_label": "0",
+  "music_style": "mystery",
+  "duration": [
+    62,
+    82
+  ],
+  "scenes": [
+    {
+      "narration": "In my city, the number above your head shows how many people you have killed. Everyone is a *zero*. Except one man.",
+      "setting": "city_avenue",
+      "action": "hat_walk",
+      "shot": "medium",
+      "mood": "day"
+    },
+    {
+      "narration": "We're so proud of it, we built a giant golden zero in the middle of the city. Zero City. The safest city on Earth.",
+      "setting": "city_plaza",
+      "action": "zero_pride",
+      "shot": "low_angle",
+      "mood": "day"
+    },
+    {
+      "narration": "People don't say hello here. They point at the zero above their head, and smile.",
+      "setting": "city_avenue",
+      "action": "crowd",
+      "shot": "medium",
+      "mood": "day"
+    },
+    {
+      "narration": "Except Mr. Gray. He never takes off his hat. Not in summer. Not indoors. Not even at *funerals*.",
+      "setting": "city_crossing",
+      "action": "hat_walk",
+      "shot": "closeup",
+      "mood": "overcast"
+    },
+    {
+      "narration": "My friends said his number was a hundred. My mom just said: don't look at him.",
+      "setting": "city_avenue",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Then one Tuesday, a storm hit the city.",
+      "setting": "city_plaza",
+      "action": "hat_walk",
+      "shot": "medium",
+      "mood": "storm",
+      "card": "Tuesday"
+    },
+    {
+      "narration": "And the wind took his hat. His number was three hundred and *twelve*.",
+      "setting": "city_plaza",
+      "action": "hat_storm",
+      "shot": "medium",
+      "mood": "storm",
+      "reply": "312"
+    },
+    {
+      "narration": "The whole city screamed. People ran. Mothers covered their kids' eyes.",
+      "setting": "city_plaza",
+      "action": "zero_panic",
+      "shot": "pull_back",
+      "mood": "storm",
+      "reply": "312"
+    },
+    {
+      "narration": "By night, everyone surrounded him. Right in front of the giant zero.",
+      "setting": "city_plaza",
+      "action": "hat_trial",
+      "shot": "medium",
+      "mood": "night",
+      "reply": "312"
+    },
+    {
+      "narration": "You want to know who they were? Three hundred and twelve people who were about to kill one of *you*.",
+      "setting": "city_plaza",
+      "action": "hat_trial",
+      "shot": "closeup",
+      "mood": "night",
+      "speaker": "gray",
+      "reply": "312"
+    },
+    {
+      "narration": "Every zero in this city is because of him. He took the numbers, so we never had to.",
+      "setting": "city_plaza",
+      "action": "hat_talk",
+      "shot": "medium",
+      "mood": "night",
+      "reply": "312"
+    },
+    {
+      "narration": "The next morning, Mr. Gray was gone. Nobody knows where.",
+      "setting": "city_plaza",
+      "action": "alone",
+      "shot": "pull_back",
+      "mood": "dawn"
+    },
+    {
+      "narration": "But his hat was lying on my doorstep. With a note: *your turn*. Do I put it on? Tell me.",
+      "setting": "city_home",
+      "action": "hat_gift",
+      "shot": "medium",
+      "mood": "dawn"
+    }
+  ]
+}

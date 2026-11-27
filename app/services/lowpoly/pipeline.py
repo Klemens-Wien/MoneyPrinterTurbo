@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import json
 import os
 import re
@@ -209,7 +210,8 @@ def generate(opts: Options) -> dict:
 
     def _qa_render(tq):
         cq, mq, dq, fq, eq, xq = director.frame(tq)
-        return qa.render(cq, mq, dq, tq, flash=fq, shadow_extent=eq, extras=xq)
+        mq = dataclasses.replace(mq, rain=0.0, snow=0.0)  # weather streaks would hide a camera stuck in a wall
+        return qa.render(cq, mq, dq, tq, flash=0.0, shadow_extent=eq, extras=xq)
 
     fixed = director.qa_fix(_qa_render, log=logger.info)
     qa.release()

@@ -114,6 +114,15 @@ SETTINGS: dict[str, Setting] = {
     "livingroom": Setting("livingroom", (-1499.4, 1.6), "x", 0.0, -1.2,
                           "(indoor) living room at night: couch, TV, front door, stairs up to a dark landing",
                           clear_radius=0.0),
+    "city_plaza": Setting("city_plaza", (1500.0, -1476.0), "x", -1500.0, 2.95,
+                          "(big city) the plaza with the giant golden zero monument and the city hall",
+                          clear_radius=0.0),
+    "city_avenue": Setting("city_avenue", (1410.0, -1503.0), "x", -1500.0, 1.9,
+                           "(big city) the busy avenue between the skyscrapers", clear_radius=0.0),
+    "city_crossing": Setting("city_crossing", (1560.0, -1509.0), "x", -1500.0, 0.8,
+                             "(big city) the crossroads with traffic lights and crosswalks", clear_radius=0.0),
+    "city_home": Setting("city_home", (1596.0, -1509.5), "x", -1500.0, 0.25,
+                         "(big city) the sidewalk in front of the narrator's front door", clear_radius=0.0),
     "main_street": Setting("main_street", (-62.0, 7.0), "x", 0.0, 0.45,
                            "the main street of the town, houses on both sides", clear_radius=6.0),
 }
@@ -413,16 +422,17 @@ def build_world(seed: int = 7) -> World:
     obstacles: list = []
     specs = _town(static, rng, obstacles)
     _trees(static, terrain, rng, fields)
-    from . import interior, livingroom, skyline, village
+    from . import city, interior, livingroom, skyline, village
 
     sky_static, sky_obstacles = skyline.build_static(seed)
     vil_static, vil_obstacles = village.build_static(seed)
-    obstacles = [(o[0], o[1], o[2], o[3], -1.0) for o in obstacles] + sky_obstacles + vil_obstacles
+    city_static, city_obstacles = city.build_static(seed)
+    obstacles = [(o[0], o[1], o[2], o[3], -1.0) for o in obstacles] + sky_obstacles + vil_obstacles + city_obstacles
     return World(
         seed=seed,
         terrain=terrain,
         static=np.concatenate([static.build(), interior.build_static(), livingroom.build_static(), sky_static,
-                               vil_static]),
+                               vil_static, city_static]),
         water=_water().build(),
         clouds=_clouds(rng).build(),
         house_specs=specs,

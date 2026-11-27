@@ -37,6 +37,22 @@ class ActorLibrary:
     def figure(self, variant: str) -> dict[str, str]:
         """variant: "hero" or "npc<N>"; returns part -> mesh key."""
         keys = {f"fig_{variant}_{p}": p for p in props.FIGURE_PARTS}
+        if variant == "hat_man" or variant.endswith("_hat"):  # a figure wearing a fedora
+            base = "hat_man" if variant == "hat_man" else variant[:-4]
+            if f"fig_{variant}_hat" in self.meshes:
+                out = {p: k for k, p in keys.items()}
+                out["hat"] = f"fig_{variant}_hat"
+                return out
+            if base == "hat_man":
+                colors = props.HAT_MAN_COLORS
+            elif base == "hero":
+                colors = props.HERO_VARIANTS.get(self.hero_variant, props.HERO_COLORS)
+            else:
+                colors = props.HERO_VARIANTS.get(base, props.HERO_COLORS)
+            colors = dict(colors, cap=False)
+            parts = props.figure_parts(colors)
+            parts["hat"] = props.hat_builder()
+            return {p_name: self._store(f"fig_{variant}_{p_name}", b) for p_name, b in parts.items()}
         if all(k in self.meshes for k in keys):
             return {p: k for k, p in keys.items()}
         if variant == "hero":
@@ -232,11 +248,16 @@ class Figure(Actor):
     label_frozen: str = ""
     label_unfrozen: str = ""
     tint: tuple = (1.0, 1.0, 1.0)  # colour multiplier (e.g. a pale glow for ghosts)
+    hat_off_at: float | None = None  # the hat is blown off at this time
+    label_at: float | None = None  # show label_late from this time on (e.g. the number under the hat)
+    label_late: str = ""
 
     def frozen(self, t: float) -> bool:
         return self.freeze_at is not None and t >= self.freeze_at and (self.unfreeze_at is None or t < self.unfreeze_at)
 
     def current_label(self, t: float) -> str:
+        if self.label_at is not None and t >= self.label_at:
+            return self.label_late
         if self.frozen(t):
             return self.label_frozen
         if self.unfreeze_at is not None and t >= self.unfreeze_at and self.label_unfrozen:
@@ -375,6 +396,16 @@ class Figure(Actor):
         for part, key in self.parts.items():
             base_part = part[:-5] if part.endswith("_glow") else part
             px, py, pz = props.FIGURE_PIVOTS[base_part]
+            if part == "hat":
+                m = base @ translate(px, py, pz) @ rot["head"]
+                if self.hat_off_at is not None and t >= self.hat_off_at:
+                    dt = t - self.hat_off_at
+                    if dt > 2.2:
+                        continue
+                    m = base @ translate(px + dt * 2.6, py + 0.3 + dt * 3.4 - dt * dt * 0.6, pz - dt * 1.2) \
+                        @ rotate_z(-dt * 5.0) @ rotate_x(dt * 3.0)
+                out.append(Draw(key, m, tint, grey))
+                continue
             out.append(Draw(key, base @ translate(px, py, pz) @ rot[base_part], tint, grey))
         return out
 

@@ -406,6 +406,9 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
     if setting_name == "bedroom" or action in INTERIOR_ACTIONS:
         return _bedroom_scene(action, duration, lib, rng, hero)
 
+    if action in CITY_ACTIONS:
+        return _city_scene(action, stage, duration, facing_cam, lib, rng, hero, scene)
+
     if action in SKYLINE_ACTIONS:
         return _skyline_scene(action, setting_name, stage, duration, yaw, mood, lib, rng, hero)
 
@@ -602,6 +605,87 @@ def _skyline_scene(action, setting_name, stage, duration, yaw, mood, lib, rng, h
 
 KRAMPUS_ACTIONS = {"bells", "krampus_lane", "krampus_pack", "krampus_window", "krampus_chase", "krampus_door",
                    "krampus_leave"}
+
+
+CITY_ACTIONS = {"zero_pride", "hat_walk", "hat_storm", "zero_panic", "hat_trial", "hat_talk", "hat_gift"}
+
+
+def _city_scene(action, stage, duration, facing_cam, lib, rng, hero, scene):
+    """Zero City: everyone's number is 0, except the man who never takes off his hat."""
+    from . import city as cty, props as prp
+
+    def at(ang, r, center=None):
+        c = stage if center is None else center
+        return c + np.array([math.sin(ang), 0.0, math.cos(ang)]) * r
+
+    number = (scene.reply if scene is not None and scene.reply else "") or "312"
+    monument = cty.world(cty.MONUMENT_LOCAL)
+    crowd_anims = ("idle", "talk", "point", "idle")
+
+    def crowd(n, center, r0, r1, spread=2.4, anims=crowd_anims, look_at=None):
+        out = []
+        for i in range(n):
+            p = at(facing_cam + math.pi + rng.uniform(-spread, spread), rng.uniform(r0, r1), center)
+            out.append(Figure(_npc(lib, rng), p, anim=str(rng.choice(anims)), phase=float(rng.uniform(0, 4)),
+                              face_target=center if look_at is None else look_at))
+        return out
+
+    hat_man_parts = lib.figure("hat_man")
+    if action == "zero_pride":  # proud citizens in front of the giant golden zero
+        hero_fig = Figure(hero, stage.copy(), heading=facing_cam, anim="cheer")
+        members = [hero_fig] + crowd(16, stage, 3.0, 11.0, anims=("cheer", "point", "idle", "cheer"), look_at=monument)
+        return Group(members, 0, look=Marker(monument + np.array([0.0, 10.0, 0.0])), look_ratio=0.45), 0.55
+    if action == "hat_walk":  # the man with the hat walks down the sidewalk, everyone stares
+        d = np.array([math.sin(facing_cam + math.pi / 2), 0.0, math.cos(facing_cam + math.pi / 2)])
+        start = stage - d * 6.0
+        man = Figure(hat_man_parts, start, anim="walk", path=LinePath(start, d, 1.2), label_locked=True)
+        hero_fig = Figure(hero, at(facing_cam, 2.5) + d * 2.0, anim="idle", face_target=stage)
+        members = [man, hero_fig] + crowd(10, stage, 3.5, 9.0, look_at=stage)
+        return Group(members, 0, look=man, look_ratio=0.5), 0.5
+    if action == "hat_storm":  # the wind blows his hat off: his number appears
+        off = duration * 0.38
+        man = Figure(hat_man_parts, stage.copy(), heading=facing_cam, anim="idle", label_locked=True,
+                     hat_off_at=off, label_at=off + 0.15, label_late=number, label_style="danger")
+        hero_fig = Figure(hero, at(facing_cam + 0.9, 4.0), anim="idle", face_target=stage)
+        members = [man, hero_fig] + crowd(12, stage, 4.0, 10.0, anims=("idle", "point", "idle"), look_at=stage)
+        return Group(members, 0), 0.45
+    if action == "zero_panic":  # everybody runs away from the man with the number
+        man = Figure(lib.figure("hat_man"), stage.copy(), heading=facing_cam, anim="sad", label_locked=True,
+                     label=number, label_style="danger", hat_off_at=-10.0)
+        hero_fig = Figure(hero, at(facing_cam + 0.7, 5.0), anim="idle", face_target=stage)
+        members: list[Actor] = [man, hero_fig]
+        for i in range(16):
+            ang = rng.uniform(0, 2 * math.pi)
+            dirv = np.array([math.sin(ang), 0.0, math.cos(ang)])
+            p = stage + dirv * rng.uniform(2.5, 6.0)
+            members.append(Figure(_npc(lib, rng), p, anim="panic", phase=float(rng.uniform(0, 3)),
+                                  path=LinePath(p, dirv, float(rng.uniform(3.0, 4.5)))))
+        return Group(members, 0), 0.6
+    if action == "hat_trial":  # the city surrounds him in front of the monument
+        center = stage + (monument - stage) * 0.45
+        center[1] = stage[1]
+        man = Figure(hat_man_parts, center, heading=facing_cam, anim="sad", label_locked=True, label=number,
+                     label_style="danger", hat_off_at=-10.0)
+        hero_fig = Figure(hero, at(facing_cam + 1.0, 4.5, center), anim="idle", face_target=center)
+        ring = []
+        for i in range(18):
+            ang = facing_cam + math.pi * 0.35 + i / 18 * math.pi * 1.3
+            p = at(ang, rng.uniform(6.0, 8.5), center)
+            ring.append(Figure(_npc(lib, rng), p, anim=str(rng.choice(("point", "idle", "point"))),
+                               phase=float(rng.uniform(0, 3)), face_target=center))
+        return Group([man, hero_fig] + ring, 0, look=man, look_ratio=0.55), 0.55
+    if action == "hat_talk":  # face to face with him
+        friend_pos = at(facing_cam + 1.4, 2.6)
+        hero_fig = Figure(hero, stage.copy(), anim="idle", face_target=friend_pos)
+        man = Figure(hat_man_parts, friend_pos, anim="talk", face_target=stage, label_locked=True, label=number,
+                     label_style="danger", hat_off_at=-10.0)
+        return Group([hero_fig, man], 0, look=man, look_ratio=0.5), 0.4
+    # hat_gift: his hat lies on our doorstep
+    door = cty.world((cty.HOME_LOCAL[0], 0.0, -(cty.AVENUE_HALF + cty.WALK) + 0.4))
+    hat_key = lib.raw("hat_prop", prp.hat_builder().build())
+    hat = Prop(hat_key, door + np.array([0.0, -0.78, 0.9]), heading=0.4)
+    hero_fig = Figure(hero, door + np.array([-1.9, 0.0, 2.2]), anim="sad", face_target=door + np.array([0.0, 0.0, 0.9]))
+    return Group([hero_fig, hat, Marker(door + np.array([0.0, 0.3, 0.9]))], 0, look=hat, look_ratio=0.5), 0.3
 
 
 def _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene):
@@ -1037,6 +1121,8 @@ class Director:
             cam = Camera(tuple(eye), tuple(tgt), 64 - 8 * u)
         if living and ps.scene.action == "lr_twins":
             cam = self._twins_camera(shot, u)
+        if ps.scene.action in CITY_ACTIONS and shot != "pov":
+            cam = self._city_camera(ps, shot, u, local) or cam
         if living and ps.scene.action in ("lr_couch", "lr_phone") and shot != "pov":
             cam = self._couch_camera(shot, u)
         if living and ps.scene.action in ("lr_goodbye", "lr_knock"):
@@ -1152,11 +1238,12 @@ class Director:
     def qa_fix(self, render, log=None) -> int:
         """render(t) -> RGB frame. Replaces failing sub-shots; returns the number of shots fixed."""
         candidates = ("medium", "player_cam", "low_angle", "dolly_in", "closeup", "crane_up", "aerial_orbit",
-                      "side_track", "pull_back", "top_down")
+                      "side_track", "pull_back")
         fixed = 0
         for ps in self.scenes:
             for i, (st, shot, yaw) in enumerate(list(ps.shots)):
-                if shot in ("pov", "medium_low") or ps.scene.action == "faceoff" or ps.scene.action in LR_ACTIONS:
+                if (shot in ("pov", "medium_low") or ps.scene.action == "faceoff" or ps.scene.action in LR_ACTIONS
+                        or ps.scene.action in CITY_ACTIONS):
                     # composed on purpose (fixed living-room cameras, POV, the giant face-off)
                     continue
                 end = ps.shots[i + 1][0] if i + 1 < len(ps.shots) else ps.duration
@@ -1184,6 +1271,45 @@ class Director:
                     log(f"QA: scene '{ps.scene.action}' shot {i}: {shot} -> {best[1]} (penalty {best[0]:.2f})")
         self._cursor = 0
         return fixed
+
+    def _city_camera(self, ps, shot: str, u: float, local: float):
+        """Fixed compositions for the Zero City scenes (the man with the hat, the monument, the doorstep)."""
+        from . import city as cty
+        e = u * u * (3 - 2 * u)
+        mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+        f = np.array([math.sin(ps.yaw), 0.0, math.cos(ps.yaw)])  # from the subject towards the camera
+        side = np.array([f[2], 0.0, -f[0]])
+        up = np.array([0.0, 1.0, 0.0])
+        action = ps.scene.action
+        if action == "hat_gift":
+            hat = next((m for m in mem if isinstance(m, Prop)), None)
+            if hat is None:
+                return None
+            p = hat.position + np.array([0.0, 0.8, 0.0])
+            if shot in ("closeup", "dolly_in"):
+                return Camera(tuple(p + np.array([1.2, 1.0, 2.6 - 0.6 * e])), tuple(p), 46)
+            return Camera(tuple(p + np.array([3.5 - 0.8 * e, 2.2, 6.5 - 1.0 * e])), tuple(p + np.array([0.0, 0.8, 0.0])), 52)
+        if action == "zero_pride":
+            mon = cty.world(cty.MONUMENT_LOCAL)
+            stage = ps.actor.focus(local)
+            if shot in ("closeup", "dolly_in"):
+                return Camera(tuple(stage + f * (4.0 - 0.8 * e) + up * 0.2 + side * 0.8), tuple(stage + up * 0.3), 50)
+            eye = stage + f * (11.0 - 2.0 * e) + side * (3.0 * math.sin(u * 2)) + up * 1.2
+            return Camera(tuple(eye), tuple(mon + up * 6.0), 62)
+        man_parts = self.library.figure("hat_man")
+        man = next((m for m in mem if isinstance(m, Figure) and m.parts == man_parts), None)
+        if man is None:
+            return None
+        m = man.focus(local)
+        if action == "hat_walk":
+            f = np.array([math.sin(ps.yaw), 0.0, math.cos(ps.yaw)])
+        if shot in ("closeup", "dolly_in"):
+            return Camera(tuple(m + f * (3.6 - 0.6 * e) + side * 0.7 + up * 0.35), tuple(m + up * 0.25), 46)
+        if shot in ("low_angle", "crane_up"):
+            return Camera(tuple(m + f * 6.5 + side * 1.5 - up * 1.0), tuple(m + up * 0.9), 58)
+        dist = 13.0 if action in ("zero_panic", "hat_trial") else 9.0
+        return Camera(tuple(m + f * (dist - 1.5 * e) + side * (2.5 + 1.5 * math.sin(u * 2)) + up * 1.8),
+                      tuple(m - up * 0.5), 56)
 
     @staticmethod
     def _couch_camera(shot: str, u: float):
