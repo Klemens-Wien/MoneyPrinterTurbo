@@ -675,7 +675,7 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
     lamp_key = lib.raw("lr_lamp", livingroom.lamp_mesh(), material=3)
     partner = (scene.partner if scene is not None and scene.partner else "sister")
     sister_parts = lib.figure(partner)
-    psize = 0.72 if partner in ("sister", "doll") else 1.0
+    psize = 0.72 if partner in ("sister", "doll", "finn") else 1.0
     landing = w(livingroom.LANDING_LOCAL)
 
     def ramp(a0, a1, t0=0.1, t1=0.6):
@@ -1011,6 +1011,8 @@ class Director:
         indoor = living or ps.scene.setting == "bedroom" or ps.scene.action in INTERIOR_ACTIONS
         k = min(local / MOOD_BLEND_SECONDS, 1.0)
         mood = mood_lib.blend(ps.mood_from, ps.mood_to, k * k * (3 - 2 * k))
+        if indoor or (ps.mood_from.snow > 0) != (ps.mood_to.snow > 0):  # a cut to another place: no fade
+            mood = ps.mood_to
         cam: Camera = shot_camera(
             shot, u, local, ps.actor.focus, ps.actor.forward, yaw, ps.scale, ground=self.world.ground,
             look=ps.actor.look.focus if isinstance(ps.actor, Group) and ps.actor.look is not None else None,
@@ -1021,10 +1023,20 @@ class Director:
         )
         if shot == "pov":
             cam = self._pov_camera(ps, local, u) or cam
-        if living and ps.scene.action in ("lr_upstairs", "lr_hold", "lr_two") and shot != "medium":
+        if living and ps.scene.action in ("lr_upstairs", "lr_hold", "lr_two") and shot not in ("medium", "pov"):
             cam = self._stairs_camera(shot, u, local) or cam
+        if living and shot == "pov" and ps.scene.pov_of:  # through the eyes of the thing on the stairs
+            hero_parts = self.library.figure("hero")
+            mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+            me = next((m for m in mem if isinstance(m, Figure) and m.parts == hero_parts), None)
+            eye = livingroom.world(livingroom.LANDING_LOCAL) + np.array([0.15 + 0.06 * math.sin(local * 0.9), 0.75, 0.2])
+            tgt = livingroom.world((-0.9, 0.4, 0.85))
+            tgt = tgt + np.array([0.15 * math.sin(local * 0.6), 0.0, 0.0])
+            cam = Camera(tuple(eye), tuple(tgt), 64 - 8 * u)
         if living and ps.scene.action == "lr_twins":
             cam = self._twins_camera(shot, u)
+        if living and ps.scene.action in ("lr_couch", "lr_phone") and shot != "pov":
+            cam = self._couch_camera(shot, u)
         if living and ps.scene.action in ("lr_goodbye", "lr_knock"):
             cam = self._door_camera(shot, u, ps.scene.action == "lr_goodbye")
         shake = ps.actor.shake(local) if hasattr(ps.actor, "shake") else 0.0
@@ -1127,7 +1139,13 @@ class Director:
         grad = np.abs(np.diff(g, axis=1))[:-1, :] + np.abs(np.diff(g, axis=0))[:, :-1]
         # a big smooth bright area = the camera is inside / right against a head, shoulder or wall
         blob = float(((grad < 1.5) & (a.max(axis=2)[:-1, :-1] > 110)).mean())
-        return max(0.0, 0.035 - lum) * 25.0 + max(0.0, blob - 0.56) * 4.0
+        smooth = float((grad < 1.5).mean())  # camera inside a wall: almost no edges anywhere
+        h, w = g.shape
+        bh, bw = h // 16, w // 12
+        blocks = g[:bh * 16, :bw * 12].reshape(16, bh, 12, bw).std(axis=(1, 3))
+        busy = float((blocks > 6).mean())
+        return (max(0.0, 0.035 - lum) * 25.0 + max(0.0, blob - 0.56) * 4.0
+                + max(0.0, smooth - 0.92) * 10.0 + max(0.0, 0.2 - busy) * 5.0)
 
     def qa_fix(self, render, log=None) -> int:
         """render(t) -> RGB frame. Replaces failing sub-shots; returns the number of shots fixed."""
@@ -1163,6 +1181,17 @@ class Director:
                     log(f"QA: scene '{ps.scene.action}' shot {i}: {shot} -> {best[1]} (penalty {best[0]:.2f})")
         self._cursor = 0
         return fixed
+
+    @staticmethod
+    def _couch_camera(shot: str, u: float):
+        """The kids on the couch, seen from the TV side (no lamp or couch back in the way)."""
+        e = u * u * (3 - 2 * u)
+        W = livingroom.world
+        if shot in ("closeup", "dolly_in"):
+            return Camera(tuple(W((-3.0 + 0.35 * e, 1.6, 1.7))), tuple(W((0.5, 1.3, 1.68))), 52)
+        if shot in ("player_cam", "side_track", "low_angle", "crane_up"):
+            return Camera(tuple(W((-2.7 + 0.2 * e, 2.1, -0.9 + 0.3 * e))), tuple(W((0.5, 1.1, 1.6))), 58)
+        return Camera(tuple(W((-4.0 + 0.25 * e, 1.75, 1.6 + 0.3 * math.sin(u * 2.5)))), tuple(W((0.5, 1.2, 1.55))), 60)
 
     @staticmethod
     def _twins_camera(shot: str, u: float):
