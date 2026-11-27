@@ -1,0 +1,144 @@
+{
+  "title": "Everyone In Our City Gets A Number At Birth. Mine Is 0.",
+  "language": "en",
+  "description": "The number above your head = years you have left. Mine is 0. Then one night every number in the city dropped to 1… 😳",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "story",
+    "plottwist",
+    "animation",
+    "mystery"
+  ],
+  "question": {
+    "text": "What do I do?",
+    "a": "Send it away",
+    "b": "Let it take the city"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-EricNeural",
+      "pitch": "+12Hz",
+      "rate": 2,
+      "color": "#ffffff"
+    },
+    "doctor": {
+      "voice": "en-GB-RyanNeural",
+      "pitch": "-4Hz",
+      "rate": -6,
+      "color": "#7fe3ff"
+    }
+  },
+  "npc_labels": {
+    "default": [
+      "72",
+      "3",
+      "91",
+      "45",
+      "18",
+      "60",
+      "27",
+      "84",
+      "9",
+      "53"
+    ]
+  },
+  "hero_label": "0",
+  "monster": "grey",
+  "music_style": "epic",
+  "duration": [
+    60,
+    80
+  ],
+  "scenes": [
+    {
+      "narration": "Everyone in our city is born with a number above their head. It's how many years you have left. Mine is *zero*.",
+      "setting": "town",
+      "action": "crowd",
+      "shot": "medium",
+      "mood": "day"
+    },
+    {
+      "narration": "My grandma has a three. My baby sister has a ninety one. Every birthday, your number goes down by one.",
+      "setting": "main_street",
+      "action": "duo",
+      "shot": "player_cam",
+      "mood": "day"
+    },
+    {
+      "narration": "A zero has never happened before. Not once in five hundred years.",
+      "setting": "town",
+      "action": "crowd",
+      "shot": "low_angle",
+      "mood": "day",
+      "speaker": "doctor"
+    },
+    {
+      "narration": "The doctors said I wouldn't make it to my first birthday. I'm twelve now.",
+      "setting": "home",
+      "action": "alone",
+      "shot": "closeup",
+      "mood": "overcast"
+    },
+    {
+      "narration": "People cross the street when they see me. Like zero is *contagious*.",
+      "setting": "main_street",
+      "action": "walk",
+      "shot": "side_track",
+      "mood": "overcast"
+    },
+    {
+      "narration": "Then last night, every number in the city changed. At the exact same time.",
+      "setting": "town",
+      "action": "crowd",
+      "shot": "dolly_in",
+      "mood": "sunset",
+      "card": "Last night",
+      "npc_label": "1"
+    },
+    {
+      "narration": "Ninety one. Sixty. Three. They all dropped to *one*. Everyone's. Except mine.",
+      "setting": "main_street",
+      "action": "street_panic",
+      "shot": "aerial_orbit",
+      "mood": "storm",
+      "npc_label": "1"
+    },
+    {
+      "narration": "And on the horizon, something huge started walking toward the city.",
+      "setting": "fields",
+      "action": "monster",
+      "shot": "low_angle",
+      "mood": "storm"
+    },
+    {
+      "narration": "It walked past the police. Past the walls. Straight down our street.",
+      "setting": "main_street",
+      "action": "rampage",
+      "shot": "pull_back",
+      "mood": "night",
+      "npc_label": "1"
+    },
+    {
+      "narration": "At sunrise, it stopped. Right in front of me. And it *bowed*.",
+      "setting": "main_street",
+      "action": "faceoff",
+      "shot": "low_angle",
+      "mood": "dawn"
+    },
+    {
+      "narration": "Zero was never how many years I had left. Zero meant: I'm the *only* one it can't touch.",
+      "setting": "main_street",
+      "action": "faceoff",
+      "shot": "low_angle",
+      "mood": "dawn"
+    },
+    {
+      "narration": "Now it's waiting for my order. Do I send it away? Or let it take the city that hated me? Tell me.",
+      "setting": "main_street",
+      "action": "faceoff",
+      "shot": "low_angle",
+      "mood": "dawn"
+    }
+  ]
+}

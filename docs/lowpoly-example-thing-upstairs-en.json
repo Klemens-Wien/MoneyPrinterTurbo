@@ -1,0 +1,185 @@
+{
+  "title": "POV: You Are The Thing Upstairs",
+  "language": "en",
+  "description": "For three weeks you listened through the walls. Tonight the kids are home alone. But something else is at the door… 👀",
+  "hashtags": [
+    "Shorts",
+    "pov",
+    "horrorstory",
+    "creepy",
+    "scary",
+    "animation"
+  ],
+  "question": {
+    "text": "What do you do?",
+    "a": "Warn the kids",
+    "b": "Stay quiet"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-BrianNeural",
+      "pitch": "-2Hz",
+      "rate": -6,
+      "color": "#ffffff"
+    },
+    "mom": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "+0Hz",
+      "color": "#7fe3ff"
+    },
+    "you": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "-5Hz",
+      "rate": -16,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    },
+    "kid": {
+      "voice": "en-US-AnaNeural",
+      "pitch": "-4Hz",
+      "rate": -14,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    },
+    "sis": {
+      "voice": "en-US-AnaNeural",
+      "pitch": "+0Hz",
+      "color": "#9dff8a"
+    }
+  },
+  "music_style": "horror",
+  "label_style": "speech",
+  "duration": [
+    58,
+    78
+  ],
+  "chat_name": "Mom",
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "POV. You are the thing upstairs. And tonight, the kids are home *alone*.",
+      "action": "lr_upstairs",
+      "shot": "pov",
+      "pov_of": "mom_fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "For three weeks, you've listened. Through the walls. Through the vents.",
+      "action": "lr_couch",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "Night shift again, kids. If anyone calls you from upstairs, don't answer.",
+      "action": "lr_goodbye",
+      "shot": "closeup",
+      "speaker": "mom",
+      "say": "DON'T ANSWER."
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "You learned her voice. Every word. Every laugh.",
+      "action": "lr_upstairs",
+      "shot": "pov",
+      "pov_of": "mom_fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "Kids? I came home early. Come up here.",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "speaker": "you",
+      "say": "COME UP HERE."
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "The little one stands up. The big one grabs her arm.",
+      "action": "lr_hold",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "They text their mom.",
+      "action": "lr_phone",
+      "shot": "medium",
+      "chat": [
+        [
+          "me",
+          "mom are you home??"
+        ],
+        [
+          "them",
+          "no. I'm at work. stay downstairs"
+        ]
+      ]
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "They're smart. So you try something *else*.",
+      "action": "lr_upstairs",
+      "shot": "pov",
+      "pov_of": "mom_fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "Help! I'm stuck up here! Please!",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "speaker": "kid",
+      "say": "HELP ME!"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "Wait. That's *my* voice.",
+      "action": "lr_two",
+      "shot": "medium",
+      "speaker": "sis"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "Now they don't know who is who. You almost have them.",
+      "action": "lr_upstairs",
+      "shot": "pov",
+      "pov_of": "mom_fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "But then. A knock. At the front door. Something is outside. And it is *not* you.",
+      "action": "lr_knock",
+      "shot": "low_angle"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "sister",
+      "narration": "For the first time in three weeks, you are scared too. Do you warn the kids, or stay quiet?",
+      "action": "lr_upstairs",
+      "shot": "pov",
+      "pov_of": "mom_fake"
+    }
+  ]
+}

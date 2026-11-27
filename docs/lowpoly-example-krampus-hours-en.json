@@ -1,0 +1,152 @@
+{
+  "title": "Every Hour After Midnight, Something Worse Comes To Our Village",
+  "language": "en",
+  "description": "Grandpa's rule: survive until the church bells ring at 6. At 5 AM my little brother knocked on the door. But he was asleep next to me… 😨",
+  "hashtags": [
+    "Shorts",
+    "krampus",
+    "horrorstory",
+    "scary",
+    "folklore",
+    "animation"
+  ],
+  "question": {
+    "text": "What do I do?",
+    "a": "Check on my brother",
+    "b": "Open the door"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "+0Hz",
+      "rate": 0,
+      "color": "#ffffff"
+    },
+    "grandpa": {
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-8Hz",
+      "rate": -10,
+      "color": "#ffd84a"
+    },
+    "brother": {
+      "voice": "en-US-AnaNeural",
+      "pitch": "-6Hz",
+      "rate": -18,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    }
+  },
+  "music_style": "epic",
+  "duration": [
+    60,
+    80
+  ],
+  "scenes": [
+    {
+      "narration": "By three in the morning, there were forty of them in the square. And they were counting the houses.",
+      "setting": "village_square",
+      "action": "krampus_pack",
+      "shot": "aerial_orbit",
+      "mood": "snow_night",
+      "counter": "3 AM"
+    },
+    {
+      "narration": "In our mountain village, there is one night a year when nobody goes outside.",
+      "setting": "village_square",
+      "action": "alone",
+      "shot": "pull_back",
+      "mood": "snow_dusk",
+      "counter": "8 PM"
+    },
+    {
+      "narration": "Every hour after midnight, it gets worse. Survive until the church bells ring at six.",
+      "setting": "chalet_home",
+      "action": "duo",
+      "shot": "medium",
+      "mood": "snow_dusk",
+      "speaker": "grandpa",
+      "counter": "8 PM"
+    },
+    {
+      "narration": "Midnight. Bells. Far away. Getting *closer*.",
+      "setting": "village_lane",
+      "action": "bells",
+      "shot": "pull_back",
+      "mood": "snow_night",
+      "counter": "12 AM"
+    },
+    {
+      "narration": "One A.M. The first one walked down our lane. Chains dragging through the snow.",
+      "setting": "village_lane",
+      "action": "krampus_lane",
+      "shot": "side_track",
+      "mood": "snow_night",
+      "counter": "1 AM"
+    },
+    {
+      "narration": "Two A.M. It stopped at our window. And it said my name.",
+      "setting": "chalet_home",
+      "action": "krampus_window",
+      "shot": "closeup",
+      "mood": "snow_night",
+      "counter": "2 AM"
+    },
+    {
+      "narration": "Three A.M. They're not alone anymore. They come in *packs*.",
+      "setting": "village_square",
+      "action": "krampus_pack",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "counter": "3 AM"
+    },
+    {
+      "narration": "Four A.M. Something was on the roof. Walking. Slowly.",
+      "setting": "bedroom",
+      "action": "noises",
+      "shot": "medium",
+      "mood": "indoor",
+      "counter": "4 AM"
+    },
+    {
+      "narration": "Then it went quiet. Way *too* quiet.",
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "closeup",
+      "mood": "indoor",
+      "counter": "4 AM"
+    },
+    {
+      "narration": "Five A.M. Three knocks on the front door.",
+      "setting": "chalet_home",
+      "action": "krampus_door",
+      "shot": "low_angle",
+      "mood": "snow_night",
+      "counter": "5 AM"
+    },
+    {
+      "narration": "Let me in. It's so cold out here. Please.",
+      "setting": "chalet_home",
+      "action": "krampus_door",
+      "shot": "closeup",
+      "mood": "snow_night",
+      "speaker": "brother",
+      "counter": "5 AM"
+    },
+    {
+      "narration": "That was my little brother's voice. But my little brother was asleep. Right next to me.",
+      "setting": "bedroom",
+      "action": "sit_up",
+      "shot": "medium",
+      "mood": "indoor",
+      "counter": "5:59 AM"
+    },
+    {
+      "narration": "One minute until the bells. Do I check on my brother, or open the door?",
+      "setting": "chalet_home",
+      "action": "krampus_window",
+      "shot": "medium",
+      "mood": "snow_night",
+      "counter": "5:59 AM"
+    }
+  ]
+}

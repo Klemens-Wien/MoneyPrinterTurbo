@@ -1,0 +1,169 @@
+{
+  "title": "Two Moms Came Home Tonight. Can You Spot The Fake?",
+  "language": "en",
+  "description": "Mom works night shifts. Tonight, she came home twice. You have 10 seconds to spot the fake 👀 Did you get it?",
+  "hashtags": [
+    "Shorts",
+    "spotthedifference",
+    "horrorstory",
+    "scary",
+    "puzzle",
+    "animation"
+  ],
+  "question": {
+    "text": "Who do I let in?",
+    "a": "The one at the door",
+    "b": "Nobody"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-AnaNeural",
+      "pitch": "+0Hz",
+      "color": "#ffffff"
+    },
+    "mom": {
+      "voice": "en-US-JennyNeural",
+      "pitch": "+0Hz",
+      "rate": -2,
+      "color": "#7fe3ff"
+    },
+    "fake": {
+      "voice": "en-US-JennyNeural",
+      "pitch": "-3Hz",
+      "rate": -8,
+      "color": "#7fe3ff"
+    },
+    "door": {
+      "voice": "en-US-JennyNeural",
+      "pitch": "+0Hz",
+      "rate": -6,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    }
+  },
+  "music_style": "mystery",
+  "label_style": "speech",
+  "duration": [
+    58,
+    76
+  ],
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Two moms walked through our front door tonight. One of them is *not* my mom.",
+      "action": "lr_twins",
+      "shot": "closeup"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Mom works night shifts. Before she left, she gave me one rule.",
+      "action": "lr_goodbye",
+      "shot": "medium",
+      "card": "9:00 PM"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "If you ever see two of me, ask the question only we know.",
+      "action": "lr_goodbye",
+      "shot": "closeup",
+      "speaker": "mom",
+      "say": "ASK THE QUESTION."
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "At midnight, the door opened. Mom walked in. Smiling.",
+      "action": "lr_knock",
+      "shot": "medium",
+      "card": "12:00 AM"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Ten seconds later, it opened *again*. And mom walked in. Again.",
+      "action": "lr_twins",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Sweetie, get away from her. I'm your mom.",
+      "action": "lr_twins",
+      "shot": "dolly_in",
+      "speaker": "mom"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Don't listen to her, honey. I'm the real one.",
+      "action": "lr_twins",
+      "shot": "closeup",
+      "speaker": "fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "So I asked the question. What did you call me when I was a baby?",
+      "action": "lr_twins",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Little bean.",
+      "action": "lr_twins",
+      "shot": "closeup",
+      "speaker": "mom"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Little bean.",
+      "action": "lr_twins",
+      "shot": "closeup",
+      "speaker": "fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "They *both* knew. One detail is wrong. Find it before I do.",
+      "action": "lr_twins",
+      "shot": "medium",
+      "countdown": 10,
+      "card": "SPOT THE FAKE"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Did you see it? Pale skin. Glowing eyes. And she never, ever blinks.",
+      "action": "lr_twins",
+      "shot": "medium",
+      "reveal": "mom_fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "I grabbed the real mom's hand. And then someone knocked on the door.",
+      "action": "lr_knock",
+      "shot": "low_angle"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Sweetie? I'm home from work. Open up.",
+      "action": "lr_knock",
+      "shot": "closeup",
+      "speaker": "door"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "narration": "Three moms. One door. Who do I let in? Comment now.",
+      "action": "lr_knock",
+      "shot": "medium"
+    }
+  ]
+}

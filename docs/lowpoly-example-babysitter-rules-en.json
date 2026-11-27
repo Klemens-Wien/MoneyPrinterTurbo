@@ -1,0 +1,215 @@
+{
+  "title": "I Babysat For A Family With Very Strange Rules",
+  "language": "en",
+  "description": "The parents left me 4 rules. Rule 3: if Finn calls you from upstairs, Finn is on the couch. 😳 What would you do?",
+  "hashtags": [
+    "Shorts",
+    "horrorstory",
+    "rules",
+    "babysitter",
+    "scary",
+    "animation"
+  ],
+  "question": {
+    "text": "What do I do?",
+    "a": "Hide with Finn",
+    "b": "Call the police"
+  },
+  "hero": "babysitter",
+  "note_title": "Babysitting rules",
+  "voices": {
+    "narrator": {
+      "voice": "en-US-RogerNeural",
+      "pitch": "+6Hz",
+      "rate": 2,
+      "color": "#ffffff"
+    },
+    "mom": {
+      "voice": "en-US-MichelleNeural",
+      "pitch": "+0Hz",
+      "color": "#7fe3ff"
+    },
+    "finn": {
+      "voice": "en-US-AnaNeural",
+      "pitch": "+0Hz",
+      "rate": -4,
+      "color": "#9dff8a"
+    },
+    "upstairs": {
+      "voice": "en-US-AnaNeural",
+      "pitch": "-6Hz",
+      "rate": -22,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    },
+    "door": {
+      "voice": "en-US-MichelleNeural",
+      "pitch": "-4Hz",
+      "rate": -14,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    }
+  },
+  "music_style": "horror",
+  "label_style": "speech",
+  "duration": [
+    60,
+    80
+  ],
+  "chat_name": "Finn's Mom",
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Babysitter? Can you come up here? I had a bad dream.",
+      "action": "lr_upstairs",
+      "shot": "low_angle",
+      "speaker": "upstairs",
+      "say": "COME UP HERE..."
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "But Finn was sitting right next to me. On the *couch*.",
+      "action": "lr_couch",
+      "shot": "closeup"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Here are the rules. Follow every single one. No exceptions.",
+      "action": "lr_goodbye",
+      "shot": "medium",
+      "speaker": "mom",
+      "say": "FOLLOW THE RULES.",
+      "card": "3 hours earlier"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Rule one. Finn never goes upstairs after nine. Rule two. Never open the front door. Rule three. If Finn calls you from upstairs, Finn is on the couch. Rule four. We will *never* come home early.",
+      "action": "lr_couch",
+      "shot": "medium",
+      "note": [
+        "Finn never goes upstairs after 9",
+        "Never open the front door",
+        "If Finn calls from upstairs, Finn is on the couch",
+        "We will NEVER come home early"
+      ]
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Easy money, I thought. Until midnight. Finn stopped watching TV, and just stared at the stairs.",
+      "action": "lr_couch",
+      "shot": "player_cam",
+      "card": "12:00 AM"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Footsteps. Small ones. Upstairs.",
+      "action": "lr_upstairs",
+      "shot": "dolly_in"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Babysitter? I'm scared. Please come up.",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "speaker": "upstairs",
+      "say": "PLEASE COME UP..."
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Don't. That's not me. It does that every night.",
+      "action": "lr_hold",
+      "shot": "medium",
+      "speaker": "finn"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "I texted his mom.",
+      "action": "lr_phone",
+      "shot": "medium",
+      "chat": [
+        [
+          "me",
+          "something is talking upstairs??"
+        ],
+        [
+          "them",
+          "rule 3. do NOT go up"
+        ],
+        [
+          "me",
+          "it knows my name"
+        ],
+        [
+          "them",
+          "then it has been watching you. stay with Finn"
+        ]
+      ]
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Then one more message came in.",
+      "action": "lr_phone",
+      "shot": "medium",
+      "chat": [
+        [
+          "them",
+          "good news! we're coming home early 🙂"
+        ]
+      ]
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Rule four. They *never* come home early.",
+      "action": "lr_couch",
+      "shot": "closeup",
+      "speaker": "finn"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Then someone knocked on the front door.",
+      "action": "lr_knock",
+      "shot": "low_angle"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "We're home early, sweetie! Open the door.",
+      "action": "lr_knock",
+      "shot": "closeup",
+      "speaker": "door"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "finn",
+      "narration": "Something at the door. Something upstairs. And Finn whispered: neither of them are my parents. What do I do?",
+      "action": "lr_knock",
+      "shot": "medium"
+    }
+  ]
+}

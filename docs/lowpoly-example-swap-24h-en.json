@@ -1,0 +1,170 @@
+{
+  "title": "A Rich Kid Paid Me $10,000 To Swap Lives For 24 Hours",
+  "language": "en",
+  "description": "He said: be me for 24 hours, don't ask why. By hour 20, I found out why. 😳 What would you do?",
+  "hashtags": [
+    "Shorts",
+    "richvspoor",
+    "story",
+    "24hours",
+    "animation",
+    "plottwist"
+  ],
+  "question": {
+    "text": "What would you do?",
+    "a": "Tell the truth",
+    "b": "Stay Leo forever"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+14Hz",
+      "rate": 4,
+      "color": "#ffffff"
+    },
+    "leo": {
+      "voice": "en-GB-RyanNeural",
+      "pitch": "+18Hz",
+      "rate": 0,
+      "color": "#ffd84a"
+    },
+    "guard": {
+      "voice": "en-US-GuyNeural",
+      "pitch": "-10Hz",
+      "rate": -6,
+      "color": "#ff5a68"
+    }
+  },
+  "music_style": "",
+  "duration": [
+    60,
+    80
+  ],
+  "chat_name": "Leo",
+  "scenes": [
+    {
+      "narration": "Hour twenty three. I'm standing at the edge of the sky city. And now I know *why* the rich kid paid me to swap lives.",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "dolly_in",
+      "mood": "sunset",
+      "counter": "HOUR 23"
+    },
+    {
+      "narration": "Yesterday, I was just a kid from the slums. Then a boy from the sky city came down to find me.",
+      "setting": "slums",
+      "action": "slum_life",
+      "shot": "pull_back",
+      "mood": "day",
+      "counter": "HOUR 0"
+    },
+    {
+      "narration": "Ten thousand dollars. Be me for twenty four hours. And don't ask why.",
+      "setting": "slums",
+      "action": "look_up",
+      "shot": "low_angle",
+      "mood": "day",
+      "speaker": "leo",
+      "counter": "HOUR 0"
+    },
+    {
+      "narration": "His gold pass took me straight up the lift. The guards *bowed* to me.",
+      "setting": "lift_gate",
+      "action": "lift_ride",
+      "shot": "side_track",
+      "mood": "day",
+      "counter": "HOUR 1"
+    },
+    {
+      "narration": "Up there, everything was gold. Free food. Music. People smiling way too much.",
+      "setting": "sky_city",
+      "action": "rich_party",
+      "shot": "aerial_orbit",
+      "mood": "dawn",
+      "counter": "HOUR 3"
+    },
+    {
+      "narration": "But everyone kept looking at the giant mirrors. And then at me.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "crane_up",
+      "mood": "day",
+      "counter": "HOUR 8"
+    },
+    {
+      "narration": "So I texted Leo.",
+      "setting": "sky_city",
+      "action": "rich_party",
+      "shot": "closeup",
+      "mood": "day",
+      "counter": "HOUR 9",
+      "chat": [
+        [
+          "me",
+          "why is everyone staring at me"
+        ],
+        [
+          "them",
+          "don't go near the mirrors"
+        ],
+        [
+          "me",
+          "why??"
+        ],
+        [
+          "them",
+          "sorry."
+        ]
+      ]
+    },
+    {
+      "narration": "Then I found the list. Every year, one sky kid is chosen to clean the mirrors at the edge. Nobody ever comes back. This year's name: *Leo*.",
+      "setting": "sky_mirrors",
+      "action": "mirrors",
+      "shot": "pull_back",
+      "mood": "overcast",
+      "counter": "HOUR 20"
+    },
+    {
+      "narration": "Leo! It's time. Come with us.",
+      "setting": "sky_city",
+      "action": "guards_chase",
+      "shot": "low_angle",
+      "mood": "overcast",
+      "speaker": "guard",
+      "counter": "HOUR 22"
+    },
+    {
+      "narration": "I ran. Over the roofs, down the ladders, straight into the storm.",
+      "setting": "ladder",
+      "action": "climb_high",
+      "shot": "side_track",
+      "mood": "storm",
+      "counter": "HOUR 22"
+    },
+    {
+      "narration": "And far below, in the slums, I saw him. Leo. Wearing my clothes. Living my life. *Happy*.",
+      "setting": "under_deck",
+      "action": "slum_life",
+      "shot": "medium",
+      "mood": "overcast",
+      "counter": "HOUR 22"
+    },
+    {
+      "narration": "Now the guards are behind me. The slums are below me. If I tell them who I really am, they take Leo instead.",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "medium",
+      "mood": "sunset",
+      "counter": "HOUR 23"
+    },
+    {
+      "narration": "If I stay quiet, I'm Leo forever. One hour left. What would you do?",
+      "setting": "sky_edge",
+      "action": "edge_look",
+      "shot": "closeup",
+      "mood": "sunset",
+      "counter": "HOUR 23"
+    }
+  ]
+}
