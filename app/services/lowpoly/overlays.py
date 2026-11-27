@@ -354,7 +354,7 @@ class LabelLayer:
         key = (text, style)
         if key not in self._cache:
             fg, bg = LABEL_STYLES.get(style, LABEL_STYLES["npc"])
-            size = int(self.width * 0.05)
+            size = int(self.width * (0.085 if text.isdigit() else 0.05))  # life numbers: big and readable
             font = _font(size)
             tw = font.getbbox(text)[2]
             pad = int(size * 0.35)
@@ -386,14 +386,14 @@ class LabelLayer:
             if abs(ndc[0]) > 1.1 or abs(ndc[1]) > 1.1:
                 continue
             dist = float(np.linalg.norm(p - eye))
-            if dist > 45:
+            if dist > (90 if text.isdigit() else 45):
                 continue
             x = (ndc[0] * 0.5 + 0.5) * self.width
             y = (1 - (ndc[1] * 0.5 + 0.5)) * self.height
             items.append((dist, x, y, text, style))
         for dist, x, y, text, style in sorted(items, reverse=True):  # far first, near on top
             img = self._pill(text, style)
-            s = float(np.clip(7.0 / max(dist, 0.5), 0.45, 1.5))
+            s = float(np.clip(7.0 / max(dist, 0.5), 0.6 if text.isdigit() else 0.45, 1.5))
             if abs(s - 1.0) > 0.02:
                 img = img.resize((max(1, int(img.width * s)), max(1, int(img.height * s))), Image.BILINEAR)
             arr = np.asarray(img)
