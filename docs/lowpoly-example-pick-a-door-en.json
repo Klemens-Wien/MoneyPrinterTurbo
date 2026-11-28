@@ -1,0 +1,150 @@
+{
+  "title": "Pick A Door: 1, 2 Or 3. Only One Survives The Night.",
+  "language": "en",
+  "description": "Pick a number BEFORE the doors open. Only one door is safe… or is it? 👀 Comment your door!",
+  "hashtags": [
+    "Shorts",
+    "pickadoor",
+    "choose",
+    "horror",
+    "scary",
+    "animation"
+  ],
+  "question": {
+    "text": "Which door did you pick?",
+    "a": "Door 1 or 2",
+    "b": "Door 3"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "-6Hz",
+      "rate": -4,
+      "color": "#ffffff"
+    },
+    "fake": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "-7Hz",
+      "rate": -20,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    },
+    "gray": {
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-12Hz",
+      "rate": -16,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    }
+  },
+  "npc_labels": {
+    "default": [
+      "0"
+    ]
+  },
+  "hero_label": "0",
+  "music_style": "dread",
+  "label_style": "speech",
+  "duration": [
+    60,
+    80
+  ],
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Three doors. Behind one, you survive the night. Behind the other two, you don't. Pick a number. *Now*.",
+      "action": "lr_knock",
+      "shot": "medium",
+      "doors": {
+        "opened": 0
+      },
+      "countdown": 5
+    },
+    {
+      "setting": "chalet_home",
+      "mood": "snow_night",
+      "narration": "Door one. A tiny village in the mountains. Midnight. Something with horns is knocking.",
+      "action": "krampus_door",
+      "shot": "medium",
+      "doors": {
+        "opened": 1,
+        "stamp": "DEAD",
+        "dead": [
+          1
+        ]
+      }
+    },
+    {
+      "setting": "village_square",
+      "mood": "snow_night",
+      "narration": "And it didn't come alone. Forty of them. You don't make it to six A.M.",
+      "action": "krampus_pack",
+      "shot": "aerial_orbit"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Door two. A cozy living room. Your mom works night shifts. And she's calling you from upstairs.",
+      "action": "lr_upstairs",
+      "shot": "medium",
+      "doors": {
+        "opened": 2,
+        "stamp": "DEAD",
+        "dead": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Sweetie? Come up here. Just for a second.",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "speaker": "fake",
+      "say": "COME UP HERE..."
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Door three. Zero City. Everyone is a zero. Everyone smiles. You *survived*.",
+      "action": "zero_pride",
+      "shot": "medium",
+      "doors": {
+        "opened": 3,
+        "stamp": "SAFE",
+        "dead": [
+          1,
+          2
+        ]
+      }
+    },
+    {
+      "setting": "city_avenue",
+      "mood": "overcast",
+      "narration": "Then a man in a hat walks past you, and whispers.",
+      "action": "hat_walk",
+      "shot": "medium"
+    },
+    {
+      "setting": "city_avenue",
+      "mood": "overcast",
+      "narration": "Everyone picks door three. That's how the city gets its zeros.",
+      "action": "hat_walk",
+      "shot": "closeup",
+      "speaker": "gray"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "sunset",
+      "narration": "So which door did you pick? If you said three, don't look at the number above your head. Comment your door.",
+      "action": "alone",
+      "shot": "pull_back"
+    }
+  ]
+}

@@ -169,14 +169,24 @@ def generate(opts: Options) -> dict:
     cap.to_srt(timed, os.path.join(work, "captions.srt"))
 
     countdowns = [overlays.Countdown(opts.width, opts.height, ps.scene.countdown, ps.start + 0.2, ps.end,
-                                     title=ps.scene.card or "")
+                                     title="" if (ps.scene.wyr or ps.scene.doors) else (ps.scene.card or ""),
+                                     y_frac=0.41 if (ps.scene.wyr or ps.scene.doors) else 0.16)
                   for ps in director.scenes if ps.scene.countdown]
+    wyrs = [overlays.WouldYouRather(opts.width, opts.height, str(ps.scene.wyr.get("a", "")),
+                                    str(ps.scene.wyr.get("b", "")), ps.start + 0.05, ps.end,
+                                    pct=ps.scene.wyr.get("pct"))
+            for ps in director.scenes if ps.scene.wyr]
+    doors = [overlays.DoorPicker(opts.width, opts.height, ps.start + 0.05, ps.end,
+                                 opened=int(ps.scene.doors.get("opened", 0)), stamp=str(ps.scene.doors.get("stamp", "")),
+                                 dead=list(ps.scene.doors.get("dead", [])))
+             for ps in director.scenes if ps.scene.doors]
+    door_hits = [d.start + 1.2 for d in doors if d.stamp]
     notes = [overlays.NoteCard(opts.width, opts.height, board.note_title or "RULES", ps.scene.note, ps.start + 0.1,
                                ps.end) for ps in director.scenes if ps.scene.note]
     reveals = [(ps.start + max(0.3, (ps.end - ps.start) * 0.35), ps.end) for ps in director.scenes if ps.scene.reveal]
     tick_list = (wheel.tick_times() if wheel else []) + [x for c in countdowns for x in c.tick_times()]
     ding_list = ([wheel.land_time] if wheel else []) + [x for nt in notes for x in nt.line_times()] + \
-        [a for a, _ in reveals]
+        [a for a, _ in reveals] + door_hits + [w.start + 0.4 for w in wyrs if w.pct is not None]
 
     # 4. sound
     music = None
@@ -230,7 +240,8 @@ def generate(opts: Options) -> dict:
     banner = cap.HookBanner(opts.width, opts.height, "" if wheel else board.hook, 0.0, hook_end)
     labels = overlays.LabelLayer(opts.width, opts.height)
     stickers = [overlays.StickerCard(opts.width, opts.height, ps.scene.card, ps.start + 0.05)
-                for ps in director.scenes if ps.scene.card and not ps.scene.countdown]
+                for ps in director.scenes if ps.scene.card and not ps.scene.countdown and not ps.scene.wyr
+                and not ps.scene.doors]
     counter = overlays.CounterBadge(opts.width, opts.height,
                                     [(ps.start, ps.end, ps.scene.counter) for ps in director.scenes if ps.scene.counter])
     chat_name = board.chat_name or ("Mom" if board.language != "de" else "Mama")
@@ -264,6 +275,8 @@ def generate(opts: Options) -> dict:
                 frame = sticker.composite(frame, t)
             for nt in notes:
                 frame = nt.composite(frame, t)
+            for card in wyrs + doors:
+                frame = card.composite(frame, t)
             for cd in countdowns:
                 frame = cd.composite(frame, t)
             for a, b in reveals:

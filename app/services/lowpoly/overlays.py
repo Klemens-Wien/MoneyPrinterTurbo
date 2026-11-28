@@ -623,7 +623,9 @@ class PhoneChat:
 class Countdown:
     """Big ticking countdown number in a ring ("SPOT THE FAKE: 10 ... 0")."""
 
-    def __init__(self, width: int, height: int, seconds: int, start: float, end: float, title: str = ""):
+    def __init__(self, width: int, height: int, seconds: int, start: float, end: float, title: str = "",
+                 y_frac: float = 0.16):
+        self.y_frac = y_frac
         self.width, self.height = width, height
         self.seconds, self.start, self.end = seconds, start, min(end, start + seconds + 0.6)
         self.title = np.asarray(_text_img(title.upper(), int(width * 0.06), fill=(255, 221, 30))) if title else None
@@ -656,7 +658,7 @@ class Countdown:
         if s > 1.01:
             im = Image.fromarray(img)
             img = np.asarray(im.resize((int(im.width * s), int(im.height * s)), Image.BILINEAR))
-        y = int(self.height * 0.16)
+        y = int(self.height * self.y_frac)
         frame = blend(frame, img, (self.width - img.shape[1]) // 2, y - img.shape[0] // 2 + int(self.width * 0.12), 1.0)
         if self.title is not None:
             frame = blend(frame, self.title, (self.width - self.title.shape[1]) // 2, int(self.height * 0.075), 1.0)
@@ -730,3 +732,121 @@ def reveal_circle(frame: np.ndarray, point, vp, t: float, start: float, label: s
         tag = np.asarray(_text_img(label.upper(), int(W * 0.08), fill=(255, 40, 40)))
         frame = blend(frame, tag, int(x) - tag.shape[1] // 2, int(y) - r - tag.shape[0] - 10, min(1.0, (age - 0.4) / 0.15))
     return frame
+
+
+class WouldYouRather:
+    """"WOULD YOU RATHER" card: two options (red / blue). With pct set, bars fill to the vote result."""
+
+    def __init__(self, width: int, height: int, a: str, b: str, start: float, end: float, pct: int | None = None,
+                 title: str = "WOULD YOU RATHER", highlight: str = ""):
+        self.width, self.height = width, height
+        self.start, self.end, self.pct, self.highlight = start, end, pct, highlight
+        W = width
+        self.title = np.asarray(_text_img(title, int(W * 0.065), fill=(255, 221, 30)))
+        self.opts = []
+        for text, col in ((a, (226, 48, 64)), (b, (46, 120, 240))):
+            label = _text_img(text.upper(), int(W * 0.05), fill=(255, 255, 255), stroke_ratio=0.0,
+                              max_width=int(W * 0.72))
+            self.opts.append((label, col))
+        self.or_img = np.asarray(_text_img("OR", int(W * 0.06), fill=(255, 255, 255)))
+
+    def _box(self, label: Image.Image, col, fill: float, pct_text: str) -> np.ndarray:
+        W = self.width
+        bw = int(W * 0.84)
+        bh = max(label.height + int(W * 0.05), int(W * 0.13))
+        im = Image.new("RGBA", (bw, bh), (0, 0, 0, 0))
+        d = ImageDraw.Draw(im)
+        d.rounded_rectangle((0, 0, bw - 1, bh - 1), radius=bh // 4, fill=(18, 18, 26, 225),
+                            outline=col + (255,), width=6)
+        if fill > 0:
+            d.rounded_rectangle((4, 4, max(10, int((bw - 8) * fill)), bh - 5), radius=bh // 4, fill=col + (235,))
+        im.alpha_composite(label, (int(W * 0.04), (bh - label.height) // 2))
+        if pct_text:
+            p = _text_img(pct_text, int(W * 0.06), fill=(255, 255, 255))
+            im.alpha_composite(p, (bw - p.width - int(W * 0.03), (bh - p.height) // 2))
+        return np.asarray(im)
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end):
+            return frame
+        age = t - self.start
+        k = min(1.0, age / 0.25) * min(1.0, (self.end - t) / 0.2)
+        W, H = self.width, self.height
+        y = int(H * 0.07)
+        frame = blend(frame, self.title, (W - self.title.shape[1]) // 2, y, k)
+        y += self.title.shape[0] + int(W * 0.02)
+        grow = min(1.0, max(0.0, (age - 0.4) / 1.0)) if self.pct is not None else 0.0
+        for i, (label, col) in enumerate(self.opts):
+            share = (self.pct if i == 0 else 100 - self.pct) if self.pct is not None else 0
+            pct_text = f"{int(round(share * grow))}%" if self.pct is not None else ""
+            box = self._box(label, col, share / 100.0 * grow, pct_text)
+            slide = int((1 - min(1.0, age / 0.3)) * W * (0.5 if i == 0 else -0.5))
+            frame = blend(frame, box, (W - box.shape[1]) // 2 + slide, y, k)
+            y += box.shape[0] + int(W * 0.015)
+            if i == 0:
+                frame = blend(frame, self.or_img, (W - self.or_img.shape[1]) // 2, y - int(W * 0.01), k)
+                y += self.or_img.shape[0] + int(W * 0.005)
+        return frame
+
+
+class DoorPicker:
+    """Three numbered doors. `opened` (1-3) swings open with a stamp ("SAFE" / "DEAD"); 0 = pick one."""
+
+    def __init__(self, width: int, height: int, start: float, end: float, opened: int = 0, stamp: str = "",
+                 dead: list | None = None):
+        self.width, self.height = width, height
+        self.start, self.end, self.opened, self.stamp = start, end, opened, stamp
+        self.dead = set(dead or [])
+        self._cache: dict = {}
+
+    def _door(self, n: int, open_amount: float) -> np.ndarray:
+        key = (n, round(open_amount, 2), n in self.dead)
+        if key not in self._cache:
+            W = self.width
+            dw, dh = int(W * 0.22), int(W * 0.36)
+            im = Image.new("RGBA", (dw + 16, dh + 16), (0, 0, 0, 0))
+            d = ImageDraw.Draw(im)
+            d.rectangle((0, 0, dw + 15, dh + 15), fill=(232, 226, 208, 255))  # frame
+            d.rectangle((8, 8, dw + 7, dh + 15), fill=(10, 8, 14, 255))  # dark doorway
+            panel_w = int(dw * (1 - 0.8 * open_amount))
+            col = (90, 30, 30, 255) if n in self.dead else (122, 59, 46, 255)
+            if panel_w > 2:
+                d.rectangle((8, 8, 8 + panel_w, dh + 15), fill=col, outline=(60, 25, 18, 255), width=3)
+                d.ellipse((8 + panel_w - int(dw * 0.16), dh // 2, 8 + panel_w - int(dw * 0.08), dh // 2 + int(dw * 0.08)),
+                          fill=(232, 210, 122, 255))
+            num = _text_img(str(n), int(W * 0.09), fill=(255, 255, 255))
+            if panel_w > num.width:
+                im.alpha_composite(num, (8 + (panel_w - num.width) // 2, int(dh * 0.18)))
+            if n in self.dead:
+                x = _text_img("X", int(W * 0.16), fill=(255, 40, 40))
+                im.alpha_composite(x, ((im.width - x.width) // 2, (im.height - x.height) // 2))
+            self._cache[key] = np.asarray(im)
+        return self._cache[key]
+
+    def composite(self, frame: np.ndarray, t: float) -> np.ndarray:
+        if not (self.start <= t < self.end):
+            return frame
+        age = t - self.start
+        k = min(1.0, age / 0.25) * min(1.0, (self.end - t) / 0.2)
+        W, H = self.width, self.height
+        gap = int(W * 0.04)
+        doors = [self._door(n, min(1.0, max(0.0, (age - 0.5) / 0.6)) if n == self.opened else 0.0) for n in (1, 2, 3)]
+        total = sum(dd.shape[1] for dd in doors) + gap * 2
+        x = (W - total) // 2
+        y = int(H * 0.08)
+        for n, dd in zip((1, 2, 3), doors):
+            pop = 1.0
+            if n == self.opened:
+                pop = 1.0 + 0.12 * min(1.0, age / 0.3)
+                im = Image.fromarray(dd)
+                dd = np.asarray(im.resize((int(im.width * pop), int(im.height * pop)), Image.BILINEAR))
+            frame = blend(frame, dd, x - (dd.shape[1] - int(W * 0.22) - 16) // 2, y - (dd.shape[0] - int(W * 0.36) - 16) // 2, k)
+            x += int(W * 0.22) + 16 + gap
+        if self.stamp and age > 1.2:
+            col = (61, 220, 151) if self.stamp.upper() == "SAFE" else (255, 40, 40)
+            st = Image.fromarray(np.asarray(_text_img(self.stamp.upper(), int(W * 0.16), fill=col)))
+            s = 1.0 + 0.6 * max(0.0, 1 - (age - 1.2) / 0.15)
+            st = st.resize((int(st.width * s), int(st.height * s)), Image.BILINEAR).rotate(-8, expand=True)
+            arr = np.asarray(st)
+            frame = blend(frame, arr, (W - arr.shape[1]) // 2, int(H * 0.30), k)
+        return frame

@@ -130,6 +130,8 @@ class Scene:
     hero_as: str = ""  # draw the narrator as another figure in this scene (e.g. "hero_hat")
     pov_of: str = ""  # POV shots through the eyes of this figure variant (e.g. "mom_fake") instead of the narrator
     note: list = field(default_factory=list)  # lines on a paper note, revealed one by one
+    wyr: dict = field(default_factory=dict)  # "would you rather" card: {"a": ..., "b": ..., "pct": 63}
+    doors: dict = field(default_factory=dict)  # three doors: {"opened": 2, "stamp": "SAFE", "dead": [1, 3]}
     countdown: int = 0  # big countdown (seconds) during this scene, e.g. "spot the fake in 10 seconds"
     reveal: str = ""  # figure variant to circle at the end of the scene (the answer)
     variant: str = ""  # monster variant for this scene (grey, lava, ice, shadow, swamp)
@@ -253,6 +255,8 @@ def normalize_scene(raw: dict) -> Scene:
         parent=str(raw.get("parent") or "").strip()[:16],
         hero_as=str(raw.get("hero_as") or "").strip()[:16],
         note=[str(x)[:60] for x in raw.get("note", [])][:7],
+        wyr=dict(raw.get("wyr") or {}),
+        doors=dict(raw.get("doors") or {}),
         countdown=int(raw.get("countdown") or 0),
         reveal=str(raw.get("reveal") or "").strip()[:16],
         variant=str(raw.get("variant") or "").strip()[:12],

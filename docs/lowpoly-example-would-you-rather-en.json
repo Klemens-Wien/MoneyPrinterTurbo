@@ -1,0 +1,173 @@
+{
+  "title": "Would You Rather: Horror Edition (Round 4 Has No Good Answer)",
+  "language": "en",
+  "description": "4 rounds. Pick fast. Most people get round 1 wrong… and round 4 has no right answer. 😳 Comment your picks!",
+  "hashtags": [
+    "Shorts",
+    "wouldyourather",
+    "horror",
+    "choices",
+    "scary",
+    "animation"
+  ],
+  "question": {
+    "text": "Your pick for round 4?",
+    "a": "Answer upstairs",
+    "b": "Open the door"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": 6,
+      "color": "#ffffff"
+    },
+    "fake": {
+      "voice": "en-US-EmmaNeural",
+      "pitch": "-7Hz",
+      "rate": -20,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    }
+  },
+  "npc_labels": {
+    "default": [
+      "0"
+    ],
+    "real": [
+      "0",
+      "2",
+      "0",
+      "5",
+      "1",
+      "0",
+      "3",
+      "0",
+      "12",
+      "1",
+      "0",
+      "7"
+    ]
+  },
+  "music_style": "epic",
+  "label_style": "speech",
+  "duration": [
+    60,
+    82
+  ],
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Would you rather hear your mom call you from upstairs while she's at work, or see two of your dad walk through the front door? Pick. Fast.",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "wyr": {
+        "a": "Mom calls from upstairs",
+        "b": "Two dads walk in"
+      },
+      "countdown": 3
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "parent": "dad",
+      "narration": "Sixty three percent picked upstairs. Bad choice. It already knows your *name*.",
+      "action": "lr_upstairs",
+      "shot": "medium",
+      "wyr": {
+        "a": "Mom calls from upstairs",
+        "b": "Two dads walk in",
+        "pct": 63
+      }
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Round two. Would you rather live in a city where everyone's number is zero, or in a village Krampus visits every December?",
+      "action": "zero_pride",
+      "shot": "medium",
+      "wyr": {
+        "a": "Zero City",
+        "b": "The Krampus village"
+      },
+      "countdown": 3
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Seventy one percent picked the city. But the zeros are fake. The mayor is a *forty seven*.",
+      "action": "mayor_speech",
+      "shot": "medium",
+      "reply": "47",
+      "npc_label": "@real",
+      "wyr": {
+        "a": "Zero City",
+        "b": "The Krampus village",
+        "pct": 71
+      }
+    },
+    {
+      "setting": "chalet_home",
+      "mood": "snow_night",
+      "narration": "Round three. Would you rather be chased through the snow, or have something stare through your window all night?",
+      "action": "krampus_window",
+      "shot": "medium",
+      "wyr": {
+        "a": "Chased through the snow",
+        "b": "Stared at all night"
+      },
+      "countdown": 3
+    },
+    {
+      "setting": "chalet_home",
+      "mood": "snow_night",
+      "narration": "Most of you picked the window. It's still there. It's been there since you started *watching*.",
+      "action": "krampus_window",
+      "shot": "closeup",
+      "wyr": {
+        "a": "Chased through the snow",
+        "b": "Stared at all night",
+        "pct": 45
+      }
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Last round. Would you rather answer when mom calls from upstairs, or open the door when she knocks?",
+      "action": "lr_knock",
+      "shot": "medium",
+      "wyr": {
+        "a": "Answer upstairs",
+        "b": "Open the door"
+      },
+      "countdown": 3
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Come downstairs, sweetie. Or open the door. Either way, I'm coming in.",
+      "action": "lr_upstairs",
+      "shot": "closeup",
+      "speaker": "fake",
+      "say": "EITHER WAY."
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "partner": "max",
+      "narration": "Exactly fifty fifty. Because *neither* of them is your mom. Which one would you pick? Comment now.",
+      "action": "lr_knock",
+      "shot": "closeup",
+      "wyr": {
+        "a": "Answer upstairs",
+        "b": "Open the door",
+        "pct": 50
+      }
+    }
+  ]
+}
