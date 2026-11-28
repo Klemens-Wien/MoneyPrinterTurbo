@@ -45,7 +45,7 @@ class Options:
     caption_case: str = "lower"
     max_seconds: float | None = None  # render only the first N seconds (quick look)
     pitch: str | None = None  # e.g. "+10Hz" (younger) / "-8Hz" (deeper)
-    base_rate: int = 22  # speaking rate in percent; viral narrators talk ~3.5-4.7 words per second
+    base_rate: int = 15  # speaking rate in percent: brisk but still natural (no pitch tricks on the narrator)
     duration_range: tuple | None = None  # (min, max) seconds; default: story setting or 75-95
 
 

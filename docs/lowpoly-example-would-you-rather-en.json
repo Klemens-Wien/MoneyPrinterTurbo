@@ -17,15 +17,15 @@
   },
   "voices": {
     "narrator": {
-      "voice": "en-US-GuyNeural",
+      "voice": "en-US-BrianMultilingualNeural",
       "pitch": "+0Hz",
-      "rate": 6,
+      "rate": 4,
       "color": "#ffffff"
     },
     "fake": {
       "voice": "en-US-EmmaNeural",
-      "pitch": "-7Hz",
-      "rate": -20,
+      "pitch": "-4Hz",
+      "rate": -8,
       "fx": "eerie",
       "color": "#ff5a68"
     }

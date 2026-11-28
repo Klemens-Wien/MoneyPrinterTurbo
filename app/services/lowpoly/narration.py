@@ -162,6 +162,9 @@ VOICE_FX = {
     "eerie": "aecho=0.8:0.75:70|140:0.35|0.22,vibrato=f=4.5:d=0.12,lowpass=f=4200",
     # a voice coming through a phone speaker
     "phone": "highpass=f=350,lowpass=f=3200,acompressor",
+    # a monster: formants and pitch lowered together (sounds big, not slowed down), warm low end, short room
+    "monster": f"asetrate={SAMPLE_RATE}*0.8,aresample={SAMPLE_RATE},atempo=1.25,"
+               "bass=g=5:f=140,aecho=0.6:0.45:35|70:0.18|0.1,acompressor=threshold=-18dB:ratio=3",
 }
 
 

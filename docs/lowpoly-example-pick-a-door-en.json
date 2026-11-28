@@ -17,23 +17,23 @@
   },
   "voices": {
     "narrator": {
-      "voice": "en-US-ChristopherNeural",
-      "pitch": "-6Hz",
-      "rate": -4,
+      "voice": "en-US-AndrewMultilingualNeural",
+      "pitch": "+0Hz",
+      "rate": -2,
       "color": "#ffffff"
     },
     "fake": {
       "voice": "en-US-EmmaNeural",
-      "pitch": "-7Hz",
-      "rate": -20,
+      "pitch": "-4Hz",
+      "rate": -8,
       "fx": "eerie",
       "color": "#ff5a68"
     },
     "gray": {
       "voice": "en-GB-ThomasNeural",
-      "pitch": "-12Hz",
-      "rate": -16,
-      "fx": "eerie",
+      "pitch": "-4Hz",
+      "rate": 0,
+      "fx": "monster",
       "color": "#ff5a68"
     }
   },
