@@ -751,7 +751,7 @@ class WouldYouRather:
         self.opts = []
         for text, col in ((a, (226, 48, 64)), (b, (46, 120, 240))):
             label = _text_img(text.upper(), int(W * 0.05), fill=(255, 255, 255), stroke_ratio=0.0,
-                              max_width=int(W * 0.72))
+                              max_width=int(W * (0.58 if pct is not None else 0.72)))
             self.opts.append((label, col))
         self.or_img = np.asarray(_text_img("OR", int(W * 0.06), fill=(255, 255, 255)))
 

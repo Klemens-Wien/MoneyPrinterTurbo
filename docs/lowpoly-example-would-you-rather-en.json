@@ -31,9 +31,6 @@
     }
   },
   "npc_labels": {
-    "default": [
-      "0"
-    ],
     "real": [
       "0",
       "2",
@@ -93,7 +90,8 @@
         "a": "Zero City",
         "b": "The Krampus village"
       },
-      "countdown": 3
+      "countdown": 3,
+      "npc_label": "0"
     },
     {
       "setting": "city_plaza",

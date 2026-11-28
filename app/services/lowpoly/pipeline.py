@@ -275,8 +275,10 @@ def generate(opts: Options) -> dict:
                 frame = sticker.composite(frame, t)
             for nt in notes:
                 frame = nt.composite(frame, t)
+            asking = question is not None and t >= question.start  # the final question card owns the top
             for card in wyrs + doors:
-                frame = card.composite(frame, t)
+                if not asking:
+                    frame = card.composite(frame, t)
             for cd in countdowns:
                 frame = cd.composite(frame, t)
             for a, b in reveals:

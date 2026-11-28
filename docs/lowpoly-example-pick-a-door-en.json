@@ -37,12 +37,6 @@
       "color": "#ff5a68"
     }
   },
-  "npc_labels": {
-    "default": [
-      "0"
-    ]
-  },
-  "hero_label": "0",
   "music_style": "dread",
   "label_style": "speech",
   "duration": [
@@ -122,14 +116,18 @@
           1,
           2
         ]
-      }
+      },
+      "npc_label": "0",
+      "hero_label": "0"
     },
     {
       "setting": "city_avenue",
       "mood": "overcast",
       "narration": "Then a man in a hat walks past you, and whispers.",
       "action": "hat_walk",
-      "shot": "medium"
+      "shot": "medium",
+      "npc_label": "0",
+      "hero_label": "0"
     },
     {
       "setting": "city_avenue",
@@ -137,14 +135,18 @@
       "narration": "Everyone picks door three. That's how the city gets its zeros.",
       "action": "hat_walk",
       "shot": "closeup",
-      "speaker": "gray"
+      "speaker": "gray",
+      "npc_label": "0",
+      "hero_label": "0"
     },
     {
       "setting": "city_plaza",
       "mood": "sunset",
       "narration": "So which door did you pick? If you said three, don't look at the number above your head. Comment your door.",
       "action": "alone",
-      "shot": "pull_back"
+      "shot": "pull_back",
+      "npc_label": "0",
+      "hero_label": "0"
     }
   ]
 }
