@@ -108,11 +108,16 @@ def estimate_words(text: str, start: float, end: float) -> list[Word]:
 # --------------------------------------------------------------------------- #
 
 
+_DEGRADED: set[str] = set()  # multilingual voices the service keeps refusing in this run
+
+
 def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str, pitch: str = "+0Hz") -> Clip:
     import edge_tts
 
     mp3 = out_wav[:-4] + ".mp3"
     words: list[Word] = []
+    if voice in _DEGRADED:
+        voice = voice.replace("Multilingual", "")
 
     async def run():
         rate = f"{rate_pct:+d}%"
@@ -126,16 +131,20 @@ def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str, pitch: str = 
                     start = chunk["offset"] / 1e7
                     words.append(Word(chunk["text"], start, start + chunk["duration"] / 1e7))
 
-    for attempt in range(5):  # the service drops a request now and then: retry before giving up
+    for attempt in range(7):  # the service drops a request now and then: retry before giving up
         try:
             words.clear()
             asyncio.run(run())
             break
         except Exception as exc:  # noqa: BLE001
-            if attempt == 4:
+            if attempt == 6:
                 raise
+            if attempt == 3 and "Multilingual" in voice:  # these voices get throttled: use the sibling voice
+                _DEGRADED.add(voice)
+                voice = voice.replace("Multilingual", "")
+                logger.warning(f"edge-tts: switching to {voice} for this line")
             logger.warning(f"edge-tts attempt {attempt + 1} failed ({exc}); retrying")
-            time.sleep(1.5 * (attempt + 1))
+            time.sleep(2.0 * (attempt + 1))
     to_wav(mp3, out_wav)
     os.remove(mp3)
     return Clip(out_wav, wav_duration(out_wav), words)
@@ -239,7 +248,10 @@ def synthesize(
     last_error: Exception | None = None
     for name in _resolve_backend(backend, voice):
         try:
+            degraded = len(_DEGRADED)
             clips = _synthesize_once(texts, out_dir, name, voice, language, rate_pct, pitch, specs)
+            if len(_DEGRADED) != degraded:  # a voice changed halfway: redo all lines so each character sounds the same
+                clips = _synthesize_once(texts, out_dir, name, voice, language, rate_pct, pitch, specs)
         except Exception as exc:
             last_error = exc
             logger.warning(f"TTS backend '{name}' failed: {exc}")
