@@ -1,0 +1,149 @@
+{
+  "title": "In This City, Everyone Can See What You're Thinking. Except Me.",
+  "language": "en",
+  "description": "In this city your thoughts float above your head. Nobody can lie. My bubble has always been empty… and today the mayor noticed. 😳",
+  "hashtags": [
+    "Shorts",
+    "inthistown",
+    "story",
+    "plottwist",
+    "animation",
+    "mystery"
+  ],
+  "question": {
+    "text": "What do I do?",
+    "a": "Hide",
+    "b": "Go to the square"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-BrianMultilingualNeural",
+      "pitch": "+0Hz",
+      "rate": 2,
+      "color": "#ffffff"
+    },
+    "mayor": {
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": 4,
+      "color": "#ffd84a"
+    },
+    "max": {
+      "voice": "en-US-RogerNeural",
+      "pitch": "+0Hz",
+      "rate": 4,
+      "color": "#9dff8a"
+    }
+  },
+  "npc_labels": {
+    "default": [
+      "LATE AGAIN",
+      "I'M SO HUNGRY",
+      "DOES SHE LIKE ME?",
+      "I HATE MONDAYS",
+      "DON'T TRIP",
+      "I LIED TO MOM",
+      "NICE SHOES",
+      "IS IT 5 YET?",
+      "MISS YOU GRANDMA",
+      "WHERE ARE MY KEYS?"
+    ]
+  },
+  "hero_label": "...",
+  "label_style": "speech",
+  "music_style": "mystery",
+  "duration": [
+    50,
+    80
+  ],
+  "scenes": [
+    {
+      "setting": "city_avenue",
+      "mood": "day",
+      "narration": "In this city, your thoughts float above your head. Everyone can read them. Nobody can *lie*.",
+      "action": "crowd",
+      "shot": "medium"
+    },
+    {
+      "setting": "city_crossing",
+      "mood": "day",
+      "narration": "My mom's thought at breakfast: I hope he passes the test. My teacher's: coffee. Now.",
+      "action": "duo",
+      "shot": "medium",
+      "say": "COFFEE. NOW."
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Liars get caught in seconds. Crime is zero. Secrets are zero. The city even built a monument to it.",
+      "action": "zero_pride",
+      "shot": "medium"
+    },
+    {
+      "setting": "city_home",
+      "mood": "overcast",
+      "narration": "But I have a secret. My bubble has *always* been empty.",
+      "action": "alone",
+      "shot": "closeup"
+    },
+    {
+      "setting": "city_avenue",
+      "mood": "overcast",
+      "narration": "Doctors said it's nothing. My mom made me wear a hood. Every day. For twelve years.",
+      "action": "walk",
+      "shot": "side_track"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Then came the mayor's big speech. Everyone cheered. His bubble said: I love this city.",
+      "action": "mayor_speech",
+      "shot": "medium",
+      "reply": "I LOVE THIS CITY",
+      "card": "Noon"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Zero lies. Zero secrets. That is what makes us safe!",
+      "action": "mayor_speech",
+      "shot": "closeup",
+      "reply": "I LOVE THIS CITY",
+      "speaker": "mayor"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Then, for one second, his bubble changed. The empty one is here. And he looked *right* at me.",
+      "action": "mayor_speech",
+      "shot": "low_angle",
+      "reply": "THE EMPTY ONE IS HERE"
+    },
+    {
+      "setting": "city_home",
+      "mood": "night",
+      "narration": "That night, my best friend knocked on my window. And for the first time, *his* bubble was empty too.",
+      "action": "duo",
+      "shot": "medium",
+      "partner": "max",
+      "say": "..."
+    },
+    {
+      "setting": "city_home",
+      "mood": "night",
+      "narration": "There are more of us. Hundreds. The mayor can't read us. And tonight, he's coming for all of us.",
+      "action": "duo",
+      "shot": "closeup",
+      "partner": "max",
+      "speaker": "max",
+      "say": "..."
+    },
+    {
+      "setting": "city_home",
+      "mood": "night",
+      "narration": "If I hide, they take my friend. If I go to the square tomorrow, the whole city sees I'm empty. What do I do? Tell me.",
+      "action": "alone",
+      "shot": "medium"
+    }
+  ]
+}

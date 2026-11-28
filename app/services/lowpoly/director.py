@@ -1150,6 +1150,8 @@ class Director:
             cam = self._interview_camera(ps, shot, u, local) or cam
         if ps.scene.action in CITY_ACTIONS and shot != "pov":
             cam = self._city_camera(ps, shot, u, local) or cam
+        elif ps.scene.setting.startswith("city_") and ps.scene.action in ("alone", "duo", "crowd", "walk", "run", "wave"):
+            cam = self._street_camera(ps, shot, u, local)
         if living and ps.scene.action in ("lr_couch", "lr_phone") and shot != "pov":
             cam = self._couch_camera(shot, u)
         if living and ps.scene.action in ("lr_goodbye", "lr_knock"):
@@ -1331,6 +1333,26 @@ class Director:
         side_sign = 1.0 if np.dot(toward, np.cross(up, across)) >= 0 else -1.0
         eye = mid - across * 2.6 + np.cross(up, across) * side_sign * (6.0 - 1.0 * e) + up * 0.6
         return Camera(tuple(eye), tuple(mid + up * 0.2), 52)
+
+    @staticmethod
+    def _street_camera(ps, shot: str, u: float, local: float):
+        """Everyday city scenes: the camera stands out on the street and looks at the people on the sidewalk,
+        with the skyscrapers behind them (never inside a lamp post or a facade)."""
+        from . import city as cty
+        e = u * u * (3 - 2 * u)
+        p = ps.actor.focus(local)
+        side_z = 1.0 if p[2] - cty.CITY[2] < 0 else -1.0  # from the sidewalk towards the middle of the avenue
+        f = np.array([0.25 * math.sin(ps.yaw), 0.0, side_z])
+        f /= np.linalg.norm(f)
+        side = np.array([f[2], 0.0, -f[0]])
+        up = np.array([0.0, 1.0, 0.0])
+        if shot in ("closeup", "dolly_in"):
+            return Camera(tuple(p + f * (3.6 - 0.6 * e) + side * 0.6 + up * 0.2), tuple(p + up * 0.1), 48)
+        if shot in ("low_angle", "crane_up"):
+            return Camera(tuple(p + f * 5.0 + side * 1.2 - up * 1.0), tuple(p + up * 1.4), 60)
+        if shot in ("aerial_orbit", "pull_back", "top_down"):
+            return Camera(tuple(p + f * (9.0 + 5.0 * e) + side * 3.0 + up * (5.0 + 4.0 * e)), tuple(p), 56)
+        return Camera(tuple(p + f * (7.0 - 1.2 * e) + side * (1.5 * math.sin(u * 2.0)) + up * 0.9), tuple(p - up * 0.3), 54)
 
     def _city_camera(self, ps, shot: str, u: float, local: float):
         """Fixed compositions for the Zero City scenes (the man with the hat, the monument, the doorstep)."""
