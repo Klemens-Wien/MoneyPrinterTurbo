@@ -244,6 +244,8 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
 
     if action == "duo":
         friend_pos = stage + np.array([math.sin(facing_cam + 1.4), 0.0, math.cos(facing_cam + 1.4)]) * 2.4
+        if setting_name.startswith("city_"):  # side by side on the sidewalk, not inside a facade
+            friend_pos = stage + np.array([2.3, 0.0, 0.4])
         hero_fig = Figure(hero, stage.copy(), anim="talk", face_target=friend_pos)
         partner = scene.partner if scene is not None else ""
         friend = Figure(lib.figure(partner) if partner else _npc(lib, rng), friend_pos, anim="talk", phase=1.1,

@@ -121,8 +121,8 @@
     },
     {
       "setting": "city_home",
-      "mood": "night",
-      "narration": "That night, my best friend knocked on my window. And for the first time, *his* bubble was empty too.",
+      "mood": "sunset",
+      "narration": "That evening, my best friend knocked on my window. And for the first time, *his* bubble was empty too.",
       "action": "duo",
       "shot": "medium",
       "partner": "max",
@@ -130,7 +130,7 @@
     },
     {
       "setting": "city_home",
-      "mood": "night",
+      "mood": "sunset",
       "narration": "There are more of us. Hundreds. The mayor can't read us. And tonight, he's coming for all of us.",
       "action": "duo",
       "shot": "closeup",
@@ -140,10 +140,12 @@
     },
     {
       "setting": "city_home",
-      "mood": "night",
+      "mood": "sunset",
       "narration": "If I hide, they take my friend. If I go to the square tomorrow, the whole city sees I'm empty. What do I do? Tell me.",
       "action": "alone",
       "shot": "medium"
     }
-  ]
+  ],
+  "label_scale": 1.9,
+  "max_labels": 6
 }

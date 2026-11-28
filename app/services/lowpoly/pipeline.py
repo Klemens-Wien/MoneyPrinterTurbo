@@ -238,7 +238,7 @@ def generate(opts: Options) -> dict:
     captioner = cap.CaptionRenderer(opts.width, opts.height, case=opts.caption_case)
     hook_end = min(director.scenes[0].end, 4.0) if director.scenes else 3.5
     banner = cap.HookBanner(opts.width, opts.height, "" if wheel else board.hook, 0.0, hook_end)
-    labels = overlays.LabelLayer(opts.width, opts.height)
+    labels = overlays.LabelLayer(opts.width, opts.height, scale=board.label_scale, max_labels=board.max_labels)
     stickers = [overlays.StickerCard(opts.width, opts.height, ps.scene.card, ps.start + 0.05)
                 for ps in director.scenes if ps.scene.card and not ps.scene.countdown and not ps.scene.wyr
                 and not ps.scene.doors]

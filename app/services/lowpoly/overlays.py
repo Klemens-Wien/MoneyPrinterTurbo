@@ -346,15 +346,16 @@ LABEL_STYLES = {
 
 
 class LabelLayer:
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int, scale: float = 1.0, max_labels: int = 0):
         self.width, self.height = width, height
+        self.scale, self.max_labels = scale, max_labels
         self._cache: dict[tuple, Image.Image] = {}
 
     def _pill(self, text: str, style: str) -> Image.Image:
         key = (text, style)
         if key not in self._cache:
             fg, bg = LABEL_STYLES.get(style, LABEL_STYLES["npc"])
-            size = int(self.width * (0.085 if text.isdigit() else 0.05))  # life numbers: big and readable
+            size = int(self.width * (0.085 if text.isdigit() else 0.05) * self.scale)  # numbers: big and readable
             font = _font(size)
             tw = font.getbbox(text)[2]
             pad = int(size * 0.35)
@@ -391,9 +392,13 @@ class LabelLayer:
             x = (ndc[0] * 0.5 + 0.5) * self.width
             y = (1 - (ndc[1] * 0.5 + 0.5)) * self.height
             items.append((dist, x, y, text, style))
+        if self.max_labels:  # the nearest ones only, the story's own labels always stay
+            keep = sorted(items)[:self.max_labels]
+            keep += [it for it in items if it not in keep and it[4] != "speech"]
+            items = keep
         for dist, x, y, text, style in sorted(items, reverse=True):  # far first, near on top
             img = self._pill(text, style)
-            s = float(np.clip(7.0 / max(dist, 0.5), 0.6 if text.isdigit() else 0.45, 1.5))
+            s = float(np.clip(7.0 / max(dist, 0.5), 0.6 if (text.isdigit() or self.scale > 1) else 0.45, 1.5))
             if abs(s - 1.0) > 0.02:
                 img = img.resize((max(1, int(img.width * s)), max(1, int(img.height * s))), Image.BILINEAR)
             arr = np.asarray(img)

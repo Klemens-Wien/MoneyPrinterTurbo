@@ -157,6 +157,8 @@ class Storyboard:
     hero_label: str = ""  # the rule made visible: text floating above the narrator (e.g. "3 DAYS")
     npc_labels: dict = field(default_factory=dict)  # {"default"|"rich"|"poor"|"guard": [texts above people]}
     label_style: str = ""  # "speech" renders labels as speech bubbles
+    label_scale: float = 1.0  # bigger floating labels (e.g. thought bubbles that must be readable)
+    max_labels: int = 0  # only the nearest N labels are drawn (0 = all)
     wheel_compact: bool = False  # small wheel at the top so the hero stays visible underneath
     voices: dict = field(default_factory=dict)  # {"speaker": {"voice", "pitch", "rate", "fx", "color"}}
     music_style: str = ""  # "horror" | "mystery" | "epic" (default: generic score)
@@ -195,6 +197,8 @@ class Storyboard:
             hero_label=str(data.get("hero_label") or "").strip()[:24],
             npc_labels=_parse_npc_labels(data.get("npc_labels")),
             label_style=str(data.get("label_style") or "").strip(),
+            label_scale=float(data.get("label_scale") or 1.0),
+            max_labels=int(data.get("max_labels") or 0),
             wheel_compact=bool(data.get("wheel_compact", False)),
             voices={str(k): dict(v) for k, v in (data.get("voices") or {}).items() if isinstance(v, dict)},
             music_style=str(data.get("music_style") or "").strip(),
