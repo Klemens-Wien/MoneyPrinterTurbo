@@ -13,6 +13,7 @@ import os
 import re
 import shutil
 import subprocess
+import time
 import wave
 from dataclasses import dataclass, field
 
@@ -125,7 +126,16 @@ def _edge_clip(text: str, voice: str, rate_pct: int, out_wav: str, pitch: str = 
                     start = chunk["offset"] / 1e7
                     words.append(Word(chunk["text"], start, start + chunk["duration"] / 1e7))
 
-    asyncio.run(run())
+    for attempt in range(5):  # the service drops a request now and then: retry before giving up
+        try:
+            words.clear()
+            asyncio.run(run())
+            break
+        except Exception as exc:  # noqa: BLE001
+            if attempt == 4:
+                raise
+            logger.warning(f"edge-tts attempt {attempt + 1} failed ({exc}); retrying")
+            time.sleep(1.5 * (attempt + 1))
     to_wav(mp3, out_wav)
     os.remove(mp3)
     return Clip(out_wav, wav_duration(out_wav), words)
@@ -233,13 +243,16 @@ def synthesize(
         except Exception as exc:
             last_error = exc
             logger.warning(f"TTS backend '{name}' failed: {exc}")
+            if specs and name == "edge":  # a cast of real voices must never silently turn into a robot voice
+                raise
             continue
         total = sum(c.duration for c in clips) + gap * len(clips)
         lo, hi = target_range
         ideal = (lo + hi) / 2
         if not lo + 2 <= total <= hi - 2:
             # adjust the speaking rate once, then fine-tune with time stretching
-            new_rate = int(np.clip(rate_pct + (total / ideal - 1) * 100, -30, 40))
+            # speed up when too long, but never drag a natural voice down by more than a few percent
+            new_rate = int(np.clip(rate_pct + (total / ideal - 1) * 100, max(-30, rate_pct - 6), 40))
             if new_rate != rate_pct and name != "silent":
                 logger.info(f"narration {total:.1f}s -> re-synthesizing at rate {new_rate:+d}%")
                 clips = _synthesize_once(texts, out_dir, name, voice, language, new_rate, pitch, specs)
