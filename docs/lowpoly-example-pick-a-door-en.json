@@ -134,7 +134,7 @@
       "mood": "overcast",
       "narration": "Everyone picks door three. That's how the city gets its zeros.",
       "action": "hat_walk",
-      "shot": "closeup",
+      "shot": "medium",
       "speaker": "gray",
       "npc_label": "0",
       "hero_label": "0"

@@ -1387,7 +1387,7 @@ class Director:
         m = man.focus(local)
         if action == "hat_walk":
             f = np.array([math.sin(ps.yaw), 0.0, math.cos(ps.yaw)])
-        if shot in ("closeup", "dolly_in"):
+        if shot in ("closeup", "dolly_in") and action != "hat_walk":  # a walking man walks into a close camera
             return Camera(tuple(m + f * (3.6 - 0.6 * e) + side * 0.7 + up * 0.35), tuple(m + up * 0.25), 46)
         if shot in ("low_angle", "crane_up"):
             return Camera(tuple(m + f * 6.5 + side * 1.5 - up * 1.0), tuple(m + up * 0.9), 58)
