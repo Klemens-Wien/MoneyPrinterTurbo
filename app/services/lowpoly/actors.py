@@ -56,8 +56,8 @@ class ActorLibrary:
         if all(k in self.meshes for k in keys):
             return {p: k for k, p in keys.items()}
         if variant.endswith("_fake") and variant != "mom_fake":  # a copy of someone: pale skin, glowing eyes
-            base = {"max": props.MAX_COLORS, "sister": props.SISTER_COLORS, "finn": props.FINN_COLORS}.get(
-                variant[:-5], props.HERO_COLORS)
+            base = {"max": props.MAX_COLORS, "sister": props.SISTER_COLORS, "finn": props.FINN_COLORS,
+                    **props.HERO_VARIANTS}.get(variant[:-5], props.HERO_COLORS)
             parts = props.figure_parts(dict(base, skin=hex_color("#cfd2d8")))
             out = {p_name: self._store(f"fig_{variant}_{p_name}", b) for p_name, b in parts.items()}
             glow = MeshBuilder()

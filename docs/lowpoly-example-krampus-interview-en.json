@@ -1,0 +1,130 @@
+{
+  "title": "I Interviewed Krampus. His Last Answer Terrified Me.",
+  "language": "en",
+  "description": "The only interview Krampus ever gave. I asked him 3 questions. The last answer… I still hear it. 😨",
+  "hashtags": [
+    "Shorts",
+    "krampus",
+    "monsterinterview",
+    "horrorstory",
+    "scary",
+    "animation"
+  ],
+  "question": {
+    "text": "Post the full tape?",
+    "a": "Post it",
+    "b": "Delete it"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+0Hz",
+      "rate": 0,
+      "color": "#ffffff"
+    },
+    "krampus": {
+      "voice": "en-US-ChristopherNeural",
+      "pitch": "-22Hz",
+      "rate": -22,
+      "fx": "eerie",
+      "color": "#ff5a68"
+    }
+  },
+  "music_style": "dread",
+  "label_style": "speech",
+  "duration": [
+    58,
+    78
+  ],
+  "scenes": [
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "I'm standing in a tiny village in the Alps. The thing in front of me is *Krampus*. This is his only interview. Ever.",
+      "action": "krampus_interview",
+      "shot": "medium",
+      "card": "LIVE"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "First question. Why do you come back every December?",
+      "action": "krampus_interview",
+      "shot": "closeup"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "Because every December, someone opens a door they shouldn't.",
+      "action": "krampus_interview",
+      "shot": "low_angle",
+      "speaker": "krampus"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "Second question. What happens to the kids you take?",
+      "action": "krampus_interview",
+      "shot": "medium"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "They come back. Next year. Wearing my horns.",
+      "action": "krampus_interview",
+      "shot": "closeup",
+      "speaker": "krampus"
+    },
+    {
+      "setting": "village_square",
+      "mood": "snow_night",
+      "narration": "That's when I looked at the square. There were *more* of them than last year.",
+      "action": "krampus_pack",
+      "shot": "aerial_orbit"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "Last question. Is there anything you're afraid of?",
+      "action": "krampus_interview",
+      "shot": "medium"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "The church bells at six. And the boy standing behind you.",
+      "action": "krampus_interview",
+      "shot": "closeup",
+      "speaker": "krampus"
+    },
+    {
+      "setting": "village_edge",
+      "mood": "snow_night",
+      "narration": "I turned around. Nobody. Just small footprints in the snow. Coming *toward* me.",
+      "action": "alone",
+      "shot": "pull_back"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "Interview's over. Run.",
+      "action": "krampus_interview",
+      "shot": "low_angle",
+      "speaker": "krampus"
+    },
+    {
+      "setting": "village_lane",
+      "mood": "snow_night",
+      "narration": "So I ran. And the camera kept recording.",
+      "action": "krampus_chase",
+      "shot": "side_track"
+    },
+    {
+      "setting": "chalet_home",
+      "mood": "snow_night",
+      "narration": "At home I watched the tape. At the very end, a small voice whispers my name. Should I post the full tape? Tell me.",
+      "action": "krampus_window",
+      "shot": "medium"
+    }
+  ]
+}

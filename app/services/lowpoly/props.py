@@ -310,6 +310,10 @@ FINN_COLORS = {  # the new kid: red hair, teal hoodie
 }
 
 HERO_VARIANTS = {
+    "dad": {"skin": hex_color("#e8b98a"), "shirt": hex_color("#355c9a"), "pants": hex_color("#3a3a44"),
+            "hair": hex_color("#3a2a1e"), "cap": False},
+    "mayor": {"skin": hex_color("#f0c8a0"), "shirt": hex_color("#1f2a44"), "pants": hex_color("#1f2a44"),
+              "hair": hex_color("#d9d9d9"), "cap": False},
     "babysitter": {"skin": hex_color("#f1c27d"), "shirt": hex_color("#7a5cd6"), "pants": hex_color("#2b2f45"),
                    "hair": hex_color("#6a3a1e"), "cap": False},
     "rich_kid": {"skin": hex_color("#ffdbac"), "shirt": hex_color("#fbfaf4"), "pants": hex_color("#c99a1e"),

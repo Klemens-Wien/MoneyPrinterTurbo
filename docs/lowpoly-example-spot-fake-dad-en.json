@@ -1,0 +1,176 @@
+{
+  "title": "Two Dads Came Home Tonight. Can You Spot The Fake?",
+  "language": "en",
+  "description": "Dad works late. Tonight he came home twice. 10 seconds to spot the fake… then my sister said something that changed everything 👀",
+  "hashtags": [
+    "Shorts",
+    "spotthefake",
+    "horrorstory",
+    "puzzle",
+    "scary",
+    "animation"
+  ],
+  "question": {
+    "text": "Who do I trust?",
+    "a": "My eyes",
+    "b": "My sister"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-RogerNeural",
+      "pitch": "+14Hz",
+      "rate": 2,
+      "color": "#ffffff"
+    },
+    "dad": {
+      "voice": "en-US-GuyNeural",
+      "pitch": "+0Hz",
+      "rate": 0,
+      "color": "#7fe3ff"
+    },
+    "fakedad": {
+      "voice": "en-US-GuyNeural",
+      "pitch": "-3Hz",
+      "rate": -8,
+      "color": "#7fe3ff"
+    },
+    "sister": {
+      "voice": "en-US-AnaNeural",
+      "pitch": "+0Hz",
+      "rate": -4,
+      "color": "#9dff8a"
+    }
+  },
+  "music_style": "mystery",
+  "label_style": "speech",
+  "duration": [
+    60,
+    78
+  ],
+  "scenes": [
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Two dads walked into our living room tonight. One of them is *not* my dad.",
+      "action": "lr_twins",
+      "shot": "closeup"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "I'm working late. If two of me ever come home, ask the question only we know.",
+      "action": "lr_goodbye",
+      "shot": "closeup",
+      "speaker": "dad",
+      "say": "ASK THE QUESTION.",
+      "card": "8:00 PM"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "My little sister fell asleep on the couch. I stayed up.",
+      "action": "lr_couch",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "At midnight, keys turned in the front door.",
+      "action": "lr_knock",
+      "shot": "medium",
+      "card": "12:00 AM"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Dad walked in. Then the door opened *again*. And Dad walked in. Again.",
+      "action": "lr_twins",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Buddy. Step away from him. Slowly.",
+      "action": "lr_twins",
+      "shot": "dolly_in",
+      "speaker": "dad"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Don't listen to him, buddy. Come here. I'm your dad.",
+      "action": "lr_twins",
+      "shot": "closeup",
+      "speaker": "fakedad"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "So I asked. What was the name of my first fish?",
+      "action": "lr_twins",
+      "shot": "medium"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Bubbles.",
+      "action": "lr_twins",
+      "shot": "closeup",
+      "speaker": "dad"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Bubbles.",
+      "action": "lr_twins",
+      "shot": "closeup",
+      "speaker": "fakedad"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "They *both* knew. One detail is wrong. Ten seconds. Find it.",
+      "action": "lr_twins",
+      "shot": "medium",
+      "countdown": 10,
+      "card": "SPOT THE FAKE"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Did you see it? Grey skin. Red eyes. And he never blinks.",
+      "action": "lr_twins",
+      "shot": "medium",
+      "reveal": "dad_fake"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "Why are you looking at that one? He's the fake. The other one has been here all night.",
+      "action": "lr_couch",
+      "shot": "closeup",
+      "speaker": "sister"
+    },
+    {
+      "setting": "livingroom",
+      "mood": "indoor_lr",
+      "parent": "dad",
+      "narration": "My eyes say one dad. My sister says the other. Who do I trust? Comment now.",
+      "action": "lr_twins",
+      "shot": "medium"
+    }
+  ]
+}

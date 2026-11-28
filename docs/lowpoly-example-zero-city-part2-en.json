@@ -1,0 +1,176 @@
+{
+  "title": "Zero City Part 2: I Put On The Hat. Now I See Everyone's REAL Number",
+  "language": "en",
+  "description": "Part 2. You said: put it on. So I did. The zeros were fake. My teacher: 5. My best friend: 1. The mayor… 😳",
+  "hashtags": [
+    "Shorts",
+    "part2",
+    "inthistown",
+    "plottwist",
+    "story",
+    "animation"
+  ],
+  "question": {
+    "text": "What do I do?",
+    "a": "Show everyone",
+    "b": "Give the hat back"
+  },
+  "voices": {
+    "narrator": {
+      "voice": "en-US-AndrewNeural",
+      "pitch": "+10Hz",
+      "rate": 2,
+      "color": "#ffffff"
+    },
+    "gray": {
+      "voice": "en-GB-ThomasNeural",
+      "pitch": "-10Hz",
+      "rate": -10,
+      "color": "#ff5a68"
+    },
+    "mayor": {
+      "voice": "en-US-GuyNeural",
+      "pitch": "-4Hz",
+      "rate": 4,
+      "color": "#ffd84a"
+    }
+  },
+  "npc_labels": {
+    "default": [
+      "0"
+    ],
+    "real": [
+      "0",
+      "2",
+      "0",
+      "5",
+      "1",
+      "0",
+      "3",
+      "0",
+      "12",
+      "1",
+      "0",
+      "7"
+    ]
+  },
+  "hero_label": "0",
+  "music_style": "mystery",
+  "duration": [
+    62,
+    82
+  ],
+  "scenes": [
+    {
+      "setting": "city_home",
+      "mood": "dawn",
+      "narration": "Part two. You said: put it on. So I did.",
+      "action": "hat_gift",
+      "shot": "closeup",
+      "card": "PART 2"
+    },
+    {
+      "setting": "city_avenue",
+      "mood": "day",
+      "narration": "The second it touched my head, the whole city changed.",
+      "action": "crowd",
+      "shot": "medium",
+      "hero_as": "hero_hat",
+      "npc_label": "@real"
+    },
+    {
+      "setting": "city_avenue",
+      "mood": "day",
+      "narration": "The zeros were gone. Underneath were the *real* numbers. The baker: two. My teacher: five.",
+      "action": "crowd",
+      "shot": "player_cam",
+      "hero_as": "hero_hat",
+      "npc_label": "@real"
+    },
+    {
+      "setting": "city_crossing",
+      "mood": "day",
+      "narration": "My best friend: one. He never told me.",
+      "action": "duo",
+      "shot": "closeup",
+      "hero_as": "hero_hat",
+      "npc_label": "1"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "And the proud crowd in front of the golden zero? Almost nobody was really zero.",
+      "action": "zero_pride",
+      "shot": "medium",
+      "hero_as": "hero_hat",
+      "npc_label": "@real"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Then the mayor stepped up for his big speech.",
+      "action": "mayor_speech",
+      "shot": "medium",
+      "hero_as": "hero_hat",
+      "npc_label": "@real",
+      "reply": "47",
+      "card": "Noon"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "Zero City is the safest city on Earth! Not one of us has ever hurt anyone!",
+      "action": "mayor_speech",
+      "shot": "closeup",
+      "hero_as": "hero_hat",
+      "npc_label": "@real",
+      "reply": "47",
+      "speaker": "mayor"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "day",
+      "narration": "His real number was forty *seven*.",
+      "action": "mayor_speech",
+      "shot": "low_angle",
+      "hero_as": "hero_hat",
+      "npc_label": "@real",
+      "reply": "47"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "night",
+      "narration": "That night, Mr. Gray found me.",
+      "action": "hat_talk",
+      "shot": "medium",
+      "hero_as": "hero_hat",
+      "reply": "312"
+    },
+    {
+      "setting": "city_plaza",
+      "mood": "night",
+      "narration": "The hat never hid my number, kid. It showed me theirs. The mayor made the zeros. And now he wants that hat.",
+      "action": "hat_talk",
+      "shot": "closeup",
+      "hero_as": "hero_hat",
+      "reply": "312",
+      "speaker": "gray"
+    },
+    {
+      "setting": "city_avenue",
+      "mood": "night",
+      "narration": "Footsteps behind us. The mayor's men. I ran.",
+      "action": "run",
+      "shot": "side_track",
+      "hero_as": "hero_hat"
+    },
+    {
+      "setting": "city_home",
+      "mood": "night",
+      "narration": "Tomorrow the whole city meets on the square. I could show them the truth. Or give back the hat, and everyone stays happy. Tell me.",
+      "action": "alone",
+      "shot": "medium",
+      "hero_as": "hero_hat"
+    }
+  ]
+}

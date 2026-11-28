@@ -48,6 +48,8 @@ ACTIONS = {
     "hat_trial": "(big city) the whole city surrounds the man in front of the monument",
     "hat_talk": "(big city) the narrator talks face to face with the man",
     "hat_gift": "(big city) the man's hat lies on the narrator's doorstep",
+    "mayor_speech": "(big city) the mayor gives a speech in front of the golden zero (reply = his number)",
+    "krampus_interview": "(alpine village) the narrator interviews Krampus face to face in the snowy lane",
     "lr_twins": "(living room) two identical moms stand side by side, one of them is fake",
     "lr_knock": "(living room) someone knocks on the closed front door, the kids stare at it",
     "lr_two": "(living room) mom at the door (say) and the voice upstairs (reply) at the same time",
@@ -124,6 +126,8 @@ class Scene:
     phone: str = ""  # text message shown on a phone ("MOM: I'm still in the car")
     chat: list = field(default_factory=list)  # phone chat thread: [["me"|"them", "text"], ...] revealed one by one
     speaker: str = ""  # who speaks this line (key into the story's "voices"); default: the narrator
+    parent: str = ""  # who is "mom" in the living room scenes ("dad" swaps in the father)
+    hero_as: str = ""  # draw the narrator as another figure in this scene (e.g. "hero_hat")
     pov_of: str = ""  # POV shots through the eyes of this figure variant (e.g. "mom_fake") instead of the narrator
     note: list = field(default_factory=list)  # lines on a paper note, revealed one by one
     countdown: int = 0  # big countdown (seconds) during this scene, e.g. "spot the fake in 10 seconds"
@@ -246,6 +250,8 @@ def normalize_scene(raw: dict) -> Scene:
         chat=[[str(m[0]), str(m[1])[:90]] for m in raw.get("chat", []) if isinstance(m, (list, tuple)) and len(m) == 2][:6],
         speaker=str(raw.get("speaker") or "").strip()[:16],
         pov_of=str(raw.get("pov_of") or "").strip()[:16],
+        parent=str(raw.get("parent") or "").strip()[:16],
+        hero_as=str(raw.get("hero_as") or "").strip()[:16],
         note=[str(x)[:60] for x in raw.get("note", [])][:7],
         countdown=int(raw.get("countdown") or 0),
         reveal=str(raw.get("reveal") or "").strip()[:16],

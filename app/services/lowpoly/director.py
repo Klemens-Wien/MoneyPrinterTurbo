@@ -159,7 +159,7 @@ def build_actor(action: str, setting_name: str, duration: float, yaw: float, moo
     """Returns the actor group for a scene and a camera distance scale."""
     s = SETTINGS[setting_name]
     stage = np.array([s.stage[0], s.stage_y, s.stage[1]])
-    hero = lib.figure("hero")
+    hero = lib.figure(scene.hero_as if scene is not None and scene.hero_as else "hero")
     facing_cam = yaw  # figure heading that looks at a camera placed at `yaw`
     road_point, road_dir = _road_frame(setting_name)
 
@@ -603,11 +603,11 @@ def _skyline_scene(action, setting_name, stage, duration, yaw, mood, lib, rng, h
     return Group([hero_fig, Marker(down)], 0, look=Marker(down)), 0.8
 
 
-KRAMPUS_ACTIONS = {"bells", "krampus_lane", "krampus_pack", "krampus_window", "krampus_chase", "krampus_door",
+KRAMPUS_ACTIONS = {"krampus_interview", "bells", "krampus_lane", "krampus_pack", "krampus_window", "krampus_chase", "krampus_door",
                    "krampus_leave"}
 
 
-CITY_ACTIONS = {"zero_pride", "hat_walk", "hat_storm", "zero_panic", "hat_trial", "hat_talk", "hat_gift"}
+CITY_ACTIONS = {"mayor_speech", "zero_pride", "hat_walk", "hat_storm", "zero_panic", "hat_trial", "hat_talk", "hat_gift"}
 
 
 def _city_scene(action, stage, duration, facing_cam, lib, rng, hero, scene):
@@ -674,6 +674,15 @@ def _city_scene(action, stage, duration, facing_cam, lib, rng, hero, scene):
             ring.append(Figure(_npc(lib, rng), p, anim=str(rng.choice(("point", "idle", "point"))),
                                phase=float(rng.uniform(0, 3)), face_target=center))
         return Group([man, hero_fig] + ring, 0, look=man, look_ratio=0.55), 0.55
+    if action == "mayor_speech":  # the mayor on the plinth of the golden zero, the crowd below
+        podium = monument + (stage - monument) * 0.6
+        podium[1] = stage[1]
+        mayor = Figure(lib.figure("mayor"), podium, heading=facing_cam, anim="talk", label_locked=True,
+                       label=number, label_style="danger")
+        hero_fig = Figure(hero, at(facing_cam + 0.5, 5.5, podium), anim="idle", face_target=podium)
+        members = [mayor, hero_fig] + crowd(16, podium, 4.0, 10.0, spread=1.2, anims=("idle", "cheer", "idle"),
+                                            look_at=podium)
+        return Group(members, 0, look=mayor, look_ratio=0.6), 0.5
     if action == "hat_talk":  # face to face with him
         friend_pos = at(facing_cam + 1.4, 2.6)
         hero_fig = Figure(hero, stage.copy(), anim="idle", face_target=friend_pos)
@@ -709,6 +718,13 @@ def _krampus_scene(action, stage, duration, yaw, mood, lib, rng, hero, scene):
             p = stage + away * (55 + 8 * i) + side * (i * 4 - 2)
             members.append(krampus(p, anim="stomp", path=LinePath(p, toward, 1.4)))
         return Group(members, 0), 0.6
+    if action == "krampus_interview":  # face to face in the lane, the narrator holds out a microphone
+        k_pos = stage + side * 1.6
+        h_pos = stage - side * 1.6
+        k = krampus(k_pos, anim="lurk", face_target=h_pos)
+        reporter = Figure(hero, h_pos, anim="talk", face_target=k_pos)
+        return Group([reporter, k, Marker((k_pos + h_pos) / 2 + np.array([0.0, 2.0, 0.0]))], 2, look=k,
+                     look_ratio=0.5), 0.45
     if action == "krampus_lane":  # Krampus stomps down the lane, the narrator hides behind a woodpile
         start = stage + away * 13.0
         k = krampus(start, anim="stomp", path=LinePath(start, toward, 1.0))
@@ -761,6 +777,7 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
     sister_parts = lib.figure(partner)
     psize = 0.72 if partner in ("sister", "doll", "finn") else 1.0
     landing = w(livingroom.LANDING_LOCAL)
+    parent = (scene.parent if scene is not None and scene.parent else "mom")
 
     def ramp(a0, a1, t0=0.1, t1=0.6):
         def f(t):
@@ -804,10 +821,10 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
         if action == "lr_couch" and say:
             members.append(fake_mom(say))
     elif action == "lr_goodbye":
-        mom = Figure(lib.figure("mom"), w((-2.7, 0.0, 2.9)), anim="talk", face_target=middle,
+        mom = Figure(lib.figure(parent), w((-2.7, 0.0, 2.9)), anim="talk", face_target=middle,
                      label=say, label_style="speech_hero", label_locked=True)
         hero_fig = Figure(hero, middle + np.array([0.7, 0.0, -0.2]), anim="idle", face_target=w((-2.7, 0, 2.9)))
-        sis = Figure(sister_parts, middle + np.array([-1.0, 0.0, -0.7]), anim="idle", size=psize,
+        sis = Figure(sister_parts, middle + np.array([1.7, 0.0, 0.2]), anim="idle", size=psize,
                      face_target=w((-2.7, 0, 2.9)))
         members = [hero_fig, sis, mom] + members
         look, focus = mom, 0
@@ -831,8 +848,8 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
     elif action == "lr_twins":  # two identical moms side by side: spot the fake
         left, right = w((-1.2, 0.0, -1.2)), w((0.6, 0.0, -1.2))
         fake_left = False  # same side in every scene, so the puzzle is fair
-        real = Figure(lib.figure("mom"), right if fake_left else left, anim="idle", heading=0.0, phase=0.7)
-        fake = Figure(lib.figure("mom_fake"), left if fake_left else right, anim="idle", heading=0.0, phase=1.9,
+        real = Figure(lib.figure(parent), right if fake_left else left, anim="idle", heading=0.0, phase=0.7)
+        fake = Figure(lib.figure(parent + "_fake"), left if fake_left else right, anim="idle", heading=0.0, phase=1.9,
                       tint=(1.12, 1.1, 1.16))
         members = [real, fake, Marker(w((-0.3, 1.9, -1.2)))]  # just the two of them, nobody in the way
         look, focus = None, 2
@@ -844,7 +861,7 @@ def _livingroom_scene(action, duration, lib, rng, hero, scene):
         look, focus = members[2], 0
     elif action in ("lr_door", "lr_two"):
         start = w((-3.0, 0.0, 5.2))
-        mom = Figure(lib.figure("mom"), start, anim="walk", label=say if action == "lr_door" else say,
+        mom = Figure(lib.figure(parent), start, anim="walk", label=say if action == "lr_door" else say,
                      label_style="speech_hero", label_locked=True,
                      path=LinePath(start, np.array([0.0, 0.0, -1.0]), 1.2, stop_at=2.4 if action == "lr_door" else 0.01))
         if action == "lr_two":
@@ -1129,6 +1146,8 @@ class Director:
             cam = Camera(tuple(eye), tuple(tgt), 64 - 8 * u)
         if living and ps.scene.action == "lr_twins":
             cam = self._twins_camera(shot, u)
+        if ps.scene.action == "krampus_interview":
+            cam = self._interview_camera(ps, shot, u, local) or cam
         if ps.scene.action in CITY_ACTIONS and shot != "pov":
             cam = self._city_camera(ps, shot, u, local) or cam
         if living and ps.scene.action in ("lr_couch", "lr_phone") and shot != "pov":
@@ -1196,12 +1215,20 @@ class Director:
         for i, m in enumerate(members):
             if not isinstance(m, Figure) or m.label_locked:
                 continue
+            first_key = next(iter(m.parts.values()))
+            if m.parts != hero_parts and first_key.startswith("fig_hero_"):  # the narrator in disguise: no label
+                continue
             if m.parts == hero_parts:
                 m.label = hero_label
                 m.label_style = "danger" if hero_label.startswith("!") else "hero"
                 m.label = m.label.lstrip("!")
                 if speech and m.label_style == "hero":
                     m.label_style = "speech_hero"
+            elif scene.npc_label.startswith("@") and m.size >= 0.7:  # a named pool, e.g. "@real"
+                pool = npc_labels.get(scene.npc_label[1:]) or []
+                if pool:
+                    m.label = pool[(i * 7 + len(scene.narration)) % len(pool)]
+                    m.label_style = "speech" if speech else "npc"
             elif scene.npc_label and m.size >= 0.7:
                 m.label, m.label_style = scene.npc_label, "speech" if speech else "npc"
             elif npc_labels and m.size >= 0.7:
@@ -1250,8 +1277,8 @@ class Director:
         fixed = 0
         for ps in self.scenes:
             for i, (st, shot, yaw) in enumerate(list(ps.shots)):
-                if (shot in ("pov", "medium_low") or ps.scene.action == "faceoff" or ps.scene.action in LR_ACTIONS
-                        or ps.scene.action in CITY_ACTIONS):
+                if (shot in ("pov", "medium_low") or ps.scene.action in ("faceoff", "krampus_interview")
+                        or ps.scene.action in LR_ACTIONS or ps.scene.action in CITY_ACTIONS):
                     # composed on purpose (fixed living-room cameras, POV, the giant face-off)
                     continue
                 end = ps.shots[i + 1][0] if i + 1 < len(ps.shots) else ps.duration
@@ -1280,6 +1307,31 @@ class Director:
         self._cursor = 0
         return fixed
 
+    def _interview_camera(self, ps, shot: str, u: float, local: float):
+        """Two-shot of the reporter and Krampus, or over the reporter's shoulder onto Krampus' face."""
+        mem = ps.actor.members if isinstance(ps.actor, Group) else [ps.actor]
+        figs = [m for m in mem if isinstance(m, Figure)]
+        if len(figs) < 2:
+            return None
+        rep, k = figs[0], figs[1]
+        e = u * u * (3 - 2 * u)
+        a, b = rep.focus(local), k.focus(local)
+        mid = (a + b) / 2
+        across = b - a
+        across[1] = 0.0
+        across /= np.linalg.norm(across) + 1e-9
+        toward = np.array([math.sin(ps.yaw), 0.0, math.cos(ps.yaw)])
+        up = np.array([0.0, 1.0, 0.0])
+        if shot in ("closeup", "dolly_in"):  # over the reporter's shoulder, on Krampus' face
+            eye = a - across * (1.4 - 0.3 * e) + toward * 1.3 + up * 0.5
+            return Camera(tuple(eye), tuple(b + up * 0.6), 46)
+        if shot in ("low_angle", "crane_up"):  # looking up at Krampus
+            eye = b - across * 3.2 + toward * 2.2 - up * 1.1
+            return Camera(tuple(eye), tuple(b + up * 1.2), 56)
+        side_sign = 1.0 if np.dot(toward, np.cross(up, across)) >= 0 else -1.0
+        eye = mid - across * 2.6 + np.cross(up, across) * side_sign * (6.0 - 1.0 * e) + up * 0.6
+        return Camera(tuple(eye), tuple(mid + up * 0.2), 52)
+
     def _city_camera(self, ps, shot: str, u: float, local: float):
         """Fixed compositions for the Zero City scenes (the man with the hat, the monument, the doorstep)."""
         from . import city as cty
@@ -1304,7 +1356,7 @@ class Director:
                 return Camera(tuple(stage + f * (4.0 - 0.8 * e) + up * 0.2 + side * 0.8), tuple(stage + up * 0.3), 50)
             eye = stage + f * (11.0 - 2.0 * e) + side * (3.0 * math.sin(u * 2)) + up * 1.2
             return Camera(tuple(eye), tuple(mon + up * 6.0), 62)
-        man_parts = self.library.figure("hat_man")
+        man_parts = self.library.figure("mayor" if action == "mayor_speech" else "hat_man")
         man = next((m for m in mem if isinstance(m, Figure) and m.parts == man_parts), None)
         if man is None:
             return None
